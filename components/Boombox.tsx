@@ -55,6 +55,8 @@ const Boombox: React.FC = () => {
   const [showWatermarkCover, setShowWatermarkCover] = useState<boolean>(false); // Manual watermark cover toggle
   const [showSpeakerDropUp, setShowSpeakerDropUp] = useState<boolean>(false); // Speaker triangle drop-up menu
   const [showCommentBox, setShowCommentBox] = useState<boolean>(false); // Comment speaker triangle drop-up
+  const [showRightSpeaker1, setShowRightSpeaker1] = useState<boolean>(false); // Right speaker 1 drop-up
+  const [showRightSpeaker2, setShowRightSpeaker2] = useState<boolean>(false); // Right speaker 2 drop-up
   const { videos: videoList, loading: videosLoading, error: videosError } = useVideos();
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -362,6 +364,14 @@ const Boombox: React.FC = () => {
   
   const handleCommentBoxClick = () => {
     setShowCommentBox(!showCommentBox);
+  };
+  
+  const handleRightSpeaker1Click = () => {
+    setShowRightSpeaker1(!showRightSpeaker1);
+  };
+  
+  const handleRightSpeaker2Click = () => {
+    setShowRightSpeaker2(!showRightSpeaker2);
   };
   
   const getDisplayContent = () => {
@@ -781,8 +791,18 @@ const Boombox: React.FC = () => {
           </div>
 
           <div className="col-span-2 flex flex-col items-center justify-center gap-6">
-            <Speaker analyser={analyserRef.current} isPlaying={tapeState === 'playing'} />
-            <Speaker analyser={analyserRef.current} isPlaying={tapeState === 'playing'} />
+            <Speaker 
+              analyser={analyserRef.current} 
+              isPlaying={tapeState === 'playing'} 
+              onTriangleClick={handleRightSpeaker1Click}
+              showDropUp={showRightSpeaker1}
+            />
+            <Speaker 
+              analyser={analyserRef.current} 
+              isPlaying={tapeState === 'playing'} 
+              onTriangleClick={handleRightSpeaker2Click}
+              showDropUp={showRightSpeaker2}
+            />
           </div>
         </div>
 
