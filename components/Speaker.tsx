@@ -130,10 +130,10 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = t
           ></button>
         </div>
         
-        {/* Drop-up menu - FIXED POSITION to prevent cutoff */}
+        {/* Drop-up menu - FIXED POSITION to prevent cutoff - VIDEO PLAYER SIZE */}
         {showDropUp && (
           <div 
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[var(--color-bg-primary)] border-4 border-[var(--color-accent)] rounded-lg shadow-2xl p-4 z-[99999] w-[320px] h-[380px] overflow-hidden"
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[var(--color-bg-primary)] border-4 border-[var(--color-accent)] rounded-lg shadow-2xl p-6 z-[99999] w-[640px] h-[480px] overflow-hidden"
             style={{
               boxShadow: '0 0 50px rgba(0,0,0,0.8), 0 0 100px var(--color-accent)'
             }}
