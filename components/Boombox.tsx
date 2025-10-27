@@ -715,7 +715,7 @@ const Boombox: React.FC = () => {
                isPlaying={tapeState === 'playing'} 
                onTriangleClick={handleSpeakerTriangleClick}
                showDropUp={showSpeakerDropUp}
-               isWebPanel={true}
+               isBrowser={true}
              />
              <Speaker 
                analyser={analyserRef.current} 
@@ -797,14 +797,14 @@ const Boombox: React.FC = () => {
               isPlaying={tapeState === 'playing'} 
               onTriangleClick={handleRightSpeaker1Click}
               showDropUp={showRightSpeaker1}
-              isWebPanel={true}
+              isBrowser={true}
             />
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'} 
               onTriangleClick={handleRightSpeaker2Click}
               showDropUp={showRightSpeaker2}
-              isWebPanel={true}
+              isBrowser={true}
             />
           </div>
         </div>
