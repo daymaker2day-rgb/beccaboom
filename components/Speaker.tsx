@@ -128,112 +128,115 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = t
             }}
             title={isCommentBox ? "Comments" : isWebPanel ? "Web Links" : "Speaker options"}
           ></button>
-          
-          {/* Drop-up menu - always speaker-sized now with HIGHEST z-index */}
-          {showDropUp && (
-            <div 
-              className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-[var(--color-bg-primary)] border-4 border-[var(--color-accent)] rounded-lg shadow-2xl p-4 z-[9999] w-[280px] h-[320px] overflow-hidden"
-            >
-              {isCommentBox ? (
-                <div className="flex flex-col h-full">
-                  <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
-                    💬 Comments
-                  </h3>
-                  <div className="flex-1 overflow-y-auto mb-3 space-y-2 pr-2">
-                    <div className="bg-[var(--color-bg-secondary)] p-3 rounded-lg border border-[var(--color-accent)]">
-                      <div className="text-[var(--color-accent)] font-semibold text-sm mb-1">User123</div>
-                      <div className="text-[var(--color-text-primary)] text-sm">Love this track! 🔥</div>
-                    </div>
-                    <div className="bg-[var(--color-bg-secondary)] p-3 rounded-lg border border-[var(--color-accent)]">
-                      <div className="text-[var(--color-accent)] font-semibold text-sm mb-1">MusicFan</div>
-                      <div className="text-[var(--color-text-primary)] text-sm">Amazing vocals!</div>
-                    </div>
-                    <div className="bg-[var(--color-bg-secondary)] p-3 rounded-lg border border-[var(--color-accent)]">
-                      <div className="text-[var(--color-accent)] font-semibold text-sm mb-1">BeccaFan</div>
-                      <div className="text-[var(--color-text-primary)] text-sm">Can't stop listening! 💕</div>
-                    </div>
+        </div>
+        
+        {/* Drop-up menu - FIXED POSITION to prevent cutoff */}
+        {showDropUp && (
+          <div 
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[var(--color-bg-primary)] border-4 border-[var(--color-accent)] rounded-lg shadow-2xl p-4 z-[99999] w-[320px] h-[380px] overflow-hidden"
+            style={{
+              boxShadow: '0 0 50px rgba(0,0,0,0.8), 0 0 100px var(--color-accent)'
+            }}
+          >
+            {isCommentBox ? (
+              <div className="flex flex-col h-full">
+                <h3 className="text-[var(--color-accent)] font-bold text-xl mb-3 border-b-2 border-[var(--color-accent)] pb-2">
+                  💬 Comments
+                </h3>
+                <div className="flex-1 overflow-y-auto mb-3 space-y-2 pr-2">
+                  <div className="bg-[var(--color-bg-secondary)] p-3 rounded-lg border border-[var(--color-accent)]">
+                    <div className="text-[var(--color-accent)] font-semibold text-sm mb-1">User123</div>
+                    <div className="text-[var(--color-text-primary)] text-sm">Love this track! 🔥</div>
                   </div>
-                  <div className="flex gap-2 flex-shrink-0">
-                    <input 
-                      type="text" 
-                      placeholder="Add a comment..." 
-                      className="flex-1 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] px-3 py-2 rounded border-2 border-[var(--color-accent)] text-sm focus:outline-none focus:border-[var(--color-accent-light)]"
-                    />
-                    <button className="bg-[var(--color-accent)] text-[var(--color-bg-primary)] px-4 py-2 rounded font-bold text-sm hover:opacity-90 transition-opacity">
-                      Post
+                  <div className="bg-[var(--color-bg-secondary)] p-3 rounded-lg border border-[var(--color-accent)]">
+                    <div className="text-[var(--color-accent)] font-semibold text-sm mb-1">MusicFan</div>
+                    <div className="text-[var(--color-text-primary)] text-sm">Amazing vocals!</div>
+                  </div>
+                  <div className="bg-[var(--color-bg-secondary)] p-3 rounded-lg border border-[var(--color-accent)]">
+                    <div className="text-[var(--color-accent)] font-semibold text-sm mb-1">BeccaFan</div>
+                    <div className="text-[var(--color-text-primary)] text-sm">Can't stop listening! 💕</div>
+                  </div>
+                </div>
+                <div className="flex gap-2 flex-shrink-0">
+                  <input 
+                    type="text" 
+                    placeholder="Add a comment..." 
+                    className="flex-1 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] px-3 py-2 rounded border-2 border-[var(--color-accent)] text-sm focus:outline-none focus:border-[var(--color-accent-light)]"
+                  />
+                  <button className="bg-[var(--color-accent)] text-[var(--color-bg-primary)] px-4 py-2 rounded font-bold text-sm hover:opacity-90 transition-opacity">
+                    Post
+                  </button>
+                </div>
+              </div>
+            ) : isWebPanel ? (
+              <div className="flex flex-col h-full">
+                <h3 className="text-[var(--color-accent)] font-bold text-xl mb-3 border-b-2 border-[var(--color-accent)] pb-2">
+                  🌐 Web Links
+                </h3>
+                <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                  <a 
+                    href="https://www.youtube.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block bg-[var(--color-bg-secondary)] p-4 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all group"
+                  >
+                    <div className="font-bold text-base mb-1">🎥 YouTube</div>
+                    <div className="text-sm opacity-80">Visit YouTube</div>
+                  </a>
+                  <a 
+                    href="https://www.instagram.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block bg-[var(--color-bg-secondary)] p-4 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
+                  >
+                    <div className="font-bold text-base mb-1">📸 Instagram</div>
+                    <div className="text-sm opacity-80">Follow on Instagram</div>
+                  </a>
+                  <a 
+                    href="https://open.spotify.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block bg-[var(--color-bg-secondary)] p-4 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
+                  >
+                    <div className="font-bold text-base mb-1">🎵 Spotify</div>
+                    <div className="text-sm opacity-80">Stream on Spotify</div>
+                  </a>
+                  <a 
+                    href="https://www.tiktok.com" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="block bg-[var(--color-bg-secondary)] p-4 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
+                  >
+                    <div className="font-bold text-base mb-1">🎬 TikTok</div>
+                    <div className="text-sm opacity-80">Watch on TikTok</div>
+                  </a>
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col h-full justify-between">
+                <div>
+                  <h3 className="text-[var(--color-accent)] font-bold text-xl mb-4 border-b-2 border-[var(--color-accent)] pb-2">
+                    🔧 Speaker Settings
+                  </h3>
+                  <div className="flex flex-col gap-3">
+                    <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
+                      🎵 Audio Settings
+                    </button>
+                    <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
+                      🎛️ Equalizer
+                    </button>
+                    <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
+                      🔊 Speaker Test
+                    </button>
+                    <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
+                      📢 Volume Boost
                     </button>
                   </div>
                 </div>
-              ) : isWebPanel ? (
-                <div className="flex flex-col h-full">
-                  <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
-                    🌐 Web Links
-                  </h3>
-                  <div className="flex-1 overflow-y-auto space-y-3 pr-2">
-                    <a 
-                      href="https://www.youtube.com/@RebeccasChannel" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block bg-[var(--color-bg-secondary)] p-3 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all group"
-                    >
-                      <div className="font-bold text-sm mb-1">🎥 YouTube</div>
-                      <div className="text-xs opacity-80">Visit my channel</div>
-                    </a>
-                    <a 
-                      href="https://www.instagram.com/rebeccasmusic" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block bg-[var(--color-bg-secondary)] p-3 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
-                    >
-                      <div className="font-bold text-sm mb-1">📸 Instagram</div>
-                      <div className="text-xs opacity-80">Follow me</div>
-                    </a>
-                    <a 
-                      href="https://open.spotify.com/artist/rebecca" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block bg-[var(--color-bg-secondary)] p-3 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
-                    >
-                      <div className="font-bold text-sm mb-1">🎵 Spotify</div>
-                      <div className="text-xs opacity-80">Stream my music</div>
-                    </a>
-                    <a 
-                      href="https://www.tiktok.com/@rebecca" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="block bg-[var(--color-bg-secondary)] p-3 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
-                    >
-                      <div className="font-bold text-sm mb-1">🎬 TikTok</div>
-                      <div className="text-xs opacity-80">Watch my videos</div>
-                    </a>
-                  </div>
-                </div>
-              ) : (
-                <div className="flex flex-col h-full justify-between">
-                  <div>
-                    <h3 className="text-[var(--color-accent)] font-bold text-lg mb-4 border-b-2 border-[var(--color-accent)] pb-2">
-                      🔧 Speaker Settings
-                    </h3>
-                    <div className="flex flex-col gap-3">
-                      <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
-                        🎵 Audio Settings
-                      </button>
-                      <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
-                        🎛️ Equalizer
-                      </button>
-                      <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
-                        🔊 Speaker Test
-                      </button>
-                      <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
-                        📢 Volume Boost
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
