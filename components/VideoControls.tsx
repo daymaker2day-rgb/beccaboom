@@ -59,7 +59,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
 
   return (
     <div className="absolute inset-0 flex flex-col justify-end p-2 sm:p-4 bg-gradient-to-t from-black/70 to-transparent pointer-events-auto">
-      <div className="w-full">
+      <div className="w-full mb-8">
         {/* Progress Bar */}
         <input
           type="range"

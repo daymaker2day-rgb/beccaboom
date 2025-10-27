@@ -1,0 +1,88 @@
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import Speaker from './Speaker';
+import CassetteDeck from './CassetteDeck';
+import RadioTuner from './RadioTuner';
+import ControlKnob from './ControlKnob';
+import ControlSlider from './ControlSlider';
+import { TapeState, RadioMode, MediaQueueItem } from '../types';
+import VideoControls from './VideoControls';
+import SettingsModal from './SettingsModal';
+
+const Boombox: React.FC = () => {
+  const [powerOn, setPowerOn] = useState<boolean>(true);
+  const [volume, setVolume] = useState<number>(50);
+  const [bass, setBass] = useState<number>(0);
+  const [treble, setTreble] = useState<number>(0);
+  const [balance, setBalance] = useState<number>(0);
+  const [radioMode, setRadioMode] = useState<RadioMode>('AUDIO');
+  const [tapeState, setTapeState] = useState<TapeState>('stopped');
+  const [mediaQueue, setMediaQueue] = useState<MediaQueueItem[]>([]);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
+  const [theme, setTheme] = useState<string>('theme-pink');
+  const [isThemeMenuOpen, setIsThemeMenuOpen] = useState<boolean>(false);
+  const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
+  const [mediaError, setMediaError] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isControlsVisible, setIsControlsVisible] = useState(true);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+
+  const mediaElementRef = useRef<HTMLVideoElement>(null);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const bassFilterRef = useRef<BiquadFilterNode | null>(null);
+  const trebleFilterRef = useRef<BiquadFilterNode | null>(null);
+  const pannerRef = useRef<StereoPannerNode | null>(null);
+  const dragCounter = useRef(0);
+  const controlsTimeoutRef = useRef<number | null>(null);
+  const videoContainerRef = useRef<HTMLDivElement>(null);
+  
+  return (
+    <>
+      <div 
+        className={`w-full max-w-6xl mx-auto transition-colors duration-500 relative`}
+        onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver} onDrop={handleDrop}
+      >
+        <div className="relative w-[70%] mx-auto">
+          <div className="h-32 bg-[var(--color-bg-secondary)] border-x-8 border-t-8 border-[var(--color-bg-primary)] rounded-t-3xl shadow-inner relative">
+            {/* Banner Image */}
+            <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-full flex justify-center">
+              <img 
+                src="/Icons/banner.png" 
+                alt="Banner" 
+                className="h-28 w-auto object-contain drop-shadow-lg transform -rotate-3"
+              />
+            </div>
+            
+            {/* Settings Gear */}
+            <button 
+              onClick={() => setIsSettingsOpen(true)} 
+              className="absolute -top-4 right-8 text-[var(--color-accent)] hover:opacity-80 transition-opacity transform hover:rotate-90 duration-300" 
+              title="Settings"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.962.062 2.18-.948 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+              </svg>
+            </button>
+            
+            <div className="h-full bg-gradient-to-b from-[var(--color-surface-light)] to-[var(--color-surface)] rounded-t-2xl w-full mx-auto shadow-md flex justify-center items-center px-8">
+              <h1 className="text-2xl font-bold text-[var(--color-text-primary)] drop-shadow-lg tracking-widest">AudioBox</h1>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-8 border-[var(--color-bg-primary)] rounded-3xl p-4 sm:p-6 shadow-2xl relative">
+          <div className="grid grid-cols-12 gap-4 h-full">
+            {/* Rest of your component... */}
+          </div>
+        </div>
+      </div>
+      {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+    </>
+  );
+};
+
+export default Boombox;

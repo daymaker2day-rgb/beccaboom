@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react';
 
 export interface Video {
-  id: string;
   title: string;
-  url: string;
-  thumbnail?: string;
+  file: string;
+  path: string;
+}
+
+interface VideoResponse {
+  videos: Video[];
 }
 
 export const useVideos = () => {
@@ -15,14 +18,15 @@ export const useVideos = () => {
   useEffect(() => {
     const loadVideos = async () => {
       try {
-        // Fetch the list of videos from the /videos directory
-        const response = await fetch('/videos/index.json');
+        const response = await fetch('/sepgit1beccaboom/videos/index.json');
         if (!response.ok) {
           throw new Error('Failed to load videos');
         }
-        const data = await response.json();
-        setVideos(data);
+        const data: VideoResponse = await response.json();
+        console.log('Loaded videos:', data.videos);
+        setVideos(data.videos);
       } catch (err) {
+        console.error('Error loading videos:', err);
         setError(err instanceof Error ? err.message : 'Failed to load videos');
       } finally {
         setLoading(false);

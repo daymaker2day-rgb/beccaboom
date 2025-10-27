@@ -4,35 +4,36 @@ import CassetteDeck from './CassetteDeck';
 import RadioTuner from './RadioTuner';
 import ControlKnob from './ControlKnob';
 import ControlSlider from './ControlSlider';
+import { useVideos } from '../services/videoService';
 import { TapeState, RadioMode, MediaQueueItem } from '../types';
 import VideoControls from './VideoControls';
 import SettingsModal from './SettingsModal';
 
 const ThemeMenu: React.FC<{ onSelectTheme: (theme: string) => void }> = ({ onSelectTheme }) => {
-    const themes = [
-        { id: 'theme-pink', name: 'Pink Future' },
-        { id: 'theme-neon', name: 'Neon Nights' },
-        { id: 'theme-rainbow', name: 'Rainbow Pop' },
-        { id: 'theme-classic', name: 'Classic Gray' },
-    ];
-    return (
-        <div className="absolute bottom-full mb-2 w-40 bg-[var(--color-bg-primary)] border-2 border-[var(--color-surface)] rounded-lg shadow-2xl p-2 z-10 flex flex-col gap-2">
-            {themes.map(theme => (
-                <button 
-                    key={theme.id}
-                    onClick={() => onSelectTheme(theme.id)}
-                    className="px-4 py-2 text-left text-sm text-[var(--color-text-primary)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded-md transition-colors"
-                >
-                    {theme.name}
-                </button>
-            ))}
-        </div>
-    );
+  const themes = [
+    { id: 'theme-pink', name: 'Pink Future' },
+    { id: 'theme-neon', name: 'Neon Nights' },
+    { id: 'theme-rainbow', name: 'Rainbow Pop' },
+    { id: 'theme-classic', name: 'Classic Gray' },
+  ];
+  return (
+    <div className="absolute bottom-full mb-2 w-40 bg-[var(--color-bg-primary)] border-2 border-[var(--color-surface)] rounded-lg shadow-2xl p-2 z-10 flex flex-col gap-2">
+      {themes.map(theme => (
+        <button 
+          key={theme.id}
+          onClick={() => onSelectTheme(theme.id)}
+          className="px-4 py-2 text-left text-sm text-[var(--color-text-primary)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded-md transition-colors"
+        >
+          {theme.name}
+        </button>
+      ))}
+    </div>
+  );
 };
 
 const Boombox: React.FC = () => {
   const [powerOn, setPowerOn] = useState<boolean>(true);
-  const [volume, setVolume] = useState<number>(50);
+  const [volume, setVolume] = useState<number>(19);
   const [bass, setBass] = useState<number>(0);
   const [treble, setTreble] = useState<number>(0);
   const [balance, setBalance] = useState<number>(0);
@@ -47,6 +48,13 @@ const Boombox: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [showProfileLogo, setShowProfileLogo] = useState(true); // Toggle between R logo and profile icon
+  const [customProfileImage, setCustomProfileImage] = useState<string | null>(null); // Custom profile image URL
+  const [comments, setComments] = useState<{[key: string]: string}>({}); // Comments for each track
+  const [editingComment, setEditingComment] = useState<boolean>(false); // Whether currently editing comment
+  const [showWatermarkCover, setShowWatermarkCover] = useState<boolean>(false); // Manual watermark cover toggle
+  const [showSpeakerDropUp, setShowSpeakerDropUp] = useState<boolean>(false); // Speaker triangle drop-up menu
+  const { videos: videoList, loading: videosLoading, error: videosError } = useVideos();
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
@@ -56,12 +64,77 @@ const Boombox: React.FC = () => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const bassFilterRef = useRef<BiquadFilterNode | null>(null);
   const trebleFilterRef = useRef<BiquadFilterNode | null>(null);
-  const pannerRef = useRef<StereoPannerNode | null>(null);
   const dragCounter = useRef(0);
   const controlsTimeoutRef = useRef<number | null>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
   
   const currentTrack = mediaQueue[currentTrackIndex];
+
+  // Load saved media queue from localStorage
+  useEffect(() => {
+    console.log('Loading videos, count:', videoList.length);
+    const savedQueue = localStorage.getItem('boombox_mediaQueue');
+    const savedIndex = localStorage.getItem('boombox_currentTrackIndex');
+    const savedMode = localStorage.getItem('boombox_radioMode') as RadioMode;
+    
+    // Always load videos from videoList if available (ignoring saved queue for now)
+    if (videoList.length > 0) {
+      console.log('Loading videos into queue:', videoList);
+      // Load videos from service
+      const videoQueue: MediaQueueItem[] = videoList.map(video => ({
+        file: {
+          name: video.title,
+          type: 'video/mp4'
+        },
+        url: video.path
+      }));
+
+      setMediaQueue(videoQueue);
+      if (videoQueue.length > 0) {
+        setCurrentTrackIndex(0);
+        setRadioMode('VIDEO');
+      }
+      console.log('Video queue set with', videoQueue.length, 'videos');
+    } else if (savedQueue) {
+      // Fallback to saved queue if no videos loaded yet
+      const parsedQueue = JSON.parse(savedQueue);
+      setMediaQueue(parsedQueue);
+      if (savedIndex) {
+        setCurrentTrackIndex(parseInt(savedIndex));
+      }
+      if (savedMode) {
+        setRadioMode(savedMode);
+      }
+    }
+    if (videosError) {
+      console.error('Videos error:', videosError);
+      setMediaError(videosError);
+    }
+  }, [videoList, videosError]);
+
+  // Save media queue to localStorage when it changes
+  useEffect(() => {
+    if (mediaQueue.length > 0) {
+      try {
+        localStorage.setItem('boombox_mediaQueue', JSON.stringify(mediaQueue));
+        localStorage.setItem('boombox_currentTrackIndex', currentTrackIndex.toString());
+        localStorage.setItem('boombox_radioMode', radioMode);
+      } catch (error) {
+        if (error.name === 'QuotaExceededError') {
+          // Clear storage and try again with just the current track
+          localStorage.clear();
+          try {
+            const reducedQueue = [mediaQueue[currentTrackIndex]];
+            localStorage.setItem('boombox_mediaQueue', JSON.stringify(reducedQueue));
+            localStorage.setItem('boombox_currentTrackIndex', '0');
+            localStorage.setItem('boombox_radioMode', radioMode);
+          } catch (e) {
+            console.error('Unable to save even reduced queue to localStorage');
+          }
+        }
+      }
+    }
+  }, [mediaQueue, currentTrackIndex, radioMode]);
 
   useEffect(() => {
     document.body.className = theme;
@@ -91,8 +164,6 @@ const Boombox: React.FC = () => {
         trebleFilterRef.current = audioContextRef.current.createBiquadFilter();
         trebleFilterRef.current.type = 'highshelf';
         trebleFilterRef.current.frequency.value = 3000;
-
-        pannerRef.current = audioContextRef.current.createStereoPanner();
         
         analyserRef.current = audioContextRef.current.createAnalyser();
         analyserRef.current.fftSize = 256;
@@ -100,22 +171,35 @@ const Boombox: React.FC = () => {
         sourceNodeRef.current
             .connect(bassFilterRef.current)
             .connect(trebleFilterRef.current)
-            .connect(pannerRef.current)
             .connect(analyserRef.current)
             .connect(audioContextRef.current.destination);
     }
   }, []);
   
-  const processFiles = (files: FileList | null) => {
+  const processFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    setMediaError(null);
     
-    const newItems: MediaQueueItem[] = Array.from(files)
-        .filter(file => file.type.startsWith('audio/') || file.type.startsWith('video/'))
-        .map(file => ({
-            file,
-            url: URL.createObjectURL(file)
-        }));
+    const processFile = async (file: File): Promise<MediaQueueItem | null> => {
+      // Accept any file that has a name and can be read
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({
+            file: {
+              name: file.name,
+              type: file.type || 'audio/mpeg' // Default to audio/mpeg if type is not detected
+            },
+            url: reader.result as string
+          });
+        };
+        reader.onerror = () => resolve(null); // Skip files that can't be read
+        reader.readAsDataURL(file);
+      });
+    };
+
+    const newItems = (await Promise.all(
+      Array.from(files).map(processFile)
+    )).filter((item): item is MediaQueueItem => item !== null);
 
     if (newItems.length === 0) return;
 
@@ -125,6 +209,7 @@ const Boombox: React.FC = () => {
     
     if (wasQueueEmpty || tapeState === 'stopped') {
         setCurrentTrackIndex(oldQueueLength);
+        handlePlay(); // Auto-play when adding new tracks to empty queue
     }
   };
 
@@ -163,7 +248,9 @@ const Boombox: React.FC = () => {
   }, [treble]);
 
   useEffect(() => {
-    if (pannerRef.current) pannerRef.current.pan.value = balance / 50;
+    if (mediaElementRef.current) {
+      mediaElementRef.current.style.setProperty('transform', `translateX(${balance}%)`);
+    }
   }, [balance]);
 
   const handlePlay = useCallback(() => {
@@ -228,27 +315,13 @@ const Boombox: React.FC = () => {
 
   const handleMediaError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
     const media = e.currentTarget;
-    let message = 'An unknown playback error occurred.';
-    if (media.error) {
-        switch (media.error.code) {
-            case media.error.MEDIA_ERR_ABORTED:
-                message = 'Playback was aborted.';
-                break;
-            case media.error.MEDIA_ERR_NETWORK:
-                message = 'A network error caused the media to fail.';
-                break;
-            case media.error.MEDIA_ERR_DECODE:
-                message = 'The file could not be decoded. It may be corrupt or unsupported.';
-                break;
-            case media.error.MEDIA_ERR_SRC_NOT_SUPPORTED:
-                message = 'The media format is not supported.';
-                break;
-            default:
-                message = 'An error occurred during playback.';
-        }
-    }
-    setMediaError(message);
+    // Only stop playback, but don't show error message
     setTapeState('stopped');
+    
+    // Try to move to the next track if available
+    if (currentTrackIndex < mediaQueue.length - 1) {
+      handleNextTrack();
+    }
   };
 
   const handleThemeSelect = (selectedTheme: string) => {
@@ -272,26 +345,173 @@ const Boombox: React.FC = () => {
     e.preventDefault(); e.stopPropagation();
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault(); e.stopPropagation();
     setIsDraggingOver(false);
     dragCounter.current = 0;
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        processFiles(e.dataTransfer.files);
+        await processFiles(e.dataTransfer.files);
         e.dataTransfer.clearData();
     }
   };
   
+  const handleSpeakerTriangleClick = () => {
+    setShowSpeakerDropUp(!showSpeakerDropUp);
+  };
+  
   const getDisplayContent = () => {
-    if (mediaError) {
-      return <p className="text-[var(--color-accent)] font-mono text-sm truncate text-center px-2">{mediaError}</p>;
-    }
     if (!currentTrack) {
       return <p className="text-[var(--color-text-primary)] font-mono text-sm truncate text-center">Load or drop media</p>;
     }
+    
+    const trackKey = currentTrack.file.name;
+    const comment = comments[trackKey] || '';
     const queueInfo = mediaQueue.length > 1 ? `(Track ${currentTrackIndex + 1} of ${mediaQueue.length})` : '';
-    return <p className="text-[var(--color-text-primary)] font-mono text-sm truncate text-center">{`${currentTrack.file.name} ${queueInfo}`}</p>;
-  }
+    
+    const handleEditComment = () => {
+      setEditingComment(true);
+    };
+    
+    const handleDeleteComment = () => {
+      const newComments = { ...comments };
+      delete newComments[trackKey];
+      setComments(newComments);
+    };
+    
+    const handleSaveComment = (newComment: string) => {
+      // Add automatic spacing (2 line breaks) and prepare for next input
+      let formattedComment = newComment.trim();
+      if (formattedComment) {
+        if (!formattedComment.endsWith('\n\n')) {
+          formattedComment += '\n\n';
+        }
+        // Add prompt spacing for next entry
+        formattedComment += '\n\n';
+      }
+      setComments({ ...comments, [trackKey]: formattedComment });
+      setEditingComment(false);
+    };
+    
+    // Function to format text with underlines for names (until first space)
+    const formatTextWithUnderlines = (text: string) => {
+      const lines = text.split('\n');
+      return lines.map(line => {
+        const firstSpaceIndex = line.indexOf(' ');
+        if (firstSpaceIndex === -1) {
+          // No space found, underline the whole line (it's a name being typed)
+          return line;
+        } else {
+          // Space found, don't underline after the first space
+          return line;
+        }
+      }).join('\n');
+    };
+
+    const handleSendMessage = () => {
+      const currentSong = currentTrack ? currentTrack.file.name : 'Unknown Song';
+      const messageText = `Message from daughter about: ${currentSong}\n\n${comment}\n\nSent from Rebecca's Boombox`;
+      
+      // Add "Message:" prefix to comment display
+      const messageComment = comment ? `Message: ${comment}\n\n` : 'Message: [Click to add message for mom]\n\n';
+      setComments({ ...comments, [trackKey]: messageComment });
+      
+      // Create mailto link to send email
+      const subject = encodeURIComponent(`Feedback on: ${currentSong}`);
+      const body = encodeURIComponent(messageText);
+      const mailtoLink = `mailto:?subject=${subject}&body=${body}`;
+      
+      // Open email client
+      window.open(mailtoLink, '_blank');
+    };
+    
+    return (
+      <div className="w-full h-full flex flex-col">
+        {/* Comment box with controls */}
+        <div className="flex-1 flex relative">
+          {editingComment ? (
+            <div className="flex-1 relative">
+              <textarea
+                value={comment}
+                onChange={(e) => setComments({ ...comments, [trackKey]: e.target.value })}
+                onBlur={() => setEditingComment(false)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && e.ctrlKey) {
+                    handleSaveComment(e.currentTarget.value);
+                  } else if (e.key === 'Escape') {
+                    setEditingComment(false);
+                  }
+                }}
+                className="w-full h-full bg-black/70 text-[var(--color-text-primary)] text-xs p-2 rounded resize-none outline-none border border-[var(--color-accent)]/50 focus:border-[var(--color-accent)]"
+                placeholder="Add a comment about this track..."
+                autoFocus
+                style={{
+                  textDecoration: comment && !comment.includes(' ') ? 'underline' : 'none'
+                }}
+              />
+            </div>
+          ) : (
+            <div className="flex-1 bg-black/30 text-[var(--color-text-primary)] text-xs p-2 rounded overflow-y-auto cursor-pointer"
+                 onClick={handleEditComment}
+                 title="Click to edit comment">
+              <div className="whitespace-pre-wrap">
+                {comment || 'Click to add a comment...'}
+              </div>
+            </div>
+          )}
+          
+          {/* Action buttons */}
+          <div className="flex flex-col ml-1 gap-1 items-center">
+            {/* Watermark cover toggle button */}
+            <button
+              onClick={() => setShowWatermarkCover(!showWatermarkCover)}
+              className="bg-black text-black w-3 h-3 p-1 border border-gray-600"
+              title="Toggle watermark cover"
+            >
+            </button>
+            
+            {/* Delete button (moved up) */}
+            <button
+              onClick={handleDeleteComment}
+              className="text-white hover:text-red-400 transition-colors p-1"
+              title="Delete comment"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+            
+            {/* Save button */}
+            <button
+              onClick={() => handleSaveComment(comment)}
+              className="bg-[var(--color-accent)] text-white w-3 h-3 p-1 rounded hover:bg-[var(--color-accent)]/80 transition-colors flex items-center justify-center text-xs font-bold"
+              title="Save comment"
+            >
+              S
+            </button>
+            
+            {/* Message button for daughter */}
+            <button
+              onClick={handleSendMessage}
+              className="bg-green-600 text-white w-3 h-3 p-1 rounded hover:bg-green-500 transition-colors flex items-center justify-center text-xs font-bold"
+              title="Send message to mom"
+            >
+              M
+            </button>
+            
+            <button
+              onClick={handleEditComment}
+              className="text-white hover:text-[var(--color-accent)] transition-colors p-1"
+              title="Edit comment"
+            >
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // --- Video Controls Logic ---
 
@@ -342,7 +562,7 @@ const Boombox: React.FC = () => {
       showControls();
     }
   }, [tapeState, showControls]);
-  
+
   const handleSeekVideo = (time: number) => {
     if (mediaElementRef.current) mediaElementRef.current.currentTime = time;
     setCurrentTime(time);
@@ -375,33 +595,118 @@ const Boombox: React.FC = () => {
     }
   };
 
+  const handleProfileImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setCustomProfileImage(e.target?.result as string);
+        setShowProfileLogo(false); // Switch to show the custom image
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleProfileRightClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const fileInput = document.getElementById('profile-image-upload') as HTMLInputElement;
+    fileInput?.click();
+  };
+
   return (
-    <>
-    <div 
-      className={`w-full max-w-6xl mx-auto transition-colors duration-500 relative`}
-      onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
-      onDragOver={handleDragOver} onDrop={handleDrop}
-    >
-      <div className="h-16 bg-[var(--color-bg-secondary)] border-x-8 border-t-8 border-[var(--color-bg-primary)] rounded-t-3xl w-[70%] mx-auto shadow-inner relative">
-         <div className="h-full bg-gradient-to-b from-[var(--color-surface-light)] to-[var(--color-surface)] rounded-t-2xl w-full mx-auto shadow-md flex justify-between items-center px-8">
-            <h1 className="text-2xl font-bold text-[var(--color-text-primary)] drop-shadow-lg tracking-widest">AudioBox</h1>
-            <button onClick={() => setIsSettingsOpen(true)} className="text-[var(--color-accent)] hover:opacity-80 transition-opacity" title="Settings">
+    <React.Fragment>
+      <div 
+        className={`w-full max-w-6xl mx-auto transition-colors duration-500 relative`}
+        onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
+        onDragOver={handleDragOver} onDrop={handleDrop}
+      >
+        {/* Handle with Banner */}
+        <div className="relative w-[70%] mx-auto">
+          <div className="h-32 bg-[var(--color-bg-secondary)] border-x-8 border-t-8 border-[var(--color-bg-primary)] rounded-tl-3xl rounded-tr-3xl shadow-inner relative">
+            {/* Banner Image */}
+            <div className="absolute inset-0 flex items-center justify-center px-20 mt-1">
+              <img 
+                src="Icons/banner.png" 
+                alt="Banner" 
+                className="w-full h-[120px] object-contain drop-shadow-lg"
+              />
+            </div>
+            
+            {/* Settings Gear - moved inward */}
+            <button 
+              onClick={() => setIsSettingsOpen(true)} 
+              className="absolute top-1/2 -translate-y-1/2 right-6 text-[var(--color-text-primary)] hover:opacity-80 transition-opacity transform hover:rotate-90 duration-300 bg-[#800000]/60 rounded-full p-1.5" 
+              title="Settings"
+            >
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.962.062 2.18-.948 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
               </svg>
             </button>
-         </div>
-      </div>
 
-      <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-8 border-[var(--color-bg-primary)] rounded-3xl p-4 sm:p-6 shadow-2xl relative">
+            {/* Profile Circle - moved inward with R logo option */}
+            <button 
+              onClick={() => setShowProfileLogo(!showProfileLogo)}
+              onContextMenu={handleProfileRightClick}
+              className="absolute top-1/2 -translate-y-1/2 left-6 w-10 h-10 bg-[#800000]/60 rounded-full overflow-hidden border-2 border-[var(--color-text-primary)] hover:opacity-80 transition-opacity"
+              title={customProfileImage ? "Custom Image (right-click to change)" : showProfileLogo ? "R Logo (click to switch, right-click to upload)" : "Profile (click to switch, right-click to upload)"}
+            >
+              {customProfileImage ? (
+                // Custom Profile Image
+                <div className="w-full h-full flex items-center justify-center">
+                  <img 
+                    src={customProfileImage} 
+                    alt="Custom Profile" 
+                    className="w-full h-full rounded-full object-cover"
+                  />
+                </div>
+              ) : showProfileLogo ? (
+                // R Logo
+                <div className="w-full h-full flex items-center justify-center">
+                  <img 
+                    src="images/120r.png" 
+                    alt="R Logo" 
+                    className="w-8 h-8 rounded-sm object-contain"
+                  />
+                </div>
+              ) : (
+                // Profile Icon
+                <div className="w-full h-full flex items-center justify-center text-[var(--color-text-primary)]">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              )}
+            </button>
+            
+            {/* Hidden file input for profile image upload */}
+            <input 
+              id="profile-image-upload" 
+              type="file" 
+              accept="image/*" 
+              onChange={handleProfileImageChange}
+              className="hidden" 
+            />
+         
+            <div className="h-full bg-gradient-to-b from-[var(--color-surface-light)] to-[var(--color-surface)] rounded-t-2xl w-full mx-auto shadow-md flex justify-center items-center px-8">
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-8 border-[var(--color-bg-primary)] rounded-3xl p-4 sm:p-6 shadow-2xl relative">
         <div className="grid grid-cols-12 gap-4 h-full">
           <div className="col-span-2 flex flex-col items-center justify-center gap-6">
-             <Speaker analyser={analyserRef.current} isPlaying={tapeState === 'playing'} />
+             <Speaker 
+               analyser={analyserRef.current} 
+               isPlaying={tapeState === 'playing'} 
+               showTriangle={true}
+               onTriangleClick={handleSpeakerTriangleClick}
+               showDropUp={showSpeakerDropUp}
+             />
              <Speaker analyser={analyserRef.current} isPlaying={tapeState === 'playing'} />
           </div>
 
           <div className="col-span-8 flex flex-col gap-4">
-            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 shadow-inner border-2 border-black/50 flex flex-col gap-3 flex-grow min-h-0">
+            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-2 shadow-inner border border-black/50 flex flex-col gap-3 flex-grow min-h-0">
                <div ref={videoContainerRef} className="relative w-full bg-black rounded-lg shadow-inner overflow-hidden flex-grow group" onMouseMove={showControls} onMouseLeave={hideControls}>
                   <video
                       ref={mediaElementRef}
@@ -412,6 +717,12 @@ const Boombox: React.FC = () => {
                       onError={handleMediaError}
                       onClick={handleVideoClick}
                   />
+                  
+                  {/* Black overlay to cover watermarks when button is pressed */}
+                  {radioMode === 'VIDEO' && currentTrack && showWatermarkCover && (
+                    <div className="absolute bottom-0 right-0 bg-black w-48 h-24 pointer-events-none z-10"></div>
+                  )}
+                  
                   <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 transition-opacity ${radioMode === 'VIDEO' && currentTrack ? 'hidden' : 'flex'}`}>
                       {!mediaError && <h2 className="text-6xl font-bold text-[var(--color-text-primary)] opacity-20 tracking-widest">AudioBox</h2>}
                       {(radioMode !== 'VIDEO' || !currentTrack) && !mediaError && <RadioTuner mode={radioMode} />}
@@ -423,18 +734,20 @@ const Boombox: React.FC = () => {
                        </button>
                      </div>
                   )}
-                  {radioMode === 'VIDEO' && currentTrack && (
-                    <div className={`absolute inset-0 w-full h-full transition-opacity duration-300 pointer-events-none ${isControlsVisible ? 'opacity-100' : 'opacity-0'}`}>
+                  
+                  {/* Video Controls - Progress bar, timer, and fullscreen */}
+                  {radioMode === 'VIDEO' && currentTrack && isControlsVisible && (
+                    <div className="relative z-20">
                       <VideoControls
                         isPlaying={tapeState === 'playing'}
-                        onPlayPause={handleVideoClick}
+                        onPlayPause={tapeState === 'playing' ? handlePause : handlePlay}
                         currentTime={currentTime}
                         duration={duration}
                         onSeek={handleSeekVideo}
                         volume={volume}
-                        onVolumeChange={handleVolumeChange}
-                        isMuted={isMuted}
+                        onVolumeChange={setVolume}
                         onMuteToggle={handleMuteToggle}
+                        isMuted={isMuted}
                         onFullscreen={handleFullscreen}
                       />
                     </div>
@@ -443,7 +756,6 @@ const Boombox: React.FC = () => {
             </div>
 
             <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 shadow-inner border-2 border-black/50 flex flex-col gap-3 h-64">
-              <div className="p-2 bg-black/50 rounded-lg w-full flex-shrink-0">{getDisplayContent()}</div>
               <div className="flex-grow flex flex-col min-h-0">
                 <CassetteDeck 
                     tapeState={tapeState} onPlay={handlePlay} onPause={handlePause} onStop={handleStop}
@@ -491,7 +803,7 @@ const Boombox: React.FC = () => {
       )}
     </div>
     {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
-    </>
+    </React.Fragment>
   );
 };
 

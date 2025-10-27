@@ -31,7 +31,7 @@ class GoogleAuthService {
       await this.loadGoogleAuthScript();
       this.googleAuth = window.google.accounts.oauth2.initTokenClient({
         client_id: clientId,
-        scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email',
+        scope: 'https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.readonly',
         callback: (response: any) => {
           if (response.access_token) {
             this.handleTokenResponse(response);
