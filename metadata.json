@@ -1,0 +1,5 @@
+{
+  "name": "Gemini Boombox",
+  "description": "A visually realistic, interactive retro boombox powered by the Gemini API to generate on-demand radio content. Users can interact with all the classic buttons, knobs, and sliders, and use an integrated AI assistant to create fictional radio broadcasts based on their prompts.",
+  "requestFramePermissions": []
+}

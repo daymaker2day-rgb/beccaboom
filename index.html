@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/images/app-logo.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rebecca Media Player</title>
+    <meta name="theme-color" content="#86198f" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon-180x180.png">
+    <link rel="apple-touch-icon" sizes="167x167" href="/icons/apple-touch-icon-167x167.png">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+      :root, .theme-classic {
+        --color-bg-deep: #111827;
+        --color-bg-primary: #1f2937;
+        --color-bg-secondary: #374151;
+        --color-surface: #4b5563;
+        --color-surface-light: #6b7280;
+        --color-accent: #ef4444;
+        --color-accent-dark: #b91c1c;
+        --color-text-primary: #d1d5db;
+        --color-text-secondary: #9ca3af;
+        --color-text-display: #fde047;
+        --color-shadow: rgba(239, 68, 68, 0.7);
+        --font-family: "Orbitron", sans-serif;
+      }
+      .theme-pink {
+        --color-bg-deep: #581c87;
+        --color-bg-primary: #86198f;
+        --color-bg-secondary: #9d174d;
+        --color-surface: #be185d;
+        --color-surface-light: #db2777;
+        --color-accent: #f9a8d4;
+        --color-accent-dark: #f472b6;
+        --color-text-primary: #fdf2f8;
+        --color-text-secondary: #fce7f3;
+        --color-text-display: #f0abfc;
+        --color-shadow: rgba(249, 168, 212, 0.8);
+      }
+      .theme-neon {
+        --color-bg-deep: #020617;
+        --color-bg-primary: #0f172a;
+        --color-bg-secondary: #1e293b;
+        --color-surface: #334155;
+        --color-surface-light: #475569;
+        --color-accent: #22d3ee;
+        --color-accent-dark: #0891b2;
+        --color-text-primary: #e2e8f0;
+        --color-text-secondary: #cbd5e1;
+        --color-text-display: #67e8f9;
+        --color-shadow: rgba(34, 211, 238, 0.7);
+      }
+       .theme-rainbow {
+        --color-bg-deep: #1f2937;
+        --color-bg-primary: #374151;
+        --color-bg-secondary: #4b5563;
+        --color-surface: #a855f7;
+        --color-surface-light: #3b82f6;
+        --color-accent: #ec4899;
+        --color-accent-dark: #ef4444;
+        --color-text-primary: #ffffff;
+        --color-text-secondary: #e5e7eb;
+        --color-text-display: #eab308;
+        --color-shadow: rgba(236, 72, 153, 0.7);
+      }
+      body {
+        font-family: var(--font-family);
+        background-color: var(--color-bg-deep);
+        transition: background-color 0.5s ease;
+      }
+      /* Hide scrollbar for Chrome, Safari and Opera */
+      .hide-scrollbar::-webkit-scrollbar {
+          display: none;
+      }
+      /* Hide scrollbar for IE, Edge and Firefox */
+      .hide-scrollbar {
+          -ms-overflow-style: none;  /* IE and Edge */
+          scrollbar-width: none;  /* Firefox */
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.27.0"
+  }
+}
+</script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/service-worker.js').then(registration => {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, err => {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+        });
+      }
+    </script>
+  </body>
+</html>
