@@ -21,3 +21,5 @@ View your app in AI Studio: https://ai.studio/apps/drive/1-0pVVxgLVmtcZPgYn07G_H
 
 ## Deploy to GitHub Pages
 This app is configured to deploy to GitHub Pages automatically.
+
+**Live site:** https://daymaker2day-rgb.github.io/beccaboom/
