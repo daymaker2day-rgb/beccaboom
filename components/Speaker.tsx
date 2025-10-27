@@ -7,6 +7,7 @@ interface SpeakerProps {
   onTriangleClick?: () => void;
   showDropUp?: boolean;
   isCommentBox?: boolean;
+  isWebPanel?: boolean;
 }
 
 const NUM_BARS = 16;
@@ -15,7 +16,7 @@ const NUM_BARS = 16;
 const BASS_END_INDEX = 3; // First 4 bars for bass
 const MIDS_END_INDEX = 11; // Next 8 bars for mids
 
-const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = true, onTriangleClick, showDropUp = false, isCommentBox = false }) => {
+const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = true, onTriangleClick, showDropUp = false, isCommentBox = false, isWebPanel = false }) => {
   const barRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
   const [barColor, setBarColor] = useState('var(--color-accent)');
@@ -116,7 +117,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = t
         ))}
         
         {/* Small black triangle at bottom center - always shown now */}
-        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-30">
+        <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-[100]">
           <button 
             onClick={onTriangleClick}
             className="w-0 h-0 cursor-pointer hover:opacity-80 transition-opacity" 
@@ -125,18 +126,18 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = t
               borderRight: '8px solid transparent',
               borderBottom: '10px solid black'
             }}
-            title={isCommentBox ? "Comments" : "Speaker options"}
+            title={isCommentBox ? "Comments" : isWebPanel ? "Web Links" : "Speaker options"}
           ></button>
           
-          {/* Drop-up menu - always speaker-sized now */}
+          {/* Drop-up menu - always speaker-sized now with HIGHEST z-index */}
           {showDropUp && (
             <div 
-              className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-[var(--color-bg-primary)] border-4 border-[var(--color-accent)] rounded-lg shadow-2xl p-4 z-50 w-[280px] h-[320px] overflow-hidden"
+              className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-[var(--color-bg-primary)] border-4 border-[var(--color-accent)] rounded-lg shadow-2xl p-4 z-[9999] w-[280px] h-[320px] overflow-hidden"
             >
               {isCommentBox ? (
                 <div className="flex flex-col h-full">
                   <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
-                    Comments
+                    💬 Comments
                   </h3>
                   <div className="flex-1 overflow-y-auto mb-3 space-y-2 pr-2">
                     <div className="bg-[var(--color-bg-secondary)] p-3 rounded-lg border border-[var(--color-accent)]">
@@ -163,11 +164,55 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = t
                     </button>
                   </div>
                 </div>
+              ) : isWebPanel ? (
+                <div className="flex flex-col h-full">
+                  <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
+                    🌐 Web Links
+                  </h3>
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                    <a 
+                      href="https://www.youtube.com/@RebeccasChannel" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block bg-[var(--color-bg-secondary)] p-3 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all group"
+                    >
+                      <div className="font-bold text-sm mb-1">🎥 YouTube</div>
+                      <div className="text-xs opacity-80">Visit my channel</div>
+                    </a>
+                    <a 
+                      href="https://www.instagram.com/rebeccasmusic" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block bg-[var(--color-bg-secondary)] p-3 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
+                    >
+                      <div className="font-bold text-sm mb-1">📸 Instagram</div>
+                      <div className="text-xs opacity-80">Follow me</div>
+                    </a>
+                    <a 
+                      href="https://open.spotify.com/artist/rebecca" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block bg-[var(--color-bg-secondary)] p-3 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
+                    >
+                      <div className="font-bold text-sm mb-1">🎵 Spotify</div>
+                      <div className="text-xs opacity-80">Stream my music</div>
+                    </a>
+                    <a 
+                      href="https://www.tiktok.com/@rebecca" 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="block bg-[var(--color-bg-secondary)] p-3 rounded-lg border-2 border-[var(--color-accent)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all"
+                    >
+                      <div className="font-bold text-sm mb-1">🎬 TikTok</div>
+                      <div className="text-xs opacity-80">Watch my videos</div>
+                    </a>
+                  </div>
+                </div>
               ) : (
                 <div className="flex flex-col h-full justify-between">
                   <div>
                     <h3 className="text-[var(--color-accent)] font-bold text-lg mb-4 border-b-2 border-[var(--color-accent)] pb-2">
-                      Speaker Settings
+                      🔧 Speaker Settings
                     </h3>
                     <div className="flex flex-col gap-3">
                       <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
