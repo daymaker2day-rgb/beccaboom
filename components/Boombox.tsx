@@ -54,6 +54,7 @@ const Boombox: React.FC = () => {
   const [editingComment, setEditingComment] = useState<boolean>(false); // Whether currently editing comment
   const [showWatermarkCover, setShowWatermarkCover] = useState<boolean>(false); // Manual watermark cover toggle
   const [showSpeakerDropUp, setShowSpeakerDropUp] = useState<boolean>(false); // Speaker triangle drop-up menu
+  const [showCommentBox, setShowCommentBox] = useState<boolean>(false); // Comment speaker triangle drop-up
   const { videos: videoList, loading: videosLoading, error: videosError } = useVideos();
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -357,6 +358,10 @@ const Boombox: React.FC = () => {
   
   const handleSpeakerTriangleClick = () => {
     setShowSpeakerDropUp(!showSpeakerDropUp);
+  };
+  
+  const handleCommentBoxClick = () => {
+    setShowCommentBox(!showCommentBox);
   };
   
   const getDisplayContent = () => {
@@ -698,11 +703,16 @@ const Boombox: React.FC = () => {
              <Speaker 
                analyser={analyserRef.current} 
                isPlaying={tapeState === 'playing'} 
-               showTriangle={true}
                onTriangleClick={handleSpeakerTriangleClick}
                showDropUp={showSpeakerDropUp}
              />
-             <Speaker analyser={analyserRef.current} isPlaying={tapeState === 'playing'} />
+             <Speaker 
+               analyser={analyserRef.current} 
+               isPlaying={tapeState === 'playing'} 
+               onTriangleClick={handleCommentBoxClick}
+               showDropUp={showCommentBox}
+               isCommentBox={true}
+             />
           </div>
 
           <div className="col-span-8 flex flex-col gap-4">
