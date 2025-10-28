@@ -1,0 +1,122 @@
+.asteroids-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  color: #fff;
+  font-family: 'Courier New', monospace;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.asteroids-header {
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.asteroids-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: #00ff00;
+  text-shadow: 0 0 10px #00ff00;
+  letter-spacing: 4px;
+}
+
+.asteroids-stats {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #00ff00;
+  margin-top: 5px;
+}
+
+.asteroids-canvas {
+  border: 3px solid #00ff00;
+  box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+  background: #000;
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+.asteroids-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.9);
+  border: 3px solid #00ff00;
+  padding: 40px 60px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 255, 0, 0.7);
+  z-index: 10;
+}
+
+.asteroids-overlay h2 {
+  font-size: 3rem;
+  color: #00ff00;
+  margin: 0 0 20px 0;
+  text-shadow: 0 0 15px #00ff00;
+  letter-spacing: 6px;
+}
+
+.asteroids-overlay p {
+  font-size: 1.2rem;
+  color: #fff;
+  margin: 10px 0;
+}
+
+.asteroids-overlay button {
+  margin-top: 20px;
+  padding: 15px 40px;
+  font-size: 1.3rem;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  color: #000;
+  background: #00ff00;
+  border: 3px solid #00ff00;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 2px;
+}
+
+.asteroids-overlay button:hover {
+  background: #000;
+  color: #00ff00;
+  box-shadow: 0 0 20px #00ff00;
+}
+
+.asteroids-controls {
+  margin-top: 10px;
+  text-align: center;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.asteroids-controls p {
+  margin: 5px 0;
+}
+
+/* Retro CRT effect */
+.asteroids-canvas {
+  image-rendering: crisp-edges;
+  image-rendering: pixelated;
+}
+
+/* Animations */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.asteroids-overlay button {
+  animation: blink 1.5s infinite;
+}
+
+.asteroids-overlay button:hover {
+  animation: none;
+}
