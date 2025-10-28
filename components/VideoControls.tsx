@@ -57,6 +57,17 @@ const VideoControls: React.FC<VideoControlsProps> = ({
     onVolumeChange(parseFloat(e.target.value));
   };
 
+  const handleTouch = (e: React.TouchEvent<HTMLInputElement>) => {
+    // Prevent default touch behavior to ensure volume controls work on mobile
+    e.stopPropagation();
+    const input = e.target as HTMLInputElement;
+    const rect = input.getBoundingClientRect();
+    const touch = e.touches[0];
+    const percentage = Math.max(0, Math.min(1, (touch.clientX - rect.left) / rect.width));
+    const newVolume = Math.round(percentage * 100);
+    onVolumeChange(newVolume);
+  };
+
   return (
     <div className="absolute inset-0 flex flex-col justify-end p-2 sm:p-4 bg-gradient-to-t from-black/70 to-transparent pointer-events-auto">
       <div className="w-full mb-8">
@@ -87,6 +98,8 @@ const VideoControls: React.FC<VideoControlsProps> = ({
                     max={100}
                     value={isMuted ? 0 : volume}
                     onChange={handleVolumeChangeLocal}
+                    onTouchStart={handleTouch}
+                    onTouchMove={handleTouch}
                     className="w-0 group-hover:w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer transition-all duration-300 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--color-accent)] [&::-webkit-slider-thumb]:rounded-full"
                 />
             </div>
