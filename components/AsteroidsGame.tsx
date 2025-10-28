@@ -7,6 +7,7 @@ const AsteroidsGame: React.FC = () => {
   const [lives, setLives] = useState(3);
   const [gameState, setGameState] = useState<'start' | 'playing' | 'paused' | 'gameover'>('start');
   const gameRef = useRef<any>(null);
+  const gameLoopRef = useRef<number | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -23,7 +24,6 @@ const AsteroidsGame: React.FC = () => {
     let ship: any = null;
     let asteroids: any[] = [];
     let bullets: any[] = [];
-    let gameLoop: number;
 
     // Key handling
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -240,7 +240,10 @@ const AsteroidsGame: React.FC = () => {
 
     // Main game loop
     const update = () => {
-      if (gameState !== 'playing' || !ship) return;
+      const currentState = gameRef.current?.state;
+      if (currentState !== 'playing' || !ship) {
+        return;
+      }
 
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -307,7 +310,7 @@ const AsteroidsGame: React.FC = () => {
         }
       }
 
-      gameLoop = requestAnimationFrame(update);
+      gameLoopRef.current = requestAnimationFrame(update);
     };
 
     // Start button handler
@@ -316,30 +319,18 @@ const AsteroidsGame: React.FC = () => {
       setGameState('playing');
       setScore(0);
       setLives(3);
-      requestAnimationFrame(update);
+      gameRef.current = { state: 'playing' };
+      update();
     };
 
-    gameRef.current = { startGame };
+    gameRef.current = { ...gameRef.current, startGame };
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      if (gameLoop) cancelAnimationFrame(gameLoop);
+      if (gameLoopRef.current) cancelAnimationFrame(gameLoopRef.current);
     };
-  }, [gameState]);
-
-  useEffect(() => {
-    if (gameState === 'playing') {
-      const canvas = canvasRef.current;
-      if (canvas) {
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.fillStyle = '#000000';
-          ctx.fillRect(0, 0, 640, 480);
-        }
-      }
-    }
-  }, [gameState]);
+  }, []);
 
   return (
     <div className="asteroids-container">
