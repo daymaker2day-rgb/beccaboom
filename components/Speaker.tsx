@@ -1,5 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
-import FashionDuoGame from './FashionDuoGame';
+import DressUpGame from './DressUpGame';
 
 interface SpeakerProps {
   analyser: AnalyserNode | null;
@@ -10,7 +10,7 @@ interface SpeakerProps {
   isCommentBox?: boolean;
   isWebPanel?: boolean;
   isBrowser?: boolean;
-  isFashionGame?: boolean;
+  isDressUpGame?: boolean;
 }
 
 const NUM_BARS = 16;
@@ -19,7 +19,7 @@ const NUM_BARS = 16;
 const BASS_END_INDEX = 3; // First 4 bars for bass
 const MIDS_END_INDEX = 11; // Next 8 bars for mids
 
-const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = true, onTriangleClick, showDropUp = false, isCommentBox = false, isWebPanel = false, isBrowser = false, isFashionGame = false }) => {
+const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = true, onTriangleClick, showDropUp = false, isCommentBox = false, isWebPanel = false, isBrowser = false, isDressUpGame = false }) => {
   const barRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
   const [barColor, setBarColor] = useState('var(--color-accent)');
@@ -310,9 +310,9 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = t
                   </button>
                 </div>
               </div>
-            ) : isFashionGame ? (
+            ) : isDressUpGame ? (
               <div className="h-full w-full overflow-hidden">
-                <FashionDuoGame />
+                <DressUpGame />
               </div>
             ) : isWebPanel ? (
               <div className="flex flex-col h-full">
