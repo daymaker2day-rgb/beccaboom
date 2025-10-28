@@ -240,7 +240,7 @@ const AsteroidsGame: React.FC = () => {
 
     // Main game loop
     const update = () => {
-      if (gameState !== 'playing') return;
+      if (gameState !== 'playing' || !ship) return;
 
       ctx.fillStyle = '#000000';
       ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
@@ -312,14 +312,14 @@ const AsteroidsGame: React.FC = () => {
 
     // Start button handler
     const startGame = () => {
+      initGame();
       setGameState('playing');
       setScore(0);
       setLives(3);
-      initGame();
-      update();
+      requestAnimationFrame(update);
     };
 
-    gameRef.current = { startGame, update };
+    gameRef.current = { startGame };
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
@@ -329,8 +329,15 @@ const AsteroidsGame: React.FC = () => {
   }, [gameState]);
 
   useEffect(() => {
-    if (gameState === 'playing' && gameRef.current) {
-      gameRef.current.update();
+    if (gameState === 'playing') {
+      const canvas = canvasRef.current;
+      if (canvas) {
+        const ctx = canvas.getContext('2d');
+        if (ctx) {
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(0, 0, 640, 480);
+        }
+      }
     }
   }, [gameState]);
 
