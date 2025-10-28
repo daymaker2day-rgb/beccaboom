@@ -162,18 +162,17 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, showTriangle = t
             </div>
         ))}
         
-        {/* Small black triangle at bottom center - always shown now */}
         <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-[100]">
-          <button 
+          {/* <button
             onClick={onTriangleClick}
-            className="w-0 h-0 cursor-pointer hover:opacity-80 transition-opacity" 
+            className="w-0 h-0 cursor-pointer hover:opacity-80 transition-opacity"
             style={{
               borderLeft: '8px solid transparent',
               borderRight: '8px solid transparent',
               borderBottom: '10px solid black'
             }}
             title={isCommentBox ? "Comments" : isWebPanel ? "Web Links" : "Speaker options"}
-          ></button>
+          ></button> */}
         </div>
         
         {/* Drop-up menu - DRAGGABLE & RESIZABLE */}

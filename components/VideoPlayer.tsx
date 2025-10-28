@@ -80,6 +80,7 @@ const VideoPlayer = () => {
             <video
               ref={videoRef}
               className="w-full h-full object-contain"
+              playsInline
               src={currentMedia.path}
               onEnded={nextMedia}
               onPlay={() => setIsPlaying(true)}

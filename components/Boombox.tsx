@@ -62,6 +62,7 @@ const Boombox: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const mediaElementRef = useRef<HTMLVideoElement>(null);
+  const shouldResumePlaybackRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -219,6 +220,21 @@ const Boombox: React.FC = () => {
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     processFiles(event.target.files);
   };
+
+  const handlePlay = useCallback(() => {
+    if (!mediaElementRef.current || !currentTrack) return;
+    setMediaError(null);
+    setupAudioContext();
+    mediaElementRef.current.play().then(() => {
+        shouldResumePlaybackRef.current = true;
+        setTapeState('playing');
+    }).catch(e => {
+        console.error("Playback failed:", e);
+        setMediaError("Could not start playback. File might be unsupported.");
+        setTapeState('stopped');
+        shouldResumePlaybackRef.current = false;
+    });
+  }, [currentTrack, setupAudioContext]);
   
   useEffect(() => {
     const mediaElement = mediaElementRef.current;
@@ -227,16 +243,25 @@ const Boombox: React.FC = () => {
       mediaElement.src = currentTrack.url;
       mediaElement.load();
       
-      const onCanPlay = () => {
-          handlePlay();
-          mediaElement.removeEventListener('canplay', onCanPlay);
-      };
+    const shouldResumeOnLoad = shouldResumePlaybackRef.current;
+    const onCanPlay = () => {
+      if (shouldResumeOnLoad) {
+        handlePlay();
+      } else {
+        setTapeState(prev => (prev === 'playing' ? 'paused' : prev));
+      }
+      mediaElement.removeEventListener('canplay', onCanPlay);
+    };
       
       mediaElement.addEventListener('canplay', onCanPlay);
       
       setRadioMode(currentTrack.file.type.startsWith('video') ? 'VIDEO' : 'AUDIO');
+
+      return () => {
+        mediaElement.removeEventListener('canplay', onCanPlay);
+      };
     }
-  }, [currentTrackIndex, currentTrack]);
+  }, [currentTrackIndex, currentTrack, handlePlay]);
 
   useEffect(() => {
     if (mediaElementRef.current) mediaElementRef.current.volume = volume / 100;
@@ -256,22 +281,10 @@ const Boombox: React.FC = () => {
     }
   }, [balance]);
 
-  const handlePlay = useCallback(() => {
-    if (!mediaElementRef.current || !currentTrack) return;
-    setMediaError(null);
-    setupAudioContext();
-    mediaElementRef.current.play().then(() => {
-        setTapeState('playing');
-    }).catch(e => {
-        console.error("Playback failed:", e);
-        setMediaError("Could not start playback. File might be unsupported.");
-        setTapeState('stopped');
-    });
-  }, [currentTrack, setupAudioContext]);
-  
   const handlePause = () => {
     mediaElementRef.current?.pause();
     setTapeState('paused');
+    shouldResumePlaybackRef.current = false;
   };
 
   const handleStop = () => {
@@ -281,6 +294,7 @@ const Boombox: React.FC = () => {
     }
     setTapeState('stopped');
     setMediaError(null);
+    shouldResumePlaybackRef.current = false;
   };
   
   const handleSeek = (direction: 'forward' | 'backward') => {
@@ -292,18 +306,21 @@ const Boombox: React.FC = () => {
   
   const handleNextTrack = () => {
     if (mediaQueue.length > 1) {
+        shouldResumePlaybackRef.current = tapeState === 'playing';
         setCurrentTrackIndex(prevIndex => (prevIndex + 1) % mediaQueue.length);
     }
   };
 
   const handlePrevTrack = () => {
     if (mediaQueue.length > 1) {
+        shouldResumePlaybackRef.current = tapeState === 'playing';
         setCurrentTrackIndex(prevIndex => (prevIndex - 1 + mediaQueue.length) % mediaQueue.length);
     }
   };
 
   const handleTrackSelect = (index: number) => {
     if (index >= 0 && index < mediaQueue.length) {
+        shouldResumePlaybackRef.current = tapeState === 'playing';
         setCurrentTrackIndex(index);
     }
   };
@@ -316,10 +333,10 @@ const Boombox: React.FC = () => {
     }
   };
 
-  const handleMediaError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
-    const media = e.currentTarget;
+  const handleMediaError = (_event: React.SyntheticEvent<HTMLVideoElement, Event>) => {
     // Only stop playback, but don't show error message
     setTapeState('stopped');
+    shouldResumePlaybackRef.current = false;
     
     // Try to move to the next track if available
     if (currentTrackIndex < mediaQueue.length - 1) {
@@ -732,6 +749,7 @@ const Boombox: React.FC = () => {
                   <video
                       ref={mediaElementRef}
                       className={`w-full h-full object-contain ${radioMode === 'VIDEO' && currentTrack ? 'block' : 'hidden'}`}
+            playsInline
                       onEnded={handleTrackEnd}
                       onPlay={() => setTapeState('playing')}
                       onPause={() => tapeState !== 'stopped' && setTapeState('paused')}
