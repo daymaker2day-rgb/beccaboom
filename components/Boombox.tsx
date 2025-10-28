@@ -749,9 +749,10 @@ const Boombox: React.FC = () => {
                       {(radioMode !== 'VIDEO' || !currentTrack) && !mediaError && <RadioTuner mode={radioMode} />}
                   </div>
                   {radioMode === 'VIDEO' && currentTrack && tapeState !== 'playing' && isControlsVisible && (
-                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                       <button onClick={handlePlay} className="w-20 h-20 rounded-full bg-black/50 text-white flex items-center justify-center pointer-events-auto backdrop-blur-sm">
-                           <svg className="w-12 h-12" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm8 6l-4 3V7l4 3z"></path></svg>
+                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none gap-4">
+                       <h3 className="text-[var(--color-accent)] text-2xl font-bold pointer-events-none">Click to Play</h3>
+                       <button onClick={handlePlay} className="w-24 h-24 rounded-full bg-[var(--color-accent)] text-white flex items-center justify-center pointer-events-auto backdrop-blur-sm hover:scale-110 transition-transform shadow-2xl">
+                           <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path d="M6.3 2.84A1.5 1.5 0 004 4.11v11.78a1.5 1.5 0 002.3 1.27l9.344-5.891a1.5 1.5 0 000-2.538L6.3 2.841z"></path></svg>
                        </button>
                      </div>
                   )}
