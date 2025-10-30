@@ -31,6 +31,28 @@ const ThemeMenu: React.FC<{ onSelectTheme: (theme: string) => void }> = ({ onSel
   );
 };
 
+const ModeMenu: React.FC<{ currentMode: RadioMode; onSelectMode: (mode: RadioMode) => void }> = ({ currentMode, onSelectMode }) => {
+  const modes: { id: RadioMode; name: string }[] = [
+    { id: 'VIDEO', name: 'Video' },
+    { id: 'AUDIO', name: 'Audio' }
+  ];
+
+  return (
+    <div className="absolute bottom-full mb-2 w-40 bg-[var(--color-bg-primary)] border-2 border-[var(--color-surface)] rounded-lg shadow-2xl p-2 z-10 flex flex-col gap-2">
+      {modes.map(mode => (
+        <button
+          key={mode.id}
+          onClick={() => onSelectMode(mode.id)}
+          className={`px-4 py-2 text-left text-sm text-[var(--color-text-primary)] bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded-md transition-colors flex items-center justify-between ${mode.id === currentMode ? 'ring-2 ring-[var(--color-accent)] ring-offset-2 ring-offset-[var(--color-surface)]' : ''}`}
+        >
+          <span>{mode.name}</span>
+          {mode.id === currentMode && <span className="text-xs text-[var(--color-accent)] font-semibold">Active</span>}
+        </button>
+      ))}
+    </div>
+  );
+};
+
 const Boombox: React.FC = () => {
   const [powerOn, setPowerOn] = useState<boolean>(true);
   const [volume, setVolume] = useState<number>(19);
@@ -43,6 +65,7 @@ const Boombox: React.FC = () => {
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
   const [theme, setTheme] = useState<string>('theme-pink');
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState<boolean>(false);
+  const [isModeMenuOpen, setIsModeMenuOpen] = useState<boolean>(false);
   const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
   const [mediaError, setMediaError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(0);
@@ -645,6 +668,12 @@ const Boombox: React.FC = () => {
     fileInput?.click();
   };
 
+  const handleModeSelect = (mode: RadioMode) => {
+    setRadioMode(mode);
+    setIsModeMenuOpen(false);
+    setIsThemeMenuOpen(false);
+  };
+
   return (
     <React.Fragment>
       <div 
@@ -814,16 +843,7 @@ const Boombox: React.FC = () => {
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'} 
-              onTriangleClick={handleRightSpeaker1Click}
-              showDropUp={showRightSpeaker1}
               isAsteroidsGame={true}
-            />
-            <Speaker 
-              analyser={analyserRef.current} 
-              isPlaying={tapeState === 'playing'} 
-              onTriangleClick={handleRightSpeaker2Click}
-              showDropUp={showRightSpeaker2}
-              isBrowser={true}
             />
           </div>
         </div>
@@ -833,9 +853,35 @@ const Boombox: React.FC = () => {
             <div className="relative flex flex-col items-center gap-2">
                  <span className="text-[var(--color-text-secondary)] font-bold text-xs uppercase">Mode</span>
                  <div className="flex gap-2 p-1 bg-black rounded-lg">
-                    <button onClick={() => {}} className={`px-3 py-1 text-sm rounded transition-colors ${radioMode === 'VIDEO' ? 'bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md' : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)]'}`}>VIDEO</button>
-                    <button onClick={() => setIsThemeMenuOpen(prev => !prev)} className={`px-3 py-1 text-sm rounded transition-colors ${isThemeMenuOpen ? 'bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md' : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)]'}`}>THEME</button>
+                    <button
+                      onClick={() => {
+                        setIsModeMenuOpen(prev => !prev);
+                        setIsThemeMenuOpen(false);
+                      }}
+                      className="px-3 py-1 text-sm rounded transition-colors flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md"
+                      aria-haspopup="listbox"
+                      aria-expanded={isModeMenuOpen}
+                    >
+                      {radioMode}
+                      <svg className={`w-3 h-3 transition-transform ${isModeMenuOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M5.23 7.21a.75.75 0 011.06-.02L10 10.67l3.71-3.48a.75.75 0 111.04 1.08l-4.24 3.98a.75.75 0 01-1.04 0L5.21 8.27a.75.75 0 01.02-1.06z" />
+                      </svg>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setIsThemeMenuOpen(prev => !prev);
+                        setIsModeMenuOpen(false);
+                      }}
+                      className={`px-3 py-1 text-sm rounded transition-colors ${isThemeMenuOpen ? 'bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md' : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)]'}`}
+                      aria-haspopup="menu"
+                      aria-expanded={isThemeMenuOpen}
+                    >
+                      THEME
+                    </button>
                  </div>
+                 {isModeMenuOpen && (
+                   <ModeMenu currentMode={radioMode} onSelectMode={handleModeSelect} />
+                 )}
                  {isThemeMenuOpen && <ThemeMenu onSelectTheme={handleThemeSelect} />}
             </div>
             <ControlKnob label="Volume" value={volume} setValue={setVolume} />
