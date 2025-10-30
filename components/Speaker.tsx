@@ -1,4 +1,5 @@
 import React, { useRef, useEffect, useState } from 'react';
+import AIAssistant from './AIAssistant';
 
 interface SpeakerProps {
   analyser: AnalyserNode | null;
@@ -24,6 +25,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   const animationFrameId = useRef<number>();
   const [barColor, setBarColor] = useState('var(--color-accent)');
   const [commentText, setCommentText] = useState('');
+  const [isAIMode, setIsAIMode] = useState(false);
   const [comments, setComments] = useState<Comment[]>([
     { id: '1', user: 'User123', text: 'Love this track! 🔥' },
     { id: '2', user: 'MusicFan', text: 'Amazing vocals!' },
@@ -315,7 +317,10 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
               }}
             />
 
-            {isCommentBox ? (
+            {isAIMode ? (
+              // AI Assistant Panel
+              <AIAssistant onClose={() => setIsAIMode(false)} />
+            ) : isCommentBox ? (
               // Comments panel
               <div className="flex flex-col h-full">
                 <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
@@ -568,6 +573,12 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                 <h3 className="text-[var(--color-accent)] font-bold text-lg mb-2 border-b-2 border-[var(--color-accent)] pb-2">
                   Speaker Settings
                 </h3>
+                <button 
+                  onClick={() => setIsAIMode(true)}
+                  className="bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-700 hover:to-purple-600 transition-all p-3 text-left rounded-lg border-2 border-purple-400 font-semibold flex items-center gap-2 justify-center"
+                >
+                  🤖 AI Boombox Assistant
+                </button>
                 <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
                   Audio Settings
                 </button>
