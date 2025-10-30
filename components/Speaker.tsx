@@ -13,16 +13,29 @@ const NUM_BARS = 16;
 const BASS_END_INDEX = 3;
 const MIDS_END_INDEX = 11;
 
+interface Comment {
+  user: string;
+  text: string;
+  id?: string;
+}
+
 const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick, showDropUp = false, isCommentBox = false, isVideoTools = false }) => {
   const barRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
   const [barColor, setBarColor] = useState('var(--color-accent)');
   const [commentText, setCommentText] = useState('');
-  const [comments, setComments] = useState([
-    { user: 'User123', text: 'Love this track! 🔥' },
-    { user: 'MusicFan', text: 'Amazing vocals!' },
-    { user: 'BeccaFan', text: "Can't stop listening! 💕" }
+  const [comments, setComments] = useState<Comment[]>([
+    { id: '1', user: 'User123', text: 'Love this track! 🔥' },
+    { id: '2', user: 'MusicFan', text: 'Amazing vocals!' },
+    { id: '3', user: 'BeccaFan', text: "Can't stop listening! 💕" }
   ]);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+  
+  // Watermark tracing state
+  const [watermarkTraceMode, setWatermarkTraceMode] = useState(false);
+  const [watermarkTraced, setWatermarkTraced] = useState(false);
+  const [watermarkHidden, setWatermarkHidden] = useState(false);
   
   // Draggable and resizable popup state
   const [position, setPosition] = useState({ x: window.innerWidth / 2 - 320, y: window.innerHeight / 2 - 240 });
@@ -61,6 +74,64 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     }
   }, [isDragging, isResizing, dragStart, position]);
   
+  // Comment management functions
+  const handleDeleteComment = (id: string | undefined) => {
+    if (!id) return;
+    setComments(comments.filter(c => c.id !== id));
+  };
+
+  const handleEditComment = (comment: Comment) => {
+    setEditingCommentId(comment.id || '');
+    setEditingText(comment.text);
+  };
+
+  const handleSaveComment = (id: string | undefined) => {
+    if (!id) return;
+    setComments(comments.map(c => c.id === id ? { ...c, text: editingText } : c));
+    setEditingCommentId(null);
+    setEditingText('');
+  };
+
+  const handleAddComment = () => {
+    if (commentText.trim()) {
+      const newComment: Comment = {
+        id: Date.now().toString(),
+        user: 'You',
+        text: commentText
+      };
+      setComments([...comments, newComment]);
+      setCommentText('');
+    }
+  };
+
+  // Watermark tool handlers
+  const handleTraceWatermark = () => {
+    setWatermarkTraceMode(!watermarkTraceMode);
+    if (!watermarkTraceMode) {
+      setWatermarkTraced(false);
+    }
+  };
+
+  const handleSaveWatermarkTrace = () => {
+    setWatermarkTraced(true);
+    setWatermarkTraceMode(false);
+  };
+
+  const handleEraseWatermark = () => {
+    setWatermarkTraced(false);
+    setWatermarkTraceMode(false);
+  };
+
+  const handleHideWatermark = () => {
+    setWatermarkHidden(!watermarkHidden);
+  };
+
+  const handleDeleteAllWatermarks = () => {
+    setWatermarkTraced(false);
+    setWatermarkHidden(false);
+    setWatermarkTraceMode(false);
+  };
+
   useEffect(() => {
     const newColor = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim();
     setBarColor(newColor);
@@ -203,10 +274,56 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                   💬 Comments
                 </h3>
                 <div className="flex-1 overflow-y-auto mb-3 space-y-2 pr-2">
-                  {comments.map((comment, index) => (
-                    <div key={index} className="bg-[var(--color-bg-secondary)] p-3 rounded border border-[var(--color-accent)]">
-                      <div className="text-[var(--color-accent)] font-semibold text-sm">{comment.user}</div>
-                      <div className="text-[var(--color-text-primary)] text-sm">{comment.text}</div>
+                  {comments.map((comment) => (
+                    <div key={comment.id} className="bg-[var(--color-bg-secondary)] p-3 rounded border border-[var(--color-accent)]">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="text-[var(--color-accent)] font-semibold text-sm">{comment.user}</div>
+                        {comment.user === 'You' && (
+                          <div className="flex gap-1">
+                            {editingCommentId === comment.id ? (
+                              <>
+                                <button
+                                  onClick={() => handleSaveComment(comment.id)}
+                                  className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded"
+                                >
+                                  ✓
+                                </button>
+                                <button
+                                  onClick={() => setEditingCommentId(null)}
+                                  className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded"
+                                >
+                                  ✕
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  onClick={() => handleEditComment(comment)}
+                                  className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteComment(comment.id)}
+                                  className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded"
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                      {editingCommentId === comment.id ? (
+                        <textarea
+                          value={editingText}
+                          onChange={(e) => setEditingText(e.target.value)}
+                          className="w-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] px-2 py-1 rounded border border-[var(--color-accent)] text-sm resize-none"
+                          rows={2}
+                        />
+                      ) : (
+                        <div className="text-[var(--color-text-primary)] text-sm">{comment.text}</div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -216,20 +333,14 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     onChange={(e) => setCommentText(e.target.value)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && e.ctrlKey && commentText.trim()) {
-                        setComments([...comments, { user: 'You', text: commentText }]);
-                        setCommentText('');
+                        handleAddComment();
                       }
                     }}
                     placeholder="Add comment... (Ctrl+Enter to post)"
                     className="flex-1 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] px-3 py-2 rounded border border-[var(--color-accent)] focus:outline-none resize-none"
                   />
                   <button
-                    onClick={() => {
-                      if (commentText.trim()) {
-                        setComments([...comments, { user: 'You', text: commentText }]);
-                        setCommentText('');
-                      }
-                    }}
+                    onClick={handleAddComment}
                     className="bg-[var(--color-accent)] text-[var(--color-bg-primary)] px-4 py-2 rounded font-bold hover:opacity-90"
                   >
                     Post
@@ -237,26 +348,99 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                 </div>
               </div>
             ) : isVideoTools ? (
-              // Video Tools - Watermark tracing and deletion
+              // Video Tools - Watermark tracing with 5 interactive squares
               <div className="flex flex-col h-full">
                 <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
-                  Video Tools
+                  ⚙️ Watermark Tools
                 </h3>
+                
+                {/* Watermark tracing mode - show 5 tiny squares */}
+                {watermarkTraceMode && (
+                  <div className="mb-4 p-3 bg-[var(--color-bg-secondary)] rounded border-2 border-yellow-500">
+                    <h4 className="text-[var(--color-accent)] font-semibold text-sm mb-2">Trace Mode Active</h4>
+                    <div className="flex gap-2 justify-center mb-3">
+                      {/* 5 tiny squares for editing */}
+                      <button
+                        className="w-6 h-6 bg-blue-500 hover:bg-blue-600 border-2 border-white rounded"
+                        title="Edit"
+                        onClick={() => console.log('Edit watermark trace')}
+                      />
+                      <button
+                        className="w-6 h-6 bg-green-500 hover:bg-green-600 border-2 border-white rounded"
+                        title="Save"
+                        onClick={handleSaveWatermarkTrace}
+                      />
+                      <button
+                        className="w-6 h-6 bg-yellow-500 hover:bg-yellow-600 border-2 border-white rounded"
+                        title="Preview"
+                        onClick={() => console.log('Preview watermark trace')}
+                      />
+                      <button
+                        className="w-6 h-6 bg-purple-500 hover:bg-purple-600 border-2 border-white rounded"
+                        title="Trace"
+                        onClick={() => console.log('Start drawing watermark outline')}
+                      />
+                      <button
+                        className="w-6 h-6 bg-red-500 hover:bg-red-600 border-2 border-white rounded"
+                        title="Clear"
+                        onClick={() => setWatermarkTraceMode(false)}
+                      />
+                    </div>
+                    <p className="text-xs text-[var(--color-text-secondary)]">Click squares to edit watermark trace</p>
+                  </div>
+                )}
+
+                {/* Watermark status indicator */}
+                {watermarkTraced && (
+                  <div className="mb-2 p-2 bg-green-900/30 border border-green-500 rounded text-xs text-green-300">
+                    ✓ Watermark trace saved
+                  </div>
+                )}
+                {watermarkHidden && (
+                  <div className="mb-2 p-2 bg-yellow-900/30 border border-yellow-500 rounded text-xs text-yellow-300">
+                    ✓ Watermark hidden with black box
+                  </div>
+                )}
+
                 <div className="flex-1 space-y-2 overflow-y-auto">
-                  <button className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm">
-                    Trace Watermark
+                  <button
+                    onClick={handleTraceWatermark}
+                    className={`w-full p-3 text-left rounded-lg border-2 font-semibold text-sm transition-all ${
+                      watermarkTraceMode
+                        ? 'bg-yellow-600 text-white border-yellow-400'
+                        : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] border-[var(--color-accent)]'
+                    }`}
+                  >
+                    {watermarkTraceMode ? '◉ Trace Mode Active' : '○ Trace Watermark'}
                   </button>
-                  <button className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm">
-                    Erase Watermark
+                  <button
+                    onClick={handleEraseWatermark}
+                    disabled={!watermarkTraced}
+                    className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] disabled:opacity-50 disabled:cursor-not-allowed transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm"
+                  >
+                    Erase Watermark Trace
                   </button>
-                  <button className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm">
+                  <button
+                    onClick={() => console.log('Apply video effects')}
+                    className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm"
+                  >
                     Video Effects
                   </button>
-                  <button className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm">
-                    Hide Watermark
+                  <button
+                    onClick={handleHideWatermark}
+                    className={`w-full p-3 text-left rounded-lg border-2 font-semibold text-sm transition-all ${
+                      watermarkHidden
+                        ? 'bg-gray-600 text-white border-gray-400'
+                        : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] border-[var(--color-accent)]'
+                    }`}
+                  >
+                    {watermarkHidden ? '✓ Watermark Hidden' : 'Hide Watermark with Box'}
                   </button>
-                  <button className="w-full bg-red-900/50 text-red-200 hover:bg-red-700 hover:text-white transition-all p-3 text-left rounded-lg border-2 border-red-500 font-semibold text-sm">
-                    Delete All Watermarks
+                  <button
+                    onClick={handleDeleteAllWatermarks}
+                    className="w-full bg-red-900/50 text-red-200 hover:bg-red-700 hover:text-white transition-all p-3 text-left rounded-lg border-2 border-red-500 font-semibold text-sm"
+                  >
+                    🗑️ Delete All Watermarks
                   </button>
                 </div>
               </div>
