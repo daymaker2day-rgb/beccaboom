@@ -334,11 +334,34 @@ const Boombox: React.FC = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Only draw if watermark is traced and not hidden
+      // Draw embedded CLIDEO watermark (always visible as background)
+      {
+        ctx.save();
+        
+        // Embedded CLIDEO watermark styling
+        const embeddedFontSize = Math.max(canvas.width * 0.08, 40);
+        ctx.font = `bold ${embeddedFontSize}px 'Arial Black', sans-serif`;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+
+        // Position at exact same location as before
+        const x = canvas.width - 30;
+        const y = canvas.height - 30;
+
+        ctx.translate(x, y);
+        ctx.rotate(-Math.PI / 7); // -25 degrees
+
+        // Draw embedded watermark
+        ctx.fillText('CLIDEO.COM', 0, 0);
+        ctx.restore();
+      }
+
+      // Draw custom user watermark overlay ON TOP of CLIDEO
       if (watermarkData.traced && !watermarkData.hidden) {
         ctx.save();
         
-        // Set up watermark styling
+        // Custom watermark styling (overlays on top)
         const fontSize = Math.max(watermarkData.thickness * 12, 40);
         ctx.font = `bold ${fontSize}px 'Arial Black', sans-serif`;
         ctx.fillStyle = watermarkData.color;
@@ -347,18 +370,18 @@ const Boombox: React.FC = () => {
         ctx.textBaseline = 'bottom';
 
         // Add text stroke for better visibility
-        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.strokeStyle = 'rgba(0,0,0,0.4)';
         ctx.lineWidth = Math.max(watermarkData.thickness * 0.5, 2);
 
-        // Position: bottom-right with padding
+        // Position: EXACT SAME LOCATION as CLIDEO (overlays on top)
         const x = canvas.width - 30;
         const y = canvas.height - 30;
 
         // Translate to position, rotate, and draw
         ctx.translate(x, y);
-        ctx.rotate(-Math.PI / 7); // -25 degrees
+        ctx.rotate(-Math.PI / 7); // -25 degrees (same rotation)
 
-        // Draw watermark text with stroke and fill
+        // Draw custom watermark text with stroke and fill
         ctx.strokeText('CLIDEO.COM', 0, 0);
         ctx.fillText('CLIDEO.COM', 0, 0);
 
