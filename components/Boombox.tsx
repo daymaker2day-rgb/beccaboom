@@ -762,10 +762,15 @@ const Boombox: React.FC = () => {
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
+              onTriangleClick={handleSpeakerTriangleClick}
+              showDropUp={showSpeakerDropUp}
             />
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
+              onTriangleClick={handleCommentBoxClick}
+              showDropUp={showCommentBox}
+              isCommentBox={true}
             />
           </div>
 
@@ -841,10 +846,14 @@ const Boombox: React.FC = () => {
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
+              onTriangleClick={handleRightSpeaker1Click}
+              showDropUp={showRightSpeaker1}
             />
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
+              onTriangleClick={handleRightSpeaker2Click}
+              showDropUp={showRightSpeaker2}
             />
           </div>
         </div>

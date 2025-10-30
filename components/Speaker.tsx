@@ -3,16 +3,25 @@ import React, { useRef, useEffect, useState } from 'react';
 interface SpeakerProps {
   analyser: AnalyserNode | null;
   isPlaying: boolean;
+  onTriangleClick?: () => void;
+  showDropUp?: boolean;
+  isCommentBox?: boolean;
 }
 
 const NUM_BARS = 16;
 const BASS_END_INDEX = 3;
 const MIDS_END_INDEX = 11;
 
-const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying }) => {
+const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick, showDropUp = false, isCommentBox = false }) => {
   const barRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
   const [barColor, setBarColor] = useState('var(--color-accent)');
+  const [commentText, setCommentText] = useState('');
+  const [comments, setComments] = useState([
+    { user: 'User123', text: 'Love this track! 🔥' },
+    { user: 'MusicFan', text: 'Amazing vocals!' },
+    { user: 'BeccaFan', text: "Can't stop listening! 💕" }
+  ]);
   
   useEffect(() => {
     const newColor = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim();
@@ -100,14 +109,76 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying }) => {
       {/* Small black triangle at bottom center */}
       <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-[100]">
         <button
+          onClick={onTriangleClick}
           className="w-0 h-0 cursor-pointer hover:opacity-80 transition-opacity"
           style={{
             borderLeft: '8px solid transparent',
             borderRight: '8px solid transparent',
             borderTop: '10px solid black'
           }}
-          title="Speaker options"
+          title={isCommentBox ? "Comments" : "Click for options"}
         ></button>
+
+        {/* Drop-up menu */}
+        {showDropUp && (
+          <div className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-[var(--color-bg-primary)] border-2 border-[var(--color-accent)] rounded-lg shadow-2xl p-4 z-20 ${isCommentBox ? 'w-96' : 'w-40'}`}>
+            {isCommentBox ? (
+              // Comments panel
+              <div className="flex flex-col h-96">
+                <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
+                  💬 Comments
+                </h3>
+                <div className="flex-1 overflow-y-auto mb-3 space-y-2 pr-2">
+                  {comments.map((comment, index) => (
+                    <div key={index} className="bg-[var(--color-bg-secondary)] p-3 rounded border border-[var(--color-accent)] text-sm">
+                      <div className="text-[var(--color-accent)] font-semibold">{comment.user}</div>
+                      <div className="text-[var(--color-text-primary)] text-xs">{comment.text}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={commentText}
+                    onChange={(e) => setCommentText(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' && commentText.trim()) {
+                        setComments([...comments, { user: 'You', text: commentText }]);
+                        setCommentText('');
+                      }
+                    }}
+                    placeholder="Add comment..."
+                    className="flex-1 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] px-2 py-1 rounded border border-[var(--color-accent)] text-xs focus:outline-none"
+                  />
+                  <button
+                    onClick={() => {
+                      if (commentText.trim()) {
+                        setComments([...comments, { user: 'You', text: commentText }]);
+                        setCommentText('');
+                      }
+                    }}
+                    className="bg-[var(--color-accent)] text-[var(--color-bg-primary)] px-3 py-1 rounded font-bold text-xs hover:opacity-90"
+                  >
+                    Post
+                  </button>
+                </div>
+              </div>
+            ) : (
+              // Default options
+              <div className="flex flex-col gap-2">
+                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-2 text-left rounded border border-[var(--color-accent)] text-sm font-semibold">
+                  🎵 Audio Settings
+                </button>
+                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-2 text-left rounded border border-[var(--color-accent)] text-sm font-semibold">
+                  🔊 Speaker Test
+                </button>
+                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-2 text-left rounded border border-[var(--color-accent)] text-sm font-semibold">
+                  ⚙️ Settings
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
