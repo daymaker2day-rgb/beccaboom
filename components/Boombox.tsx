@@ -94,6 +94,7 @@ const Boombox: React.FC = () => {
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const mediaElementRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const shouldResumePlaybackRef = useRef(false);
   const audioContextRef = useRef<AudioContext | null>(null);
   const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
@@ -312,6 +313,71 @@ const Boombox: React.FC = () => {
       mediaElementRef.current.style.setProperty('transform', `translateX(${balance}%)`);
     }
   }, [balance]);
+
+  // Watermark canvas drawing effect
+  useEffect(() => {
+    if (!canvasRef.current || !mediaElementRef.current) return;
+    
+    const canvas = canvasRef.current;
+    const video = mediaElementRef.current;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    let animationId: number;
+
+    const drawWatermark = () => {
+      // Set canvas size to match video container
+      const rect = video.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+
+      // Clear canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Only draw if watermark is traced and not hidden
+      if (watermarkData.traced && !watermarkData.hidden) {
+        ctx.save();
+        
+        // Set up watermark styling
+        const fontSize = Math.max(watermarkData.thickness * 12, 40);
+        ctx.font = `bold ${fontSize}px 'Arial Black', sans-serif`;
+        ctx.fillStyle = watermarkData.color;
+        ctx.globalAlpha = watermarkData.opacity / 100;
+        ctx.textAlign = 'right';
+        ctx.textBaseline = 'bottom';
+
+        // Add text stroke for better visibility
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.lineWidth = Math.max(watermarkData.thickness * 0.5, 2);
+
+        // Position: bottom-right with padding
+        const x = canvas.width - 30;
+        const y = canvas.height - 30;
+
+        // Translate to position, rotate, and draw
+        ctx.translate(x, y);
+        ctx.rotate(-Math.PI / 7); // -25 degrees
+
+        // Draw watermark text with stroke and fill
+        ctx.strokeText('CLIDEO.COM', 0, 0);
+        ctx.fillText('CLIDEO.COM', 0, 0);
+
+        ctx.restore();
+      }
+
+      animationId = requestAnimationFrame(drawWatermark);
+    };
+
+    if (tapeState === 'playing') {
+      drawWatermark();
+    } else {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    return () => {
+      if (animationId) cancelAnimationFrame(animationId);
+    };
+  }, [watermarkData, tapeState]);
 
   const handlePause = () => {
     mediaElementRef.current?.pause();
@@ -797,28 +863,18 @@ const Boombox: React.FC = () => {
                       onClick={handleVideoClick}
                   />
                   
+                  {/* Watermark canvas - draws watermark on top of video */}
+                  {radioMode === 'VIDEO' && currentTrack && (
+                    <canvas
+                      ref={canvasRef}
+                      className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                      style={{ display: watermarkData.traced && !watermarkData.hidden ? 'block' : 'none' }}
+                    />
+                  )}
+                  
                   {/* Black overlay to cover watermarks when button is pressed */}
                   {radioMode === 'VIDEO' && currentTrack && showWatermarkCover && (
                     <div className="absolute bottom-0 right-0 bg-black w-48 h-24 pointer-events-none z-10"></div>
-                  )}
-                  
-                  {/* Watermark text overlay - rendered based on watermark settings */}
-                  {radioMode === 'VIDEO' && currentTrack && watermarkData.traced && !watermarkData.hidden && (
-                    <div 
-                      className="absolute bottom-6 right-6 pointer-events-none font-bold z-5"
-                      style={{
-                        color: watermarkData.color,
-                        opacity: watermarkData.opacity / 100,
-                        fontSize: `${Math.max(watermarkData.thickness * 8, 24)}px`,
-                        textShadow: `2px 2px 4px rgba(0,0,0,0.5)`,
-                        fontFamily: 'Arial, sans-serif',
-                        letterSpacing: '2px',
-                        transform: 'rotate(-25deg)',
-                        transformOrigin: 'center'
-                      }}
-                    >
-                      WATERMARK
-                    </div>
                   )}
                   
                   <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 transition-opacity ${radioMode === 'VIDEO' && currentTrack ? 'hidden' : 'flex'}`}>
