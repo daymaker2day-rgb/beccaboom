@@ -96,6 +96,19 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying }) => {
           </div>
         </div>
       </div>
+
+      {/* Small black triangle at bottom center */}
+      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-[100]">
+        <button
+          className="w-0 h-0 cursor-pointer hover:opacity-80 transition-opacity"
+          style={{
+            borderLeft: '8px solid transparent',
+            borderRight: '8px solid transparent',
+            borderTop: '10px solid black'
+          }}
+          title="Speaker options"
+        ></button>
+      </div>
     </div>
   );
 };
