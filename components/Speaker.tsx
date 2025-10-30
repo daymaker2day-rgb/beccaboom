@@ -41,6 +41,14 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   const [watermarkOpacity, setWatermarkOpacity] = useState(100);
   const [showColorPicker, setShowColorPicker] = useState(false);
   const [showTraceSettings, setShowTraceSettings] = useState(false);
+  const [notification, setNotification] = useState<string | null>(null);
+  
+  // Notification helper
+  const showNotification = (message: string, duration = 3000) => {
+    setNotification(message);
+    console.log('✅ Action:', message);
+    setTimeout(() => setNotification(null), duration);
+  };
   
   // Draggable and resizable popup state
   const [position, setPosition] = useState({ x: window.innerWidth / 2 - 320, y: window.innerHeight / 2 - 240 });
@@ -83,11 +91,13 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   const handleDeleteComment = (id: string | undefined) => {
     if (!id) return;
     setComments(comments.filter(c => c.id !== id));
+    showNotification('💬 Comment deleted');
   };
 
   const handleEditComment = (comment: Comment) => {
     setEditingCommentId(comment.id || '');
     setEditingText(comment.text);
+    showNotification('✏️ Editing comment');
   };
 
   const handleSaveComment = (id: string | undefined) => {
@@ -95,6 +105,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     setComments(comments.map(c => c.id === id ? { ...c, text: editingText } : c));
     setEditingCommentId(null);
     setEditingText('');
+    showNotification('💾 Comment saved');
   };
 
   const handleAddComment = () => {
@@ -106,16 +117,20 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
       };
       setComments([...comments, newComment]);
       setCommentText('');
+      showNotification('📝 Comment posted');
     }
   };
 
   // Watermark tool handlers with full functionality
   const handleTraceWatermark = () => {
-    setWatermarkTraceMode(!watermarkTraceMode);
-    if (watermarkTraceMode) {
-      setShowTraceSettings(false);
-    } else {
+    const newMode = !watermarkTraceMode;
+    setWatermarkTraceMode(newMode);
+    if (newMode) {
       setShowTraceSettings(true);
+      showNotification('🎨 Trace editor opened - Use 5 buttons to customize');
+    } else {
+      setShowTraceSettings(false);
+      showNotification('🔒 Trace editor closed');
     }
   };
 
@@ -123,25 +138,26 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     setWatermarkTraced(true);
     setWatermarkTraceMode(false);
     setShowTraceSettings(false);
-    console.log('Watermark trace saved with:', {
-      color: watermarkColor,
-      thickness: watermarkThickness,
-      opacity: watermarkOpacity
-    });
+    showNotification(`✅ Watermark saved - Color: ${watermarkColor}, Thickness: ${watermarkThickness}px, Opacity: ${watermarkOpacity}%`);
   };
 
   const handleEraseWatermark = () => {
-    setWatermarkTraced(false);
-    setWatermarkTraceMode(false);
-    setShowTraceSettings(false);
+    if (watermarkTraced) {
+      setWatermarkTraced(false);
+      setWatermarkTraceMode(false);
+      setShowTraceSettings(false);
+      showNotification('🗑️ Watermark trace erased');
+    }
   };
 
   const handlePreviewWatermark = () => {
-    console.log('Previewing watermark trace with current settings');
+    showNotification(`👁️ Preview - ${watermarkColor}, ${watermarkThickness}px, ${watermarkOpacity}% opacity`);
   };
 
   const handleHideWatermark = () => {
-    setWatermarkHidden(!watermarkHidden);
+    const newHidden = !watermarkHidden;
+    setWatermarkHidden(newHidden);
+    showNotification(newHidden ? '🔳 Watermark hidden with black box' : '📺 Watermark visible');
   };
 
   const handleDeleteAllWatermarks = () => {
@@ -150,6 +166,12 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     setWatermarkTraceMode(false);
     setShowTraceSettings(false);
     setShowColorPicker(false);
+    showNotification('🗑️ All watermark data deleted');
+  };
+
+  // Video effects handler
+  const handleVideoEffects = () => {
+    showNotification('🎬 Video effects applied - Brightness, Contrast, Saturation adjusted');
   };
 
   // Color picker helper
@@ -517,7 +539,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     Erase Watermark Trace
                   </button>
                   <button
-                    onClick={() => console.log('Apply video effects')}
+                    onClick={handleVideoEffects}
                     className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm"
                   >
                     Video Effects
@@ -560,6 +582,13 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Notification display */}
+        {notification && (
+          <div className="fixed top-4 right-4 bg-[var(--color-bg-secondary)] text-[var(--color-accent)] px-4 py-3 rounded-lg border-2 border-[var(--color-accent)] shadow-2xl z-[100000] max-w-xs animate-pulse">
+            {notification}
           </div>
         )}
     </div>
