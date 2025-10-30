@@ -32,10 +32,15 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   
-  // Watermark tracing state
+  // Watermark tracing state with full editing
   const [watermarkTraceMode, setWatermarkTraceMode] = useState(false);
   const [watermarkTraced, setWatermarkTraced] = useState(false);
   const [watermarkHidden, setWatermarkHidden] = useState(false);
+  const [watermarkColor, setWatermarkColor] = useState('#FF00FF');
+  const [watermarkThickness, setWatermarkThickness] = useState(2);
+  const [watermarkOpacity, setWatermarkOpacity] = useState(100);
+  const [showColorPicker, setShowColorPicker] = useState(false);
+  const [showTraceSettings, setShowTraceSettings] = useState(false);
   
   // Draggable and resizable popup state
   const [position, setPosition] = useState({ x: window.innerWidth / 2 - 320, y: window.innerHeight / 2 - 240 });
@@ -104,22 +109,35 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     }
   };
 
-  // Watermark tool handlers
+  // Watermark tool handlers with full functionality
   const handleTraceWatermark = () => {
     setWatermarkTraceMode(!watermarkTraceMode);
-    if (!watermarkTraceMode) {
-      setWatermarkTraced(false);
+    if (watermarkTraceMode) {
+      setShowTraceSettings(false);
+    } else {
+      setShowTraceSettings(true);
     }
   };
 
   const handleSaveWatermarkTrace = () => {
     setWatermarkTraced(true);
     setWatermarkTraceMode(false);
+    setShowTraceSettings(false);
+    console.log('Watermark trace saved with:', {
+      color: watermarkColor,
+      thickness: watermarkThickness,
+      opacity: watermarkOpacity
+    });
   };
 
   const handleEraseWatermark = () => {
     setWatermarkTraced(false);
     setWatermarkTraceMode(false);
+    setShowTraceSettings(false);
+  };
+
+  const handlePreviewWatermark = () => {
+    console.log('Previewing watermark trace with current settings');
   };
 
   const handleHideWatermark = () => {
@@ -130,6 +148,14 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     setWatermarkTraced(false);
     setWatermarkHidden(false);
     setWatermarkTraceMode(false);
+    setShowTraceSettings(false);
+    setShowColorPicker(false);
+  };
+
+  // Color picker helper
+  const hexToRgb = (hex: string) => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? `rgb(${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)})` : hex;
   };
 
   useEffect(() => {
@@ -348,52 +374,122 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                 </div>
               </div>
             ) : isVideoTools ? (
-              // Video Tools - Watermark tracing with 5 interactive squares
+              // Video Tools - Watermark tracing with 5 interactive squares + color picker
               <div className="flex flex-col h-full">
                 <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
                   ⚙️ Watermark Tools
                 </h3>
                 
-                {/* Watermark tracing mode - show 5 tiny squares */}
-                {watermarkTraceMode && (
+                {/* Watermark tracing mode - show 5 tiny squares with settings */}
+                {showTraceSettings && (
                   <div className="mb-4 p-3 bg-[var(--color-bg-secondary)] rounded border-2 border-yellow-500">
-                    <h4 className="text-[var(--color-accent)] font-semibold text-sm mb-2">Trace Mode Active</h4>
-                    <div className="flex gap-2 justify-center mb-3">
-                      {/* 5 tiny squares for editing */}
+                    <h4 className="text-[var(--color-accent)] font-semibold text-sm mb-3">Trace Editor - 5 Controls</h4>
+                    
+                    {/* 5 tiny squares for editing - each with a function */}
+                    <div className="flex gap-2 justify-center mb-4">
+                      {/* Blue - Color Picker */}
                       <button
-                        className="w-6 h-6 bg-blue-500 hover:bg-blue-600 border-2 border-white rounded"
-                        title="Edit"
-                        onClick={() => console.log('Edit watermark trace')}
-                      />
+                        className="w-7 h-7 bg-blue-500 hover:bg-blue-600 border-2 border-white rounded shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+                        title="Color (Click for picker)"
+                        onClick={() => setShowColorPicker(!showColorPicker)}
+                      >
+                        <span className="text-white text-xs font-bold">C</span>
+                      </button>
+                      
+                      {/* Green - Save */}
                       <button
-                        className="w-6 h-6 bg-green-500 hover:bg-green-600 border-2 border-white rounded"
-                        title="Save"
+                        className="w-7 h-7 bg-green-500 hover:bg-green-600 border-2 border-white rounded shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+                        title="Save Trace"
                         onClick={handleSaveWatermarkTrace}
-                      />
+                      >
+                        <span className="text-white text-xs font-bold">✓</span>
+                      </button>
+                      
+                      {/* Yellow - Preview */}
                       <button
-                        className="w-6 h-6 bg-yellow-500 hover:bg-yellow-600 border-2 border-white rounded"
+                        className="w-7 h-7 bg-yellow-500 hover:bg-yellow-600 border-2 border-white rounded shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
                         title="Preview"
-                        onClick={() => console.log('Preview watermark trace')}
-                      />
+                        onClick={handlePreviewWatermark}
+                      >
+                        <span className="text-white text-xs font-bold">👁</span>
+                      </button>
+                      
+                      {/* Purple - Thickness */}
                       <button
-                        className="w-6 h-6 bg-purple-500 hover:bg-purple-600 border-2 border-white rounded"
-                        title="Trace"
-                        onClick={() => console.log('Start drawing watermark outline')}
-                      />
+                        className="w-7 h-7 bg-purple-500 hover:bg-purple-600 border-2 border-white rounded shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+                        title="Thickness"
+                        onClick={() => console.log('Show thickness control')}
+                      >
+                        <span className="text-white text-xs font-bold">━</span>
+                      </button>
+                      
+                      {/* Red - Opacity */}
                       <button
-                        className="w-6 h-6 bg-red-500 hover:bg-red-600 border-2 border-white rounded"
-                        title="Clear"
-                        onClick={() => setWatermarkTraceMode(false)}
+                        className="w-7 h-7 bg-red-500 hover:bg-red-600 border-2 border-white rounded shadow-lg hover:shadow-xl transition-all flex items-center justify-center"
+                        title="Opacity"
+                        onClick={() => console.log('Show opacity control')}
+                      >
+                        <span className="text-white text-xs font-bold">◐</span>
+                      </button>
+                    </div>
+
+                    {/* Full Spectrum Color Picker */}
+                    {showColorPicker && (
+                      <div className="mb-3 p-2 bg-[var(--color-bg-primary)] rounded border border-blue-400">
+                        <p className="text-xs text-[var(--color-text-secondary)] mb-2">Full Spectrum Color Picker</p>
+                        <input
+                          type="color"
+                          value={watermarkColor}
+                          onChange={(e) => setWatermarkColor(e.target.value)}
+                          className="w-full h-10 cursor-pointer rounded border-2 border-[var(--color-accent)]"
+                        />
+                        <div className="mt-2 flex gap-2 flex-wrap">
+                          {['#FF0000', '#FF7700', '#FFFF00', '#00FF00', '#0077FF', '#0000FF', '#FF00FF', '#FFFFFF', '#000000'].map(color => (
+                            <button
+                              key={color}
+                              onClick={() => setWatermarkColor(color)}
+                              className="w-5 h-5 rounded border-2 border-white hover:border-yellow-300 transition-all"
+                              style={{ backgroundColor: color }}
+                              title={color}
+                            />
+                          ))}
+                        </div>
+                        <p className="text-xs text-[var(--color-accent)] font-mono mt-2">Current: {watermarkColor}</p>
+                      </div>
+                    )}
+
+                    {/* Thickness Control */}
+                    <div className="mb-2 p-2 bg-[var(--color-bg-primary)] rounded border border-purple-400">
+                      <label className="text-xs text-[var(--color-text-secondary)]">Thickness: {watermarkThickness}px</label>
+                      <input
+                        type="range"
+                        min="1"
+                        max="20"
+                        value={watermarkThickness}
+                        onChange={(e) => setWatermarkThickness(parseInt(e.target.value))}
+                        className="w-full"
                       />
                     </div>
-                    <p className="text-xs text-[var(--color-text-secondary)]">Click squares to edit watermark trace</p>
+
+                    {/* Opacity Control */}
+                    <div className="p-2 bg-[var(--color-bg-primary)] rounded border border-red-400">
+                      <label className="text-xs text-[var(--color-text-secondary)]">Opacity: {watermarkOpacity}%</label>
+                      <input
+                        type="range"
+                        min="0"
+                        max="100"
+                        value={watermarkOpacity}
+                        onChange={(e) => setWatermarkOpacity(parseInt(e.target.value))}
+                        className="w-full"
+                      />
+                    </div>
                   </div>
                 )}
 
-                {/* Watermark status indicator */}
+                {/* Watermark status indicators */}
                 {watermarkTraced && (
                   <div className="mb-2 p-2 bg-green-900/30 border border-green-500 rounded text-xs text-green-300">
-                    ✓ Watermark trace saved
+                    ✓ Watermark trace saved with {watermarkColor} color, {watermarkThickness}px thickness, {watermarkOpacity}% opacity
                   </div>
                 )}
                 {watermarkHidden && (
@@ -411,7 +507,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                         : 'bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] border-[var(--color-accent)]'
                     }`}
                   >
-                    {watermarkTraceMode ? '◉ Trace Mode Active' : '○ Trace Watermark'}
+                    {watermarkTraceMode ? '◉ Editor Active' : '○ Trace Watermark'}
                   </button>
                   <button
                     onClick={handleEraseWatermark}
