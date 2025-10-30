@@ -143,18 +143,23 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
         </div>
       </div>
 
-      {/* Small black triangle at bottom center */}
-      <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 z-[100]">
-        <button
-          onClick={onTriangleClick}
-          className="w-0 h-0 cursor-pointer hover:opacity-80 transition-opacity"
+      {/* Small black triangle at bottom center - clickable area */}
+      <div 
+        className="absolute bottom-1 left-1/2 transform -translate-x-1/2 z-[100] cursor-pointer group"
+        onClick={onTriangleClick}
+        title={isCommentBox ? "Comments" : "Click for options"}
+        style={{ width: '32px', height: '24px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        {/* Triangle using div */}
+        <div
+          className="w-0 h-0 group-hover:opacity-80 transition-opacity"
           style={{
             borderLeft: '8px solid transparent',
             borderRight: '8px solid transparent',
             borderTop: '10px solid black'
           }}
-          title={isCommentBox ? "Comments" : "Click for options"}
-        ></button>
+        ></div>
+      </div>
 
         {/* Drop-up menu */}
         {showDropUp && (
@@ -252,7 +257,6 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
             )}
           </div>
         )}
-      </div>
     </div>
   );
 };
