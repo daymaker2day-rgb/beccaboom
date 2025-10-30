@@ -100,7 +100,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
                     onChange={handleVolumeChangeLocal}
                     onTouchStart={handleTouch}
                     onTouchMove={handleTouch}
-                    className="w-0 group-hover:w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer transition-all duration-300 [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--color-accent)] [&::-webkit-slider-thumb]:rounded-full"
+        className="w-16 sm:w-0 sm:group-hover:w-20 focus:w-20 active:w-20 h-1 bg-white/20 rounded-lg appearance-none cursor-pointer transition-all duration-300 touch-none [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:bg-[var(--color-accent)] [&::-webkit-slider-thumb]:rounded-full"
                 />
             </div>
 
