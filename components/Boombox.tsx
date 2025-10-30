@@ -893,8 +893,8 @@ const Boombox: React.FC = () => {
             <p className="text-2xl mt-4 font-bold text-[var(--color-text-primary)]">Drop Media File(s)</p>
         </div>
       )}
+      {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
     </div>
-    {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
     </React.Fragment>
   );
 };
