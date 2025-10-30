@@ -912,7 +912,7 @@ const Boombox: React.FC = () => {
                  )}
                  {isThemeMenuOpen && <ThemeMenu onSelectTheme={handleThemeSelect} />}
             </div>
-            <ControlKnob label="Volume" value={volume} setValue={setVolume} />
+            <ControlKnob label="Volume" value={volume} setValue={handleVolumeChange} />
             <div className="sm:col-span-3 flex justify-around gap-4">
                 <ControlSlider label="Bass" value={bass} setValue={setBass} min={-20} max={20} />
                 <ControlSlider label="Treble" value={treble} setValue={setTreble} min={-20} max={20} />
