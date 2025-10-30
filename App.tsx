@@ -2,6 +2,7 @@
 import React, { useEffect, useState } from 'react';
 import Boombox from './components/Boombox';
 import Login from './components/Login';
+import QRCode from './components/QRCode';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -25,9 +26,10 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4">
+    <div className="min-h-screen w-full flex flex-col items-center justify-center p-4">
       <main>
         <Boombox />
+        <QRCode />
       </main>
     </div>
   );
