@@ -840,34 +840,6 @@ const Boombox: React.FC = () => {
               <input id="file-upload" type="file" accept="audio/*,video/*" onChange={handleFileChange} className="hidden" multiple />
             </div>
           </div>
-
-          <div className="grid grid-cols-2 gap-12 w-full">
-            {/* Left pair of speakers */}
-            <div className="flex flex-col gap-6 items-center">
-              <ErrorBoundary>
-                <Speaker 
-                  analyser={analyserRef.current} 
-                  isPlaying={tapeState === 'playing'} 
-                />
-              </ErrorBoundary>
-              <ErrorBoundary>
-                <Speaker 
-                  analyser={analyserRef.current} 
-                  isPlaying={tapeState === 'playing'} 
-                />
-              </ErrorBoundary>
-            </div>
-            {/* Right speaker with game */}
-            <div className="flex flex-col gap-6 items-center">
-              <ErrorBoundary>
-                <Speaker 
-                  analyser={analyserRef.current} 
-                  isPlaying={tapeState === 'playing'} 
-                  isAsteroidsGame={true}
-                />
-              </ErrorBoundary>
-            </div>
-          </div>
         </div>
 
         <div className="mt-6 bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 shadow-inner border-2 border-black/50">
