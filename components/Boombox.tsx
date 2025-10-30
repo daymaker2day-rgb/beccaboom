@@ -857,19 +857,13 @@ const Boombox: React.FC = () => {
                 />
               </ErrorBoundary>
             </div>
-            {/* Right pair of speakers */}
+            {/* Right speaker with game */}
             <div className="flex flex-col gap-6 items-center">
               <ErrorBoundary>
                 <Speaker 
                   analyser={analyserRef.current} 
                   isPlaying={tapeState === 'playing'} 
                   isAsteroidsGame={true}
-                />
-              </ErrorBoundary>
-              <ErrorBoundary>
-                <Speaker 
-                  analyser={analyserRef.current} 
-                  isPlaying={tapeState === 'playing'} 
                 />
               </ErrorBoundary>
             </div>
