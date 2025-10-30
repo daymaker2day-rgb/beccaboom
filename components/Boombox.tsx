@@ -757,21 +757,16 @@ const Boombox: React.FC = () => {
 
         <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-8 border-[var(--color-bg-primary)] rounded-3xl p-4 sm:p-6 shadow-2xl relative">
         <div className="grid grid-cols-12 gap-4 h-full">
-          <div className="col-span-2 flex flex-col items-center justify-center gap-6">
-             <Speaker 
-               analyser={analyserRef.current} 
-               isPlaying={tapeState === 'playing'} 
-               onTriangleClick={handleSpeakerTriangleClick}
-               showDropUp={showSpeakerDropUp}
-               isBrowser={true}
-             />
-             <Speaker 
-               analyser={analyserRef.current} 
-               isPlaying={tapeState === 'playing'} 
-               onTriangleClick={handleCommentBoxClick}
-               showDropUp={showCommentBox}
-               isCommentBox={true}
-             />
+          {/* Left pair of speakers */}
+          <div className="col-span-2 flex flex-col gap-6 items-center justify-center">
+            <Speaker 
+              analyser={analyserRef.current} 
+              isPlaying={tapeState === 'playing'}
+            />
+            <Speaker 
+              analyser={analyserRef.current} 
+              isPlaying={tapeState === 'playing'}
+            />
           </div>
 
           <div className="col-span-8 flex flex-col gap-4">
@@ -839,6 +834,18 @@ const Boombox: React.FC = () => {
                <label htmlFor="file-upload" className="w-full bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] font-bold py-2 px-4 rounded-md text-sm text-center cursor-pointer transition-colors flex-shrink-0">Load Media</label>
               <input id="file-upload" type="file" accept="audio/*,video/*" onChange={handleFileChange} className="hidden" multiple />
             </div>
+          </div>
+
+          {/* Right pair of speakers */}
+          <div className="col-span-2 flex flex-col gap-6 items-center justify-center">
+            <Speaker 
+              analyser={analyserRef.current} 
+              isPlaying={tapeState === 'playing'}
+            />
+            <Speaker 
+              analyser={analyserRef.current} 
+              isPlaying={tapeState === 'playing'}
+            />
           </div>
         </div>
 
