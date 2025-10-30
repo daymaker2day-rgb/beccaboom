@@ -1,6 +1,14 @@
 // Gemini AI Service
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY || process.env.GEMINI_API_KEY;
+// Get API key from environment - VITE_ prefix is automatically exposed by Vite
+const GEMINI_API_KEY = (import.meta.env.VITE_GEMINI_API_KEY as string) || '';
 const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+
+// Log for debugging
+if (!GEMINI_API_KEY) {
+  console.warn('⚠️ VITE_GEMINI_API_KEY not found in environment variables');
+} else {
+  console.log('✅ Gemini API Key loaded:', GEMINI_API_KEY.substring(0, 20) + '...');
+}
 
 export interface GeminiMessage {
   role: 'user' | 'model';

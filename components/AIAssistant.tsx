@@ -34,19 +34,27 @@ const AIAssistant: React.FC<AIAssistantProps> = ({ onClose }) => {
     setLoading(true);
 
     try {
+      console.log('📤 Sending message to Gemini:', userMessage);
+      
+      // Check if service is configured
+      if (!geminiService.isConfigured()) {
+        throw new Error('Gemini API Key is not configured. Check your .env.local file.');
+      }
+      
       // Send to Gemini
       const response = await geminiService.sendMessage(userMessage);
+      console.log('✅ Received response:', response.text.substring(0, 100) + '...');
       
       // Add assistant response to UI
       setMessages(prev => [...prev, { role: 'assistant', text: response.text }]);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to get response';
-      console.error('❌ Error:', err);
+      console.error('❌ Error sending message:', err);
       
       // Add error message to chat
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        text: `Error: ${errorMessage}. Please check your API key configuration.` 
+        text: `⚠️ Error: ${errorMessage}\n\nPlease make sure:\n1. Your API key is set in .env.local\n2. You have internet connection\n3. Your API quota is not exceeded` 
       }]);
     } finally {
       setLoading(false);
