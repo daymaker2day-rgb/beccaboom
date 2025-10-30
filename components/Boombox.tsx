@@ -78,6 +78,13 @@ const Boombox: React.FC = () => {
   const [comments, setComments] = useState<{[key: string]: string}>({}); // Comments for each track
   const [editingComment, setEditingComment] = useState<boolean>(false); // Whether currently editing comment
   const [showWatermarkCover, setShowWatermarkCover] = useState<boolean>(false); // Manual watermark cover toggle
+  const [watermarkData, setWatermarkData] = useState({
+    color: '#FF00FF',
+    thickness: 2,
+    opacity: 100,
+    traced: false,
+    hidden: false
+  }); // Watermark settings from Speaker component
   const [showSpeakerDropUp, setShowSpeakerDropUp] = useState<boolean>(false); // Speaker triangle drop-up menu
   const [showCommentBox, setShowCommentBox] = useState<boolean>(false); // Comment speaker triangle drop-up
   const [showRightSpeaker1, setShowRightSpeaker1] = useState<boolean>(false); // Right speaker 1 drop-up
@@ -765,6 +772,7 @@ const Boombox: React.FC = () => {
               onTriangleClick={handleSpeakerTriangleClick}
               showDropUp={showSpeakerDropUp}
               isVideoTools={true}
+              onWatermarkChange={setWatermarkData}
             />
             <Speaker 
               analyser={analyserRef.current} 
@@ -792,6 +800,25 @@ const Boombox: React.FC = () => {
                   {/* Black overlay to cover watermarks when button is pressed */}
                   {radioMode === 'VIDEO' && currentTrack && showWatermarkCover && (
                     <div className="absolute bottom-0 right-0 bg-black w-48 h-24 pointer-events-none z-10"></div>
+                  )}
+                  
+                  {/* Watermark text overlay - rendered based on watermark settings */}
+                  {radioMode === 'VIDEO' && currentTrack && watermarkData.traced && !watermarkData.hidden && (
+                    <div 
+                      className="absolute bottom-6 right-6 pointer-events-none font-bold z-5"
+                      style={{
+                        color: watermarkData.color,
+                        opacity: watermarkData.opacity / 100,
+                        fontSize: `${Math.max(watermarkData.thickness * 8, 24)}px`,
+                        textShadow: `2px 2px 4px rgba(0,0,0,0.5)`,
+                        fontFamily: 'Arial, sans-serif',
+                        letterSpacing: '2px',
+                        transform: 'rotate(-25deg)',
+                        transformOrigin: 'center'
+                      }}
+                    >
+                      WATERMARK
+                    </div>
                   )}
                   
                   <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 transition-opacity ${radioMode === 'VIDEO' && currentTrack ? 'hidden' : 'flex'}`}>

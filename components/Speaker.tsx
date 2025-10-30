@@ -8,6 +8,13 @@ interface SpeakerProps {
   showDropUp?: boolean;
   isCommentBox?: boolean;
   isVideoTools?: boolean;
+  onWatermarkChange?: (watermarkData: {
+    color: string;
+    thickness: number;
+    opacity: number;
+    traced: boolean;
+    hidden: boolean;
+  }) => void;
 }
 
 const NUM_BARS = 16;
@@ -20,7 +27,7 @@ interface Comment {
   id?: string;
 }
 
-const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick, showDropUp = false, isCommentBox = false, isVideoTools = false }) => {
+const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick, showDropUp = false, isCommentBox = false, isVideoTools = false, onWatermarkChange }) => {
   const barRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
   const [barColor, setBarColor] = useState('var(--color-accent)');
@@ -141,6 +148,17 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     setWatermarkTraceMode(false);
     setShowTraceSettings(false);
     showNotification(`✅ Watermark saved - Color: ${watermarkColor}, Thickness: ${watermarkThickness}px, Opacity: ${watermarkOpacity}%`);
+    
+    // Notify parent component of watermark changes
+    if (onWatermarkChange) {
+      onWatermarkChange({
+        color: watermarkColor,
+        thickness: watermarkThickness,
+        opacity: watermarkOpacity,
+        traced: true,
+        hidden: watermarkHidden
+      });
+    }
   };
 
   const handleEraseWatermark = () => {
@@ -160,6 +178,17 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     const newHidden = !watermarkHidden;
     setWatermarkHidden(newHidden);
     showNotification(newHidden ? '🔳 Watermark hidden with black box' : '📺 Watermark visible');
+    
+    // Notify parent component
+    if (onWatermarkChange) {
+      onWatermarkChange({
+        color: watermarkColor,
+        thickness: watermarkThickness,
+        opacity: watermarkOpacity,
+        traced: watermarkTraced,
+        hidden: newHidden
+      });
+    }
   };
 
   const handleDeleteAllWatermarks = () => {
