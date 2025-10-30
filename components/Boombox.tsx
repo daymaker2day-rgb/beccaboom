@@ -764,6 +764,7 @@ const Boombox: React.FC = () => {
               isPlaying={tapeState === 'playing'}
               onTriangleClick={handleSpeakerTriangleClick}
               showDropUp={showSpeakerDropUp}
+              isVideoTools={true}
             />
             <Speaker 
               analyser={analyserRef.current} 

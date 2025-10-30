@@ -6,13 +6,14 @@ interface SpeakerProps {
   onTriangleClick?: () => void;
   showDropUp?: boolean;
   isCommentBox?: boolean;
+  isVideoTools?: boolean;
 }
 
 const NUM_BARS = 16;
 const BASS_END_INDEX = 3;
 const MIDS_END_INDEX = 11;
 
-const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick, showDropUp = false, isCommentBox = false }) => {
+const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick, showDropUp = false, isCommentBox = false, isVideoTools = false }) => {
   const barRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
   const [barColor, setBarColor] = useState('var(--color-accent)');
@@ -235,23 +236,47 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                   </button>
                 </div>
               </div>
+            ) : isVideoTools ? (
+              // Video Tools - Watermark tracing and deletion
+              <div className="flex flex-col h-full">
+                <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
+                  Video Tools
+                </h3>
+                <div className="flex-1 space-y-2 overflow-y-auto">
+                  <button className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm">
+                    Trace Watermark
+                  </button>
+                  <button className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm">
+                    Erase Watermark
+                  </button>
+                  <button className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm">
+                    Video Effects
+                  </button>
+                  <button className="w-full bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold text-sm">
+                    Hide Watermark
+                  </button>
+                  <button className="w-full bg-red-900/50 text-red-200 hover:bg-red-700 hover:text-white transition-all p-3 text-left rounded-lg border-2 border-red-500 font-semibold text-sm">
+                    Delete All Watermarks
+                  </button>
+                </div>
+              </div>
             ) : (
-              // Default options
+              // Default speaker options
               <div className="flex flex-col gap-3">
                 <h3 className="text-[var(--color-accent)] font-bold text-lg mb-2 border-b-2 border-[var(--color-accent)] pb-2">
-                  🔧 Speaker Settings
+                  Speaker Settings
                 </h3>
                 <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
-                  🎵 Audio Settings
+                  Audio Settings
                 </button>
                 <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
-                  🎛️ Equalizer
+                  Equalizer
                 </button>
                 <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
-                  🔊 Speaker Test
+                  Speaker Test
                 </button>
                 <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
-                  📢 Volume Boost
+                  Volume Boost
                 </button>
               </div>
             )}
