@@ -167,6 +167,17 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
       setWatermarkTraceMode(false);
       setShowTraceSettings(false);
       showNotification('🗑️ Watermark trace erased');
+      
+      // Notify parent component to remove watermark from video
+      if (onWatermarkChange) {
+        onWatermarkChange({
+          color: watermarkColor,
+          thickness: watermarkThickness,
+          opacity: watermarkOpacity,
+          traced: false,
+          hidden: watermarkHidden
+        });
+      }
     }
   };
 
@@ -198,6 +209,17 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     setShowTraceSettings(false);
     setShowColorPicker(false);
     showNotification('🗑️ All watermark data deleted');
+    
+    // Notify parent component to remove all watermark rendering
+    if (onWatermarkChange) {
+      onWatermarkChange({
+        color: watermarkColor,
+        thickness: watermarkThickness,
+        opacity: watermarkOpacity,
+        traced: false,
+        hidden: false
+      });
+    }
   };
 
   // Video effects handler
