@@ -23,6 +23,43 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     { user: 'BeccaFan', text: "Can't stop listening! 💕" }
   ]);
   
+  // Draggable and resizable popup state
+  const [position, setPosition] = useState({ x: window.innerWidth / 2 - 320, y: window.innerHeight / 2 - 240 });
+  const [size, setSize] = useState({ width: 640, height: 480 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (isDragging) {
+        setPosition({
+          x: e.clientX - dragStart.x,
+          y: e.clientY - dragStart.y
+        });
+      } else if (isResizing) {
+        setSize({
+          width: Math.max(400, e.clientX - position.x),
+          height: Math.max(300, e.clientY - position.y)
+        });
+      }
+    };
+
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      setIsResizing(false);
+    };
+
+    if (isDragging || isResizing) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      return () => {
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('mouseup', handleMouseUp);
+      };
+    }
+  }, [isDragging, isResizing, dragStart, position]);
+  
   useEffect(() => {
     const newColor = getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim();
     setBarColor(newColor);
@@ -121,34 +158,64 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
 
         {/* Drop-up menu */}
         {showDropUp && (
-          <div className={`absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 bg-[var(--color-bg-primary)] border-2 border-[var(--color-accent)] rounded-lg shadow-2xl p-4 z-20 ${isCommentBox ? 'w-96' : 'w-40'}`}>
+          <div 
+            className="fixed bg-[var(--color-bg-primary)] border-4 border-[var(--color-accent)] rounded-lg shadow-2xl p-6 z-[99999] overflow-hidden select-none"
+            style={{
+              left: `${position.x}px`,
+              top: `${position.y}px`,
+              width: `${size.width}px`,
+              height: `${size.height}px`,
+              boxShadow: '0 0 50px rgba(0,0,0,0.8), 0 0 100px var(--color-accent)',
+              cursor: isDragging ? 'grabbing' : 'grab'
+            }}
+            onMouseDown={(e) => {
+              if ((e.target as HTMLElement).tagName !== 'INPUT' &&
+                  (e.target as HTMLElement).tagName !== 'BUTTON' &&
+                  (e.target as HTMLElement).tagName !== 'A' &&
+                  (e.target as HTMLElement).tagName !== 'TEXTAREA') {
+                setIsDragging(true);
+                setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+              }
+            }}
+          >
+            {/* Subtle resize handle in bottom-right corner */}
+            <div
+              className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize opacity-20 hover:opacity-60 transition-opacity z-[100000]"
+              style={{
+                background: 'linear-gradient(135deg, transparent 50%, var(--color-accent) 50%)'
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                setIsResizing(true);
+              }}
+            />
+
             {isCommentBox ? (
               // Comments panel
-              <div className="flex flex-col h-96">
+              <div className="flex flex-col h-full">
                 <h3 className="text-[var(--color-accent)] font-bold text-lg mb-3 border-b-2 border-[var(--color-accent)] pb-2">
                   💬 Comments
                 </h3>
                 <div className="flex-1 overflow-y-auto mb-3 space-y-2 pr-2">
                   {comments.map((comment, index) => (
-                    <div key={index} className="bg-[var(--color-bg-secondary)] p-3 rounded border border-[var(--color-accent)] text-sm">
-                      <div className="text-[var(--color-accent)] font-semibold">{comment.user}</div>
-                      <div className="text-[var(--color-text-primary)] text-xs">{comment.text}</div>
+                    <div key={index} className="bg-[var(--color-bg-secondary)] p-3 rounded border border-[var(--color-accent)]">
+                      <div className="text-[var(--color-accent)] font-semibold text-sm">{comment.user}</div>
+                      <div className="text-[var(--color-text-primary)] text-sm">{comment.text}</div>
                     </div>
                   ))}
                 </div>
                 <div className="flex gap-2">
-                  <input
-                    type="text"
+                  <textarea
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter' && commentText.trim()) {
+                      if (e.key === 'Enter' && e.ctrlKey && commentText.trim()) {
                         setComments([...comments, { user: 'You', text: commentText }]);
                         setCommentText('');
                       }
                     }}
-                    placeholder="Add comment..."
-                    className="flex-1 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] px-2 py-1 rounded border border-[var(--color-accent)] text-xs focus:outline-none"
+                    placeholder="Add comment... (Ctrl+Enter to post)"
+                    className="flex-1 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] px-3 py-2 rounded border border-[var(--color-accent)] focus:outline-none resize-none"
                   />
                   <button
                     onClick={() => {
@@ -157,7 +224,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                         setCommentText('');
                       }
                     }}
-                    className="bg-[var(--color-accent)] text-[var(--color-bg-primary)] px-3 py-1 rounded font-bold text-xs hover:opacity-90"
+                    className="bg-[var(--color-accent)] text-[var(--color-bg-primary)] px-4 py-2 rounded font-bold hover:opacity-90"
                   >
                     Post
                   </button>
@@ -165,15 +232,21 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
               </div>
             ) : (
               // Default options
-              <div className="flex flex-col gap-2">
-                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-2 text-left rounded border border-[var(--color-accent)] text-sm font-semibold">
+              <div className="flex flex-col gap-3">
+                <h3 className="text-[var(--color-accent)] font-bold text-lg mb-2 border-b-2 border-[var(--color-accent)] pb-2">
+                  🔧 Speaker Settings
+                </h3>
+                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
                   🎵 Audio Settings
                 </button>
-                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-2 text-left rounded border border-[var(--color-accent)] text-sm font-semibold">
+                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
+                  🎛️ Equalizer
+                </button>
+                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
                   🔊 Speaker Test
                 </button>
-                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-2 text-left rounded border border-[var(--color-accent)] text-sm font-semibold">
-                  ⚙️ Settings
+                <button className="bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] hover:bg-[var(--color-accent)] hover:text-[var(--color-bg-primary)] transition-all p-3 text-left rounded-lg border-2 border-[var(--color-accent)] font-semibold">
+                  📢 Volume Boost
                 </button>
               </div>
             )}
