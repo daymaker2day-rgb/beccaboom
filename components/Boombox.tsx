@@ -839,12 +839,30 @@ const Boombox: React.FC = () => {
             </div>
           </div>
 
-          <div className="col-span-2 flex flex-col items-center justify-center gap-6">
-            <Speaker 
-              analyser={analyserRef.current} 
-              isPlaying={tapeState === 'playing'} 
-              isAsteroidsGame={true}
-            />
+          <div className="grid grid-cols-2 gap-12 w-full">
+            {/* Left pair of speakers */}
+            <div className="flex flex-col gap-6 items-center">
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'} 
+              />
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'} 
+              />
+            </div>
+            {/* Right pair of speakers */}
+            <div className="flex flex-col gap-6 items-center">
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'} 
+                isAsteroidsGame={true}
+              />
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'} 
+              />
+            </div>
           </div>
         </div>
 
