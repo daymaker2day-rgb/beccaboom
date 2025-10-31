@@ -101,6 +101,7 @@ const Boombox: React.FC = () => {
   const analyserRef = useRef<AnalyserNode | null>(null);
   const bassFilterRef = useRef<BiquadFilterNode | null>(null);
   const trebleFilterRef = useRef<BiquadFilterNode | null>(null);
+  const pannerRef = useRef<StereoPannerNode | null>(null);
   const dragCounter = useRef(0);
   const controlsTimeoutRef = useRef<number | null>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -202,12 +203,17 @@ const Boombox: React.FC = () => {
         trebleFilterRef.current.type = 'highshelf';
         trebleFilterRef.current.frequency.value = 3000;
         
+        // Create stereo panner for balance control
+        pannerRef.current = audioContextRef.current.createStereoPanner();
+        pannerRef.current.pan.value = 0; // Center by default
+        
         analyserRef.current = audioContextRef.current.createAnalyser();
         analyserRef.current.fftSize = 256;
 
         sourceNodeRef.current
             .connect(bassFilterRef.current)
             .connect(trebleFilterRef.current)
+            .connect(pannerRef.current)
             .connect(analyserRef.current)
             .connect(audioContextRef.current.destination);
     }
@@ -309,8 +315,9 @@ const Boombox: React.FC = () => {
   }, [treble]);
 
   useEffect(() => {
-    if (mediaElementRef.current) {
-      mediaElementRef.current.style.setProperty('transform', `translateX(${balance}%)`);
+    if (pannerRef.current) {
+      // Convert balance (-50 to 50) to stereo pan (-1 to 1)
+      pannerRef.current.pan.value = balance / 50;
     }
   }, [balance]);
 
@@ -963,6 +970,25 @@ const Boombox: React.FC = () => {
                     </div>
                   )}
               </div>
+
+              {/* Watermark Layers Section - Under Time Bar */}
+              {radioMode === 'VIDEO' && currentTrack && watermarkData?.layers && watermarkData.layers.length > 0 && (
+                <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-3 shadow-inner border border-pink-400">
+                  <h3 className="text-xs font-bold text-[var(--color-accent)] mb-2">📍 Watermark Layers ({watermarkData.layers.length})</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-20 overflow-y-auto">
+                    {watermarkData.layers.map((layer: any, idx: number) => (
+                      <div 
+                        key={layer.id} 
+                        className="p-1.5 bg-[var(--color-bg-secondary)] rounded border border-[var(--color-accent)] text-xs text-[var(--color-text-secondary)] flex items-center gap-1 truncate"
+                      >
+                        <span>{layer.type === 'text' ? '📝' : layer.type === 'square' ? '□' : '○'}</span>
+                        <span className="truncate">{layer.text || `Layer ${idx + 1}`}</span>
+                        {!layer.visible && <span className="text-[0.65rem]">🚫</span>}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 shadow-inner border-2 border-black/50 flex flex-col gap-3 h-64">
