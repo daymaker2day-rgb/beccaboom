@@ -391,11 +391,8 @@ const Boombox: React.FC = () => {
       animationId = requestAnimationFrame(drawWatermark);
     };
 
-    if (tapeState === 'playing') {
-      drawWatermark();
-    } else {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    // Always draw watermark when video is loaded/playing
+    drawWatermark();
 
     return () => {
       if (animationId) cancelAnimationFrame(animationId);
@@ -891,7 +888,7 @@ const Boombox: React.FC = () => {
                     <canvas
                       ref={canvasRef}
                       className="absolute inset-0 w-full h-full pointer-events-none z-10"
-                      style={{ display: watermarkData.traced && !watermarkData.hidden ? 'block' : 'none' }}
+                      style={{ display: 'block' }}
                     />
                   )}
                   
