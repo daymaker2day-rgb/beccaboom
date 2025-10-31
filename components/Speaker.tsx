@@ -207,6 +207,26 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     }
   };
 
+  // Real-time watermark update helper
+  const updateWatermarkLive = (updates: Partial<any>) => {
+    if (watermarkTraced && onWatermarkChange) {
+      onWatermarkChange({
+        color: watermarkColor,
+        thickness: watermarkThickness,
+        opacity: watermarkOpacity,
+        traced: watermarkTraced,
+        hidden: watermarkHidden,
+        text: watermarkText,
+        shape: watermarkShape,
+        x: watermarkX,
+        y: watermarkY,
+        angle: watermarkAngle,
+        size: watermarkSize,
+        ...updates
+      } as any);
+    }
+  };
+
   // Color picker helper
   const hexToRgb = (hex: string) => {
     const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
@@ -462,7 +482,10 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     {(['text', 'square', 'circle'] as const).map(shape => (
                       <button
                         key={shape}
-                        onClick={() => setWatermarkShape(shape)}
+                        onClick={() => {
+                          setWatermarkShape(shape);
+                          updateWatermarkLive({ shape });
+                        }}
                         className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all ${
                           watermarkShape === shape
                             ? 'bg-[var(--color-accent)] text-[var(--color-bg-primary)]'
@@ -481,7 +504,10 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                   <input
                     type="color"
                     value={watermarkColor}
-                    onChange={(e) => setWatermarkColor(e.target.value)}
+                    onChange={(e) => {
+                      setWatermarkColor(e.target.value);
+                      updateWatermarkLive({ color: e.target.value });
+                    }}
                     className="w-full h-6 cursor-pointer rounded border border-[var(--color-accent)]"
                   />
                 </div>
@@ -494,7 +520,11 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     min="0"
                     max="100"
                     value={watermarkX}
-                    onChange={(e) => setWatermarkX(parseInt(e.target.value))}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setWatermarkX(val);
+                      updateWatermarkLive({ x: val });
+                    }}
                     className="w-full"
                   />
                 </div>
@@ -507,7 +537,11 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     min="0"
                     max="100"
                     value={watermarkY}
-                    onChange={(e) => setWatermarkY(parseInt(e.target.value))}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setWatermarkY(val);
+                      updateWatermarkLive({ y: val });
+                    }}
                     className="w-full"
                   />
                 </div>
@@ -520,7 +554,11 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     min="0"
                     max="360"
                     value={watermarkAngle}
-                    onChange={(e) => setWatermarkAngle(parseInt(e.target.value))}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setWatermarkAngle(val);
+                      updateWatermarkLive({ angle: val });
+                    }}
                     className="w-full"
                   />
                 </div>
@@ -533,7 +571,11 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     min="10"
                     max="200"
                     value={watermarkSize}
-                    onChange={(e) => setWatermarkSize(parseInt(e.target.value))}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setWatermarkSize(val);
+                      updateWatermarkLive({ size: val });
+                    }}
                     className="w-full"
                   />
                 </div>
@@ -546,7 +588,11 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     min="0"
                     max="100"
                     value={watermarkOpacity}
-                    onChange={(e) => setWatermarkOpacity(parseInt(e.target.value))}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setWatermarkOpacity(val);
+                      updateWatermarkLive({ opacity: val });
+                    }}
                     className="w-full"
                   />
                 </div>
