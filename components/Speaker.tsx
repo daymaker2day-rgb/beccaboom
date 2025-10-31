@@ -33,13 +33,37 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   const [barColor, setBarColor] = useState('var(--color-accent)');
   const [commentText, setCommentText] = useState('');
   const [isAIMode, setIsAIMode] = useState(false);
-  const [comments, setComments] = useState<Comment[]>([
-    { id: '1', user: 'User123', text: 'Love this track! 🔥' },
-    { id: '2', user: 'MusicFan', text: 'Amazing vocals!' },
-    { id: '3', user: 'BeccaFan', text: "Can't stop listening! 💕" }
-  ]);
+  
+  // Load comments from localStorage on mount
+  const [comments, setComments] = useState<Comment[]>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_comments');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Error loading comments:', e);
+    }
+    // Default comments if nothing saved
+    return [
+      { id: '1', user: 'User123', text: 'Love this track! 🔥' },
+      { id: '2', user: 'MusicFan', text: 'Amazing vocals!' },
+      { id: '3', user: 'BeccaFan', text: "Can't stop listening! 💕" }
+    ];
+  });
+  
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
+  
+  // Save comments to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('beccabear@13_comments', JSON.stringify(comments));
+      console.log('💾 Comments saved for beccabear@13');
+    } catch (e) {
+      console.error('Error saving comments:', e);
+    }
+  }, [comments]);
   
   // Advanced Watermark State
   const [watermarkTraced, setWatermarkTraced] = useState(false);
