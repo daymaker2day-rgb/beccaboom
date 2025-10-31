@@ -183,22 +183,21 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   };
 
   const updateWatermarkLayer = (layerId: string, updates: any) => {
-    setWatermarkLayers(watermarkLayers.map(layer => 
+    const updatedLayers = watermarkLayers.map(layer => 
       layer.id === layerId ? { ...layer, ...updates } : layer
-    ));
-    // Send real-time update
+    );
+    setWatermarkLayers(updatedLayers);
+    
+    // Send real-time update to parent immediately
     if (watermarkTraced && onWatermarkChange) {
-      const updatedLayers = watermarkLayers.map(layer => 
-        layer.id === layerId ? { ...layer, ...updates } : layer
-      );
-      // Pass layers info to parent
       onWatermarkChange({
         color: updatedLayers[0]?.color || '#FF00FF',
         thickness: updatedLayers[0]?.thickness || 2,
         opacity: updatedLayers[0]?.opacity || 100,
         traced: true,
-        hidden: false
-      });
+        hidden: false,
+        layers: updatedLayers
+      } as any);
     }
   };
 
@@ -237,23 +236,39 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
       return;
     }
     setWatermarkTraced(true);
-    showNotification(`✅ ${watermarkLayers.length} layer(s) applied`);
     
+    // Pass all layers to parent for canvas rendering
     if (onWatermarkChange) {
       onWatermarkChange({
-        color: watermarkColor,
-        thickness: watermarkThickness,
-        opacity: watermarkOpacity,
+        color: watermarkLayers[0]?.color || '#FF00FF',
+        thickness: watermarkLayers[0]?.thickness || 2,
+        opacity: watermarkLayers[0]?.opacity || 100,
         traced: true,
-        hidden: false
-      });
+        hidden: false,
+        layers: watermarkLayers
+      } as any);
     }
+    
+    showNotification(`✅ ${watermarkLayers.length} layer(s) applied`);
   };
 
   const handleEraseAllLayers = () => {
     setWatermarkLayers([]);
     setWatermarkTraced(false);
     setSelectedLayerId(null);
+    
+    // Clear layers in parent too
+    if (onWatermarkChange) {
+      onWatermarkChange({
+        color: '#FF00FF',
+        thickness: 2,
+        opacity: 100,
+        traced: false,
+        hidden: true,
+        layers: []
+      } as any);
+    }
+    
     showNotification('🗑️ All layers removed');
     
     if (onWatermarkChange) {
