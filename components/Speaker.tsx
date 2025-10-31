@@ -469,7 +469,11 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                   <input
                     type="text"
                     value={watermarkText}
-                    onChange={(e) => setWatermarkText(e.target.value.toUpperCase())}
+                    onChange={(e) => {
+                      const newText = e.target.value.toUpperCase();
+                      setWatermarkText(newText);
+                      updateWatermarkLive({ text: newText });
+                    }}
                     className="w-full bg-[var(--color-bg-primary)] text-[var(--color-accent)] px-2 py-1 rounded border border-[var(--color-accent)] text-sm"
                     placeholder="CLIDEO"
                   />
@@ -592,6 +596,23 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                       const val = parseInt(e.target.value);
                       setWatermarkOpacity(val);
                       updateWatermarkLive({ opacity: val });
+                    }}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Thickness */}
+                <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-pink-400">
+                  <label className="text-xs text-[var(--color-text-secondary)]">Thickness: {watermarkThickness}px</label>
+                  <input
+                    type="range"
+                    min="1"
+                    max="10"
+                    value={watermarkThickness}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value);
+                      setWatermarkThickness(val);
+                      updateWatermarkLive({ thickness: val });
                     }}
                     className="w-full"
                   />
