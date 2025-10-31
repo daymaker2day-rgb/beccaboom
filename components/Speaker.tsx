@@ -56,6 +56,24 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   const [watermarkAngle, setWatermarkAngle] = useState(0);  // 0-360 degrees
   const [watermarkSize, setWatermarkSize] = useState(80);  // 10-200px
   
+  // Multi-layer watermark support
+  interface WatermarkLayer {
+    id: string;
+    type: 'text' | 'square' | 'circle';
+    text: string;
+    color: string;
+    thickness: number;
+    opacity: number;
+    x: number;
+    y: number;
+    angle: number;
+    size: number;
+    visible: boolean;
+  }
+  
+  const [watermarkLayers, setWatermarkLayers] = useState<WatermarkLayer[]>([]);
+  const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+  
   const [notification, setNotification] = useState<string | null>(null);
   
   // Notification helper
@@ -133,6 +151,97 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
       setComments([...comments, newComment]);
       setCommentText('');
       showNotification('📝 Comment posted');
+    }
+  };
+
+  // Multi-layer Watermark Handlers
+  const addWatermarkLayer = (type: 'text' | 'square' | 'circle' = 'text') => {
+    const newLayer = {
+      id: Date.now().toString(),
+      type,
+      text: type === 'text' ? 'CLIDEO' : '',
+      color: '#FF00FF',
+      thickness: 2,
+      opacity: 100,
+      x: 50,
+      y: 50,
+      angle: 0,
+      size: 80,
+      visible: true
+    };
+    setWatermarkLayers([...watermarkLayers, newLayer]);
+    setSelectedLayerId(newLayer.id);
+    showNotification(`➕ Added ${type} layer`);
+  };
+
+  const deleteWatermarkLayer = (layerId: string) => {
+    setWatermarkLayers(watermarkLayers.filter(l => l.id !== layerId));
+    if (selectedLayerId === layerId) {
+      setSelectedLayerId(watermarkLayers.length > 1 ? watermarkLayers[0].id : null);
+    }
+    showNotification('🗑️ Layer deleted');
+  };
+
+  const updateWatermarkLayer = (layerId: string, updates: any) => {
+    setWatermarkLayers(watermarkLayers.map(layer => 
+      layer.id === layerId ? { ...layer, ...updates } : layer
+    ));
+    // Send real-time update
+    if (watermarkTraced && onWatermarkChange) {
+      const updatedLayers = watermarkLayers.map(layer => 
+        layer.id === layerId ? { ...layer, ...updates } : layer
+      );
+      // Pass layers info to parent
+      onWatermarkChange({
+        color: updatedLayers[0]?.color || '#FF00FF',
+        thickness: updatedLayers[0]?.thickness || 2,
+        opacity: updatedLayers[0]?.opacity || 100,
+        traced: true,
+        hidden: false
+      });
+    }
+  };
+
+  const toggleLayerVisibility = (layerId: string) => {
+    const layer = watermarkLayers.find(l => l.id === layerId);
+    if (layer) {
+      updateWatermarkLayer(layerId, { visible: !layer.visible });
+    }
+  };
+
+  const handleApplyAllLayers = () => {
+    if (watermarkLayers.length === 0) {
+      showNotification('⚠️ Add at least one layer');
+      return;
+    }
+    setWatermarkTraced(true);
+    showNotification(`✅ ${watermarkLayers.length} layer(s) applied`);
+    
+    if (onWatermarkChange) {
+      onWatermarkChange({
+        color: watermarkColor,
+        thickness: watermarkThickness,
+        opacity: watermarkOpacity,
+        traced: true,
+        hidden: false
+      });
+    }
+  };
+
+  const handleEraseAllLayers = () => {
+    setWatermarkLayers([]);
+    setWatermarkTraced(false);
+    setSelectedLayerId(null);
+    showNotification('🗑️ All layers removed');
+    
+    if (onWatermarkChange) {
+      onWatermarkChange({
+        color: watermarkColor,
+        thickness: watermarkThickness,
+        opacity: watermarkOpacity,
+        traced: false,
+        hidden: true
+      });
     }
   };
 
@@ -618,6 +727,164 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                   />
                 </div>
 
+                {/* Multi-Layer Section */}
+                <div className="border-t-2 border-[var(--color-accent)] pt-2">
+                  <h4 className="text-xs font-bold text-[var(--color-accent)] mb-2">🎯 Add More Layers</h4>
+                  <div className="flex gap-1">
+                    <button onClick={() => addWatermarkLayer('text')} className="flex-1 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1 px-2 rounded">
+                      ➕ Text
+                    </button>
+                    <button onClick={() => addWatermarkLayer('square')} className="flex-1 bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-1 px-2 rounded">
+                      ➕ □
+                    </button>
+                    <button onClick={() => addWatermarkLayer('circle')} className="flex-1 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold py-1 px-2 rounded">
+                      ➕ ○
+                    </button>
+                  </div>
+
+                  {/* Layers List */}
+                  {watermarkLayers.length > 0 && (
+                    <div className="mt-2 bg-[var(--color-bg-primary)] rounded p-2 max-h-24 overflow-y-auto border border-[var(--color-accent)]">
+                      <div className="space-y-1">
+                        {watermarkLayers.map((layer, idx) => (
+                          <div 
+                            key={layer.id} 
+                            onClick={() => setSelectedLayerId(layer.id)}
+                            className={`p-1 rounded border text-xs cursor-pointer transition-all flex justify-between items-center ${
+                              selectedLayerId === layer.id 
+                                ? 'border-[var(--color-accent)] bg-[var(--color-bg-secondary)]' 
+                                : 'border-gray-600 hover:border-gray-400'
+                            }`}
+                          >
+                            <span className="text-[var(--color-accent)] font-semibold">
+                              {layer.type === 'text' ? 'Txt' : layer.type === 'square' ? '□' : '○'} {layer.text || `Layer ${idx + 1}`}
+                            </span>
+                            <div className="flex gap-1">
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); toggleLayerVisibility(layer.id); }}
+                                className="text-xs px-1 hover:bg-gray-600 rounded"
+                              >
+                                {layer.visible ? '👁️' : '🚫'}
+                              </button>
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); deleteWatermarkLayer(layer.id); }}
+                                className="text-xs px-1 bg-red-600 hover:bg-red-700 text-white rounded"
+                              >
+                                ✕
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Layer Editor - Show if layer selected */}
+                  {selectedLayerId && watermarkLayers.find(l => l.id === selectedLayerId) && (() => {
+                    const layer = watermarkLayers.find(l => l.id === selectedLayerId)!;
+                    return (
+                      <div className="mt-2 p-2 bg-[var(--color-bg-secondary)] rounded border border-blue-400 space-y-1">
+                        <h5 className="text-xs font-bold text-[var(--color-accent)]">Edit: {layer.text || layer.type}</h5>
+
+                        {layer.type === 'text' && (
+                          <div>
+                            <label className="text-xs text-gray-300">Text</label>
+                            <input 
+                              type="text" 
+                              value={layer.text} 
+                              onChange={(e) => updateWatermarkLayer(layer.id, { text: e.target.value })}
+                              className="w-full bg-[var(--color-bg-primary)] text-[var(--color-accent)] px-1 py-0.5 rounded border border-[var(--color-accent)] text-xs"
+                              placeholder="Your text"
+                            />
+                          </div>
+                        )}
+
+                        <div>
+                          <label className="text-xs text-gray-300">Color</label>
+                          <input 
+                            type="color" 
+                            value={layer.color} 
+                            onChange={(e) => updateWatermarkLayer(layer.id, { color: e.target.value })}
+                            className="w-full h-4 cursor-pointer rounded"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-gray-300">X: {layer.x}%</label>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            value={layer.x}
+                            onChange={(e) => updateWatermarkLayer(layer.id, { x: parseInt(e.target.value) })}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-gray-300">Y: {layer.y}%</label>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            value={layer.y}
+                            onChange={(e) => updateWatermarkLayer(layer.id, { y: parseInt(e.target.value) })}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-gray-300">Angle: {layer.angle}°</label>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="360" 
+                            value={layer.angle}
+                            onChange={(e) => updateWatermarkLayer(layer.id, { angle: parseInt(e.target.value) })}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-gray-300">Size: {layer.size}px</label>
+                          <input 
+                            type="range" 
+                            min="10" 
+                            max="200" 
+                            value={layer.size}
+                            onChange={(e) => updateWatermarkLayer(layer.id, { size: parseInt(e.target.value) })}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-gray-300">Opacity: {layer.opacity}%</label>
+                          <input 
+                            type="range" 
+                            min="0" 
+                            max="100" 
+                            value={layer.opacity}
+                            onChange={(e) => updateWatermarkLayer(layer.id, { opacity: parseInt(e.target.value) })}
+                            className="w-full"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-xs text-gray-300">Thickness: {layer.thickness}px</label>
+                          <input 
+                            type="range" 
+                            min="1" 
+                            max="10" 
+                            value={layer.thickness}
+                            onChange={(e) => updateWatermarkLayer(layer.id, { thickness: parseInt(e.target.value) })}
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+
                 {/* Action Buttons */}
                 <div className="flex-1 space-y-1 flex flex-col justify-end">
                   <button
@@ -627,7 +894,17 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     ✓ Apply
                   </button>
                   <button
-                    onClick={handleEraseWatermark}
+                    onClick={() => {
+                      if (watermarkLayers.length > 0) handleApplyAllLayers();
+                      else handleEraseWatermark();
+                    }}
+                    disabled={!watermarkTraced && watermarkLayers.length === 0}
+                    className="bg-orange-600 hover:bg-orange-700 disabled:opacity-50 text-white font-bold py-2 px-2 rounded text-xs transition-all"
+                  >
+                    {watermarkLayers.length > 0 ? '🎯 Apply Layers' : '⚠️ No Layers'}
+                  </button>
+                  <button
+                    onClick={watermarkLayers.length > 0 ? handleEraseAllLayers : handleEraseWatermark}
                     disabled={!watermarkTraced}
                     className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2 px-2 rounded text-xs transition-all"
                   >
