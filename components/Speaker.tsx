@@ -470,7 +470,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     type="text"
                     value={watermarkText}
                     onChange={(e) => {
-                      const newText = e.target.value.toUpperCase();
+                      const newText = e.target.value;
                       setWatermarkText(newText);
                       updateWatermarkLive({ text: newText });
                     }}
