@@ -95,8 +95,31 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     visible: boolean;
   }
   
-  const [watermarkLayers, setWatermarkLayers] = useState<WatermarkLayer[]>([]);
+  // Load watermark layers from localStorage on mount
+  const [watermarkLayers, setWatermarkLayers] = useState<WatermarkLayer[]>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_watermarks');
+      if (saved) {
+        const layers = JSON.parse(saved);
+        console.log('💾 Loaded', layers.length, 'watermark layers for beccabear@13');
+        return layers;
+      }
+    } catch (e) {
+      console.error('Error loading watermark layers:', e);
+    }
+    return [];
+  });
   const [selectedLayerId, setSelectedLayerId] = useState<string | null>(null);
+  
+  // Auto-save watermark layers to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('beccabear@13_watermarks', JSON.stringify(watermarkLayers));
+      console.log('💾 Watermark layers saved for beccabear@13:', watermarkLayers.length, 'layers');
+    } catch (e) {
+      console.error('Error saving watermark layers:', e);
+    }
+  }, [watermarkLayers]);
   
   const [notification, setNotification] = useState<string | null>(null);
   

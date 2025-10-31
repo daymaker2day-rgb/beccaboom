@@ -56,16 +56,90 @@ const ModeMenu: React.FC<{ currentMode: RadioMode; onSelectMode: (mode: RadioMod
 
 const Boombox: React.FC = () => {
   console.log('Boombox component initializing...');
-  const [powerOn, setPowerOn] = useState<boolean>(true);
-  const [volume, setVolume] = useState<number>(19);
-  const [bass, setBass] = useState<number>(0);
-  const [treble, setTreble] = useState<number>(0);
-  const [balance, setBalance] = useState<number>(0);
+  
+  // Initialize audio settings from localStorage
+  const [powerOn, setPowerOn] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_settings');
+      if (saved) {
+        const settings = JSON.parse(saved);
+        return settings.powerOn ?? true;
+      }
+    } catch (e) {
+      console.error('Error loading power setting:', e);
+    }
+    return true;
+  });
+  
+  const [volume, setVolume] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_settings');
+      if (saved) {
+        const settings = JSON.parse(saved);
+        return settings.volume ?? 19;
+      }
+    } catch (e) {
+      console.error('Error loading volume:', e);
+    }
+    return 19;
+  });
+  
+  const [bass, setBass] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_settings');
+      if (saved) {
+        const settings = JSON.parse(saved);
+        return settings.bass ?? 0;
+      }
+    } catch (e) {
+      console.error('Error loading bass:', e);
+    }
+    return 0;
+  });
+  
+  const [treble, setTreble] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_settings');
+      if (saved) {
+        const settings = JSON.parse(saved);
+        return settings.treble ?? 0;
+      }
+    } catch (e) {
+      console.error('Error loading treble:', e);
+    }
+    return 0;
+  });
+  
+  const [balance, setBalance] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_settings');
+      if (saved) {
+        const settings = JSON.parse(saved);
+        return settings.balance ?? 0;
+      }
+    } catch (e) {
+      console.error('Error loading balance:', e);
+    }
+    return 0;
+  });
+  
   const [radioMode, setRadioMode] = useState<RadioMode>('AUDIO');
   const [tapeState, setTapeState] = useState<TapeState>('stopped');
   const [mediaQueue, setMediaQueue] = useState<MediaQueueItem[]>([]);
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
-  const [theme, setTheme] = useState<string>('theme-pink');
+  
+  const [theme, setTheme] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_settings');
+      if (saved) {
+        const settings = JSON.parse(saved);
+        return settings.theme ?? 'theme-pink';
+      }
+    } catch (e) {
+      console.error('Error loading theme:', e);
+    }
+    return 'theme-pink';
+  });
   const [isThemeMenuOpen, setIsThemeMenuOpen] = useState<boolean>(false);
   const [isModeMenuOpen, setIsModeMenuOpen] = useState<boolean>(false);
   const [isDraggingOver, setIsDraggingOver] = useState<boolean>(false);
@@ -173,6 +247,24 @@ const Boombox: React.FC = () => {
       }
     }
   }, [mediaQueue, currentTrackIndex, radioMode]);
+
+  // Save all audio settings to localStorage whenever they change
+  useEffect(() => {
+    try {
+      const settings = {
+        powerOn,
+        volume,
+        bass,
+        treble,
+        balance,
+        theme
+      };
+      localStorage.setItem('beccabear@13_settings', JSON.stringify(settings));
+      console.log('💾 All audio settings saved for beccabear@13:', settings);
+    } catch (e) {
+      console.error('Error saving audio settings:', e);
+    }
+  }, [powerOn, volume, bass, treble, balance, theme]);
 
   useEffect(() => {
     document.body.className = theme;
