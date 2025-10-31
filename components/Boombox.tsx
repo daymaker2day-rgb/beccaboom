@@ -336,50 +336,98 @@ const Boombox: React.FC = () => {
 
       // Draw custom user watermark if traced and not hidden
       if (watermarkData.traced && !watermarkData.hidden) {
-        ctx.save();
+        // Handle both single watermark and multi-layer watermarks
+        const layers = watermarkData.layers || [];
         
-        // Get positioning from watermarkData (default to CENTER 50%, 50%)
-        const xPercent = watermarkData.x !== undefined ? watermarkData.x : 50;
-        const yPercent = watermarkData.y !== undefined ? watermarkData.y : 50;
-        const x = xPercent * canvas.width / 100;
-        const y = yPercent * canvas.height / 100;
-        const angle = (watermarkData.angle ?? 0) * Math.PI / 180;
-        const size = watermarkData.size ?? 80;
-        const shape = (watermarkData.shape ?? 'text') as string;
-        const text = (watermarkData.text ?? 'CLIDEO') as string;
-        const color = watermarkData.color ?? '#FF00FF';
-        const opacity = (watermarkData.opacity ?? 100) / 100;
-        const thickness = watermarkData.thickness ?? 2;
-        
-        // Set styling BEFORE translate
-        ctx.fillStyle = color;
-        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
-        ctx.lineWidth = thickness;
-        ctx.globalAlpha = opacity;
-        
-        // Translate to position and rotate
-        ctx.translate(x, y);
-        ctx.rotate(angle);
+        // If layers exist, draw each one
+        if (layers.length > 0) {
+          layers.forEach((layer: any) => {
+            if (!layer.visible) return; // Skip hidden layers
+            
+            ctx.save();
+            
+            const xPercent = layer.x ?? 50;
+            const yPercent = layer.y ?? 50;
+            const x = xPercent * canvas.width / 100;
+            const y = yPercent * canvas.height / 100;
+            const angle = (layer.angle ?? 0) * Math.PI / 180;
+            const size = layer.size ?? 80;
+            const shape = layer.type ?? 'text';
+            const text = layer.text ?? 'Layer';
+            const color = layer.color ?? '#FF00FF';
+            const opacity = (layer.opacity ?? 100) / 100;
+            const thickness = layer.thickness ?? 2;
+            
+            ctx.fillStyle = color;
+            ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+            ctx.lineWidth = thickness;
+            ctx.globalAlpha = opacity;
+            
+            ctx.translate(x, y);
+            ctx.rotate(angle);
 
-        // Draw based on shape
-        if (shape === 'text') {
-          ctx.font = `bold ${size}px 'Arial Black', sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.strokeText(text, 0, 0);
-          ctx.fillText(text, 0, 0);
-        } else if (shape === 'square') {
-          const half = size / 2;
-          ctx.fillRect(-half, -half, size, size);
-          ctx.strokeRect(-half, -half, size, size);
-        } else if (shape === 'circle') {
-          ctx.beginPath();
-          ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.stroke();
+            if (shape === 'text') {
+              ctx.font = `bold ${size}px 'Arial Black', sans-serif`;
+              ctx.textAlign = 'center';
+              ctx.textBaseline = 'middle';
+              ctx.strokeText(text, 0, 0);
+              ctx.fillText(text, 0, 0);
+            } else if (shape === 'square') {
+              const half = size / 2;
+              ctx.fillRect(-half, -half, size, size);
+              ctx.strokeRect(-half, -half, size, size);
+            } else if (shape === 'circle') {
+              ctx.beginPath();
+              ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+            }
+
+            ctx.restore();
+          });
+        } else {
+          // Fallback to single watermark (legacy support)
+          ctx.save();
+          
+          const xPercent = watermarkData.x !== undefined ? watermarkData.x : 50;
+          const yPercent = watermarkData.y !== undefined ? watermarkData.y : 50;
+          const x = xPercent * canvas.width / 100;
+          const y = yPercent * canvas.height / 100;
+          const angle = (watermarkData.angle ?? 0) * Math.PI / 180;
+          const size = watermarkData.size ?? 80;
+          const shape = (watermarkData.shape ?? 'text') as string;
+          const text = (watermarkData.text ?? 'CLIDEO') as string;
+          const color = watermarkData.color ?? '#FF00FF';
+          const opacity = (watermarkData.opacity ?? 100) / 100;
+          const thickness = watermarkData.thickness ?? 2;
+          
+          ctx.fillStyle = color;
+          ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+          ctx.lineWidth = thickness;
+          ctx.globalAlpha = opacity;
+          
+          ctx.translate(x, y);
+          ctx.rotate(angle);
+
+          if (shape === 'text') {
+            ctx.font = `bold ${size}px 'Arial Black', sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.strokeText(text, 0, 0);
+            ctx.fillText(text, 0, 0);
+          } else if (shape === 'square') {
+            const half = size / 2;
+            ctx.fillRect(-half, -half, size, size);
+            ctx.strokeRect(-half, -half, size, size);
+          } else if (shape === 'circle') {
+            ctx.beginPath();
+            ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+          }
+
+          ctx.restore();
         }
-
-        ctx.restore();
       }
 
       animationId = requestAnimationFrame(drawWatermark);

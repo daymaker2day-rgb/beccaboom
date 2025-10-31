@@ -209,6 +209,28 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     }
   };
 
+  const saveLayerAndAddNew = async () => {
+    if (!selectedLayerId || !watermarkLayers.find(l => l.id === selectedLayerId)) {
+      showNotification('⚠️ Select a layer first');
+      return;
+    }
+    
+    // Save current layer to user account (beccabear@13)
+    const layer = watermarkLayers.find(l => l.id === selectedLayerId);
+    try {
+      // Save to localStorage with user key
+      const savedLayers = JSON.parse(localStorage.getItem('beccabear@13_watermarks') || '[]');
+      savedLayers.push(layer);
+      localStorage.setItem('beccabear@13_watermarks', JSON.stringify(savedLayers));
+      showNotification(`✅ Saved layer to beccabear@13`);
+    } catch (error) {
+      showNotification('❌ Error saving layer');
+    }
+    
+    // Add new empty layer
+    addWatermarkLayer('text');
+  };
+
   const handleApplyAllLayers = () => {
     if (watermarkLayers.length === 0) {
       showNotification('⚠️ Add at least one layer');
@@ -880,6 +902,14 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                             className="w-full"
                           />
                         </div>
+
+                        {/* Save and Add Another Button */}
+                        <button
+                          onClick={saveLayerAndAddNew}
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white font-bold py-1 px-2 rounded text-xs transition-all mt-2"
+                        >
+                          💾 Save & Add Another
+                        </button>
                       </div>
                     );
                   })()}
