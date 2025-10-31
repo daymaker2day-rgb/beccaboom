@@ -338,19 +338,24 @@ const Boombox: React.FC = () => {
       if (watermarkData.traced && !watermarkData.hidden) {
         ctx.save();
         
-        // Get positioning from watermarkData (with fallback to defaults)
-        const x = (watermarkData.x ?? 90) * canvas.width / 100;
-        const y = (watermarkData.y ?? 90) * canvas.height / 100;
+        // Get positioning from watermarkData (default to CENTER 50%, 50%)
+        const xPercent = watermarkData.x !== undefined ? watermarkData.x : 50;
+        const yPercent = watermarkData.y !== undefined ? watermarkData.y : 50;
+        const x = xPercent * canvas.width / 100;
+        const y = yPercent * canvas.height / 100;
         const angle = (watermarkData.angle ?? 0) * Math.PI / 180;
         const size = watermarkData.size ?? 80;
         const shape = (watermarkData.shape ?? 'text') as string;
         const text = (watermarkData.text ?? 'CLIDEO') as string;
+        const color = watermarkData.color ?? '#FF00FF';
+        const opacity = (watermarkData.opacity ?? 100) / 100;
+        const thickness = watermarkData.thickness ?? 2;
         
-        // Set styling
-        ctx.fillStyle = watermarkData.color;
-        ctx.globalAlpha = watermarkData.opacity / 100;
-        ctx.lineWidth = watermarkData.thickness ?? 2;
-        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        // Set styling BEFORE translate
+        ctx.fillStyle = color;
+        ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+        ctx.lineWidth = thickness;
+        ctx.globalAlpha = opacity;
         
         // Translate to position and rotate
         ctx.translate(x, y);
@@ -365,13 +370,13 @@ const Boombox: React.FC = () => {
           ctx.fillText(text, 0, 0);
         } else if (shape === 'square') {
           const half = size / 2;
-          ctx.strokeRect(-half, -half, size, size);
           ctx.fillRect(-half, -half, size, size);
+          ctx.strokeRect(-half, -half, size, size);
         } else if (shape === 'circle') {
           ctx.beginPath();
           ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
-          ctx.stroke();
           ctx.fill();
+          ctx.stroke();
         }
 
         ctx.restore();

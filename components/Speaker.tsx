@@ -50,11 +50,11 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   const [watermarkThickness, setWatermarkThickness] = useState(2);
   const [watermarkOpacity, setWatermarkOpacity] = useState(100);
   
-  // Position and Angle Control
-  const [watermarkX, setWatermarkX] = useState(0);  // 0-100% of width
-  const [watermarkY, setWatermarkY] = useState(0);  // 0-100% of height
+  // Position and Angle Control - Default to CENTER so users can move anywhere
+  const [watermarkX, setWatermarkX] = useState(50);  // 0-100% of width (50 = center)
+  const [watermarkY, setWatermarkY] = useState(50);  // 0-100% of height (50 = center)
   const [watermarkAngle, setWatermarkAngle] = useState(0);  // 0-360 degrees
-  const [watermarkSize, setWatermarkSize] = useState(80);  // 1-200px
+  const [watermarkSize, setWatermarkSize] = useState(80);  // 10-200px
   
   const [notification, setNotification] = useState<string | null>(null);
   
