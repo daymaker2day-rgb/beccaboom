@@ -334,56 +334,45 @@ const Boombox: React.FC = () => {
       // Clear canvas
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw embedded CLIDEO watermark (always visible as background)
-      {
-        ctx.save();
-        
-        // Embedded CLIDEO watermark styling
-        const embeddedFontSize = Math.max(canvas.width * 0.08, 40);
-        ctx.font = `bold ${embeddedFontSize}px 'Arial Black', sans-serif`;
-        ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
-
-        // Position at exact same location as before
-        const x = canvas.width - 30;
-        const y = canvas.height - 30;
-
-        ctx.translate(x, y);
-        ctx.rotate(-Math.PI / 7); // -25 degrees
-
-        // Draw embedded watermark
-        ctx.fillText('CLIDEO.COM', 0, 0);
-        ctx.restore();
-      }
-
-      // Draw custom user watermark overlay ON TOP of CLIDEO
+      // Draw custom user watermark if traced and not hidden
       if (watermarkData.traced && !watermarkData.hidden) {
         ctx.save();
         
-        // Custom watermark styling (overlays on top)
-        const fontSize = Math.max(watermarkData.thickness * 12, 40);
-        ctx.font = `bold ${fontSize}px 'Arial Black', sans-serif`;
+        // Get positioning from watermarkData (with fallback to defaults)
+        const x = (watermarkData.x ?? 90) * canvas.width / 100;
+        const y = (watermarkData.y ?? 90) * canvas.height / 100;
+        const angle = (watermarkData.angle ?? 0) * Math.PI / 180;
+        const size = watermarkData.size ?? 80;
+        const shape = (watermarkData.shape ?? 'text') as string;
+        const text = (watermarkData.text ?? 'CLIDEO') as string;
+        
+        // Set styling
         ctx.fillStyle = watermarkData.color;
         ctx.globalAlpha = watermarkData.opacity / 100;
-        ctx.textAlign = 'right';
-        ctx.textBaseline = 'bottom';
-
-        // Add text stroke for better visibility
-        ctx.strokeStyle = 'rgba(0,0,0,0.4)';
-        ctx.lineWidth = Math.max(watermarkData.thickness * 0.5, 2);
-
-        // Position: EXACT SAME LOCATION as CLIDEO (overlays on top)
-        const x = canvas.width - 30;
-        const y = canvas.height - 30;
-
-        // Translate to position, rotate, and draw
+        ctx.lineWidth = watermarkData.thickness ?? 2;
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        
+        // Translate to position and rotate
         ctx.translate(x, y);
-        ctx.rotate(-Math.PI / 7); // -25 degrees (same rotation)
+        ctx.rotate(angle);
 
-        // Draw custom watermark text with stroke and fill
-        ctx.strokeText('CLIDEO.COM', 0, 0);
-        ctx.fillText('CLIDEO.COM', 0, 0);
+        // Draw based on shape
+        if (shape === 'text') {
+          ctx.font = `bold ${size}px 'Arial Black', sans-serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.strokeText(text, 0, 0);
+          ctx.fillText(text, 0, 0);
+        } else if (shape === 'square') {
+          const half = size / 2;
+          ctx.strokeRect(-half, -half, size, size);
+          ctx.fillRect(-half, -half, size, size);
+        } else if (shape === 'circle') {
+          ctx.beginPath();
+          ctx.arc(0, 0, size / 2, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.fill();
+        }
 
         ctx.restore();
       }

@@ -41,12 +41,21 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   
-  // Watermark state
+  // Advanced Watermark State
   const [watermarkTraced, setWatermarkTraced] = useState(false);
   const [watermarkHidden, setWatermarkHidden] = useState(false);
+  const [watermarkText, setWatermarkText] = useState('CLIDEO');
+  const [watermarkShape, setWatermarkShape] = useState<'text' | 'square' | 'circle'>('text');
   const [watermarkColor, setWatermarkColor] = useState('#FF00FF');
   const [watermarkThickness, setWatermarkThickness] = useState(2);
   const [watermarkOpacity, setWatermarkOpacity] = useState(100);
+  
+  // Position and Angle Control
+  const [watermarkX, setWatermarkX] = useState(0);  // 0-100% of width
+  const [watermarkY, setWatermarkY] = useState(0);  // 0-100% of height
+  const [watermarkAngle, setWatermarkAngle] = useState(0);  // 0-360 degrees
+  const [watermarkSize, setWatermarkSize] = useState(80);  // 1-200px
+  
   const [notification, setNotification] = useState<string | null>(null);
   
   // Notification helper
@@ -173,7 +182,28 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
         opacity: watermarkOpacity,
         traced: false,
         hidden: false
-      });
+      } as any);
+    }
+  };
+
+  const handleApplyWatermark = () => {
+    setWatermarkTraced(true);
+    showNotification(`✅ Watermark applied - "${watermarkText}"`);
+    
+    if (onWatermarkChange) {
+      onWatermarkChange({
+        color: watermarkColor,
+        thickness: watermarkThickness,
+        opacity: watermarkOpacity,
+        traced: true,
+        hidden: watermarkHidden,
+        text: watermarkText,
+        shape: watermarkShape,
+        x: watermarkX,
+        y: watermarkY,
+        angle: watermarkAngle,
+        size: watermarkSize
+      } as any);
     }
   };
 
@@ -402,87 +432,113 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                 </div>
               </div>
             ) : isVideoTools ? (
-              // Video Tools - Simple, minimal watermark editor with real-time preview
-              <div className="flex flex-col h-full gap-3">
+              // Advanced Watermark Editor
+              <div className="flex flex-col h-full gap-2 overflow-y-auto">
                 <h3 className="text-[var(--color-accent)] font-bold text-lg border-b-2 border-[var(--color-accent)] pb-2">
-                  🎨 Watermark Editor
+                  🎨 Advanced Watermark
                 </h3>
                 
                 {/* Status */}
                 <div className={`p-2 rounded text-xs font-semibold text-center ${watermarkTraced ? 'bg-green-900/30 text-green-300 border border-green-500' : 'bg-gray-900/30 text-gray-300 border border-gray-500'}`}>
-                  {watermarkTraced ? '✓ WATERMARK ACTIVE' : '○ No watermark yet'}
+                  {watermarkTraced ? '✓ ACTIVE' : '○ Inactive'}
                 </div>
 
-                {/* Color Picker - Always visible for real-time updates */}
+                {/* Watermark Text Input */}
                 <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-blue-400">
-                  <label className="text-xs text-[var(--color-text-secondary)] block mb-2">Color</label>
+                  <label className="text-xs text-[var(--color-text-secondary)] block mb-1">Text</label>
                   <input
-                    type="color"
-                    value={watermarkColor}
-                    onChange={(e) => {
-                      setWatermarkColor(e.target.value);
-                      // Update parent in real-time if already traced
-                      if (watermarkTraced && onWatermarkChange) {
-                        onWatermarkChange({
-                          color: e.target.value,
-                          thickness: watermarkThickness,
-                          opacity: watermarkOpacity,
-                          traced: true,
-                          hidden: watermarkHidden
-                        });
-                      }
-                    }}
-                    className="w-full h-8 cursor-pointer rounded border border-[var(--color-accent)]"
+                    type="text"
+                    value={watermarkText}
+                    onChange={(e) => setWatermarkText(e.target.value.toUpperCase())}
+                    className="w-full bg-[var(--color-bg-primary)] text-[var(--color-accent)] px-2 py-1 rounded border border-[var(--color-accent)] text-sm"
+                    placeholder="CLIDEO"
                   />
-                  <div className="mt-2 flex gap-1 flex-wrap justify-center">
-                    {['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FFFFFF', '#000000'].map(color => (
+                </div>
+
+                {/* Shape Selection */}
+                <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-green-400">
+                  <label className="text-xs text-[var(--color-text-secondary)] block mb-1">Shape</label>
+                  <div className="flex gap-1">
+                    {(['text', 'square', 'circle'] as const).map(shape => (
                       <button
-                        key={color}
-                        onClick={() => {
-                          setWatermarkColor(color);
-                          if (watermarkTraced && onWatermarkChange) {
-                            onWatermarkChange({
-                              color,
-                              thickness: watermarkThickness,
-                              opacity: watermarkOpacity,
-                              traced: true,
-                              hidden: watermarkHidden
-                            });
-                          }
-                        }}
-                        className="w-4 h-4 rounded border border-white hover:scale-110 transition-transform"
-                        style={{ backgroundColor: color }}
-                      />
+                        key={shape}
+                        onClick={() => setWatermarkShape(shape)}
+                        className={`flex-1 py-1 px-2 rounded text-xs font-bold transition-all ${
+                          watermarkShape === shape
+                            ? 'bg-[var(--color-accent)] text-[var(--color-bg-primary)]'
+                            : 'bg-[var(--color-bg-primary)] text-[var(--color-accent)] border border-[var(--color-accent)]'
+                        }`}
+                      >
+                        {shape === 'text' ? 'Txt' : shape === 'square' ? '□' : '○'}
+                      </button>
                     ))}
                   </div>
                 </div>
 
-                {/* Thickness - Real-time update */}
+                {/* Color Picker */}
                 <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-purple-400">
-                  <label className="text-xs text-[var(--color-text-secondary)]">Size: {watermarkThickness}</label>
+                  <label className="text-xs text-[var(--color-text-secondary)] block mb-1">Color</label>
+                  <input
+                    type="color"
+                    value={watermarkColor}
+                    onChange={(e) => setWatermarkColor(e.target.value)}
+                    className="w-full h-6 cursor-pointer rounded border border-[var(--color-accent)]"
+                  />
+                </div>
+
+                {/* Position X */}
+                <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-cyan-400">
+                  <label className="text-xs text-[var(--color-text-secondary)]">X: {watermarkX}%</label>
                   <input
                     type="range"
-                    min="1"
-                    max="10"
-                    value={watermarkThickness}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      setWatermarkThickness(val);
-                      if (watermarkTraced && onWatermarkChange) {
-                        onWatermarkChange({
-                          color: watermarkColor,
-                          thickness: val,
-                          opacity: watermarkOpacity,
-                          traced: true,
-                          hidden: watermarkHidden
-                        });
-                      }
-                    }}
+                    min="0"
+                    max="100"
+                    value={watermarkX}
+                    onChange={(e) => setWatermarkX(parseInt(e.target.value))}
                     className="w-full"
                   />
                 </div>
 
-                {/* Opacity - Real-time update */}
+                {/* Position Y */}
+                <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-cyan-400">
+                  <label className="text-xs text-[var(--color-text-secondary)]">Y: {watermarkY}%</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={watermarkY}
+                    onChange={(e) => setWatermarkY(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Angle */}
+                <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-yellow-400">
+                  <label className="text-xs text-[var(--color-text-secondary)]">Angle: {watermarkAngle}°</label>
+                  <input
+                    type="range"
+                    min="0"
+                    max="360"
+                    value={watermarkAngle}
+                    onChange={(e) => setWatermarkAngle(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Size */}
+                <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-orange-400">
+                  <label className="text-xs text-[var(--color-text-secondary)]">Size: {watermarkSize}px</label>
+                  <input
+                    type="range"
+                    min="10"
+                    max="200"
+                    value={watermarkSize}
+                    onChange={(e) => setWatermarkSize(parseInt(e.target.value))}
+                    className="w-full"
+                  />
+                </div>
+
+                {/* Opacity */}
                 <div className="p-2 bg-[var(--color-bg-secondary)] rounded border border-red-400">
                   <label className="text-xs text-[var(--color-text-secondary)]">Opacity: {watermarkOpacity}%</label>
                   <input
@@ -490,63 +546,34 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
                     min="0"
                     max="100"
                     value={watermarkOpacity}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value);
-                      setWatermarkOpacity(val);
-                      if (watermarkTraced && onWatermarkChange) {
-                        onWatermarkChange({
-                          color: watermarkColor,
-                          thickness: watermarkThickness,
-                          opacity: val,
-                          traced: true,
-                          hidden: watermarkHidden
-                        });
-                      }
-                    }}
+                    onChange={(e) => setWatermarkOpacity(parseInt(e.target.value))}
                     className="w-full"
                   />
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex-1 space-y-2 flex flex-col">
-                  {/* Apply/Create Watermark */}
+                <div className="flex-1 space-y-1 flex flex-col justify-end">
                   <button
-                    onClick={() => {
-                      setWatermarkTraced(true);
-                      showNotification('✅ Watermark applied - See it on video!');
-                      if (onWatermarkChange) {
-                        onWatermarkChange({
-                          color: watermarkColor,
-                          thickness: watermarkThickness,
-                          opacity: watermarkOpacity,
-                          traced: true,
-                          hidden: watermarkHidden
-                        });
-                      }
-                    }}
-                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded-lg border-2 border-green-400 text-sm transition-all"
+                    onClick={handleApplyWatermark}
+                    className="bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-2 rounded text-xs transition-all"
                   >
-                    ✓ Apply Watermark
+                    ✓ Apply
                   </button>
-
-                  {/* Remove Watermark */}
                   <button
                     onClick={handleEraseWatermark}
                     disabled={!watermarkTraced}
-                    className="bg-red-600 hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-2 px-3 rounded-lg border-2 border-red-400 text-sm transition-all"
+                    className="bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold py-2 px-2 rounded text-xs transition-all"
                   >
-                    ✕ Remove Watermark
+                    ✕ Remove
                   </button>
-
-                  {/* Toggle Visibility */}
                   <button
                     onClick={handleHideWatermark}
                     disabled={!watermarkTraced}
-                    className={`font-bold py-2 px-3 rounded-lg border-2 text-sm transition-all ${
+                    className={`font-bold py-2 px-2 rounded text-xs transition-all ${
                       watermarkHidden
-                        ? 'bg-gray-600 hover:bg-gray-700 text-white border-gray-400'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white border-blue-400'
-                    } disabled:opacity-50 disabled:cursor-not-allowed`}
+                        ? 'bg-gray-600 hover:bg-gray-700 text-white'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    } disabled:opacity-50`}
                   >
                     {watermarkHidden ? '👁️ Show' : '🚫 Hide'}
                   </button>
