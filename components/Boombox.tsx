@@ -1349,10 +1349,10 @@ const Boombox: React.FC = () => {
                 </h3>
                 <button
                   onClick={handleCloseSongComments}
-                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] text-xl font-bold"
+                  className="w-6 h-6 bg-black text-white rounded text-xs font-bold flex items-center justify-center hover:bg-gray-800"
                   title="Close"
                 >
-                  ✕
+                  C
                 </button>
               </div>
 
