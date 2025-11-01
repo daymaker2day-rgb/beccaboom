@@ -130,9 +130,26 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     setTimeout(() => setNotification(null), duration);
   };
   
-  // Draggable and resizable popup state
-  const [position, setPosition] = useState({ x: window.innerWidth / 2 - 320, y: window.innerHeight / 2 - 240 });
-  const [size, setSize] = useState({ width: 640, height: 480 });
+  // Draggable and resizable popup state - responsive sizing
+  const getInitialSize = () => {
+    if (window.innerWidth < 640) {
+      return { width: Math.min(window.innerWidth - 20, 380), height: Math.min(window.innerHeight - 60, 420) };
+    }
+    return { width: 640, height: 480 };
+  };
+
+  const getInitialPosition = () => {
+    const windowWidth = window.innerWidth;
+    const windowHeight = window.innerHeight;
+    const size = getInitialSize();
+    return { 
+      x: Math.max(10, windowWidth / 2 - size.width / 2),
+      y: Math.max(10, windowHeight / 2 - size.height / 2)
+    };
+  };
+
+  const [position, setPosition] = useState(getInitialPosition());
+  const [size, setSize] = useState(getInitialSize());
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
@@ -492,10 +509,10 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   }, [analyser, isPlaying, barColor]);
 
   return (
-    <div className="w-48 h-48 bg-[var(--color-surface)] rounded-lg border-2 border-black/50 shadow-inner flex items-center justify-center relative overflow-hidden">
+    <div className="w-28 sm:w-48 h-28 sm:h-48 bg-[var(--color-surface)] rounded-lg border-2 border-black/50 shadow-inner flex items-center justify-center relative overflow-hidden">
       <div className="absolute inset-0 bg-black/20"></div>
       <div className="relative w-full h-full flex items-center justify-center">
-        <div className="w-40 h-40 bg-black rounded-lg border-4 border-[var(--color-accent)] shadow-lg flex items-center justify-center overflow-hidden">
+        <div className="w-24 sm:w-40 h-24 sm:h-40 bg-black rounded-lg border-2 sm:border-4 border-[var(--color-accent)] shadow-lg flex items-center justify-center overflow-hidden">
           <div className="flex justify-center items-end h-full w-full gap-1 p-2">
             {Array(NUM_BARS).fill(null).map((_, i) => (
               <div
