@@ -56,11 +56,16 @@ const ModeMenu: React.FC<{ currentMode: RadioMode; onSelectMode: (mode: RadioMod
 
 const Boombox: React.FC = () => {
   console.log('Boombox component initializing...');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
   useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      console.log('Resize detected - isMobile:', mobile, 'width:', window.innerWidth);
+    };
     window.addEventListener('resize', handleResize);
+    console.log('Initial isMobile:', window.innerWidth < 768, 'width:', window.innerWidth);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
   
