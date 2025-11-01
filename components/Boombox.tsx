@@ -165,6 +165,42 @@ const Boombox: React.FC = () => {
   const [showCommentBox, setShowCommentBox] = useState<boolean>(false); // Comment speaker triangle drop-up
   const [showRightSpeaker1, setShowRightSpeaker1] = useState<boolean>(false); // Right speaker 1 drop-up
   const [showRightSpeaker2, setShowRightSpeaker2] = useState<boolean>(false); // Right speaker 2 drop-up
+  const [showCommentModal, setShowCommentModal] = useState<boolean>(false); // Comment modal for songs
+  const [selectedSongForComments, setSelectedSongForComments] = useState<string | null>(null); // Selected song title for comments
+
+  // Comment functionality
+  const [songComments, setSongComments] = useState<Record<string, Comment[]>>(() => {
+    try {
+      const saved = localStorage.getItem('beccabear@13_song_comments');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (e) {
+      console.error('Error loading song comments:', e);
+    }
+    return {};
+  });
+
+  const [commentText, setCommentText] = useState('');
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingText, setEditingText] = useState('');
+
+  // Save song comments to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('beccabear@13_song_comments', JSON.stringify(songComments));
+      console.log('💾 Song comments saved for beccabear@13');
+    } catch (e) {
+      console.error('Error saving song comments:', e);
+    }
+  }, [songComments]);
+
+  interface Comment {
+    id: string;
+    user: string;
+    text: string;
+    timestamp: number;
+  }
   const { videos: videoList, loading: videosLoading, error: videosError } = useVideos();
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -808,6 +844,66 @@ const Boombox: React.FC = () => {
     );
   };
 
+  // Song comment handlers
+  const handleOpenSongComments = (songTitle: string) => {
+    setSelectedSongForComments(songTitle);
+    setShowCommentModal(true);
+  };
+
+  const handleCloseSongComments = () => {
+    setShowCommentModal(false);
+    setSelectedSongForComments(null);
+    setCommentText('');
+    setEditingCommentId(null);
+    setEditingText('');
+  };
+
+  const handleAddSongComment = () => {
+    if (!selectedSongForComments || !commentText.trim()) return;
+
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      user: 'beccabear@13',
+      text: commentText.trim(),
+      timestamp: Date.now()
+    };
+
+    setSongComments(prev => ({
+      ...prev,
+      [selectedSongForComments]: [...(prev[selectedSongForComments] || []), newComment]
+    }));
+
+    setCommentText('');
+  };
+
+  const handleEditSongComment = (comment: Comment) => {
+    setEditingCommentId(comment.id);
+    setEditingText(comment.text);
+  };
+
+  const handleSaveSongComment = (commentId: string) => {
+    if (!selectedSongForComments || !editingText.trim()) return;
+
+    setSongComments(prev => ({
+      ...prev,
+      [selectedSongForComments]: (prev[selectedSongForComments] || []).map(c =>
+        c.id === commentId ? { ...c, text: editingText.trim() } : c
+      )
+    }));
+
+    setEditingCommentId(null);
+    setEditingText('');
+  };
+
+  const handleDeleteSongComment = (commentId: string) => {
+    if (!selectedSongForComments) return;
+
+    setSongComments(prev => ({
+      ...prev,
+      [selectedSongForComments]: (prev[selectedSongForComments] || []).filter(c => c.id !== commentId)
+    }));
+  };
+
   // --- Video Controls Logic ---
 
   useEffect(() => {
@@ -1088,6 +1184,16 @@ const Boombox: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-sm font-medium">{index + 1}.</span>
                   <span className="text-sm truncate flex-1">{track.file.name}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenSongComments(track.file.name);
+                    }}
+                    className="w-6 h-6 bg-[var(--color-accent)] text-[var(--color-bg-primary)] rounded text-xs font-bold hover:opacity-80 flex items-center justify-center"
+                    title="Comments"
+                  >
+                    C
+                  </button>
                   {index === currentTrackIndex && tapeState === 'playing' && <span className="text-xs">▶️</span>}
                 </div>
               </div>
@@ -1172,7 +1278,6 @@ const Boombox: React.FC = () => {
                 isPlaying={tapeState === 'playing'}
                 onTriangleClick={handleCommentBoxClick}
                 showDropUp={showCommentBox}
-                isCommentBox={true}
               />
             </div>
             <div className="flex justify-center">
@@ -1232,6 +1337,116 @@ const Boombox: React.FC = () => {
           </div>
         )}
         {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+
+        {/* Song Comments Modal */}
+        {showCommentModal && selectedSongForComments && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className="bg-[var(--color-bg-primary)] border-4 border-[var(--color-surface)] rounded-2xl shadow-2xl p-6 w-full max-w-md max-h-[80vh] flex flex-col">
+              {/* Header with close button */}
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-[var(--color-accent)]">
+                  💬 Comments for "{selectedSongForComments}"
+                </h3>
+                <button
+                  onClick={handleCloseSongComments}
+                  className="text-[var(--color-text-secondary)] hover:text-[var(--color-accent)] text-xl font-bold"
+                  title="Close"
+                >
+                  ✕
+                </button>
+              </div>
+
+              {/* Comments list */}
+              <div className="flex-1 overflow-y-auto mb-4 space-y-3 max-h-64">
+                {(songComments[selectedSongForComments] || []).length === 0 ? (
+                  <div className="text-center text-[var(--color-text-secondary)] py-4">
+                    No comments yet. Be the first to comment!
+                  </div>
+                ) : (
+                  (songComments[selectedSongForComments] || []).map((comment) => (
+                    <div key={comment.id} className="bg-[var(--color-bg-secondary)] p-3 rounded border border-[var(--color-accent)]">
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="text-[var(--color-accent)] font-semibold text-sm">{comment.user}</div>
+                        <div className="text-xs text-[var(--color-text-secondary)]">
+                          {new Date(comment.timestamp).toLocaleDateString()}
+                        </div>
+                      </div>
+                      {editingCommentId === comment.id ? (
+                        <textarea
+                          value={editingText}
+                          onChange={(e) => setEditingText(e.target.value)}
+                          className="w-full bg-[var(--color-bg-primary)] text-[var(--color-text-primary)] px-2 py-1 rounded border border-[var(--color-accent)] text-sm resize-none"
+                          rows={2}
+                        />
+                      ) : (
+                        <div className="text-[var(--color-text-primary)] text-sm">{comment.text}</div>
+                      )}
+                      {editingCommentId === comment.id ? (
+                        <div className="flex gap-1 mt-2">
+                          <button
+                            onClick={() => handleSaveSongComment(comment.id)}
+                            className="text-xs bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded"
+                          >
+                            ✓ Save
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingCommentId(null);
+                              setEditingText('');
+                            }}
+                            className="text-xs bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded"
+                          >
+                            ✕ Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        comment.user === 'beccabear@13' && (
+                          <div className="flex gap-1 mt-2">
+                            <button
+                              onClick={() => handleEditSongComment(comment)}
+                              className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              onClick={() => handleDeleteSongComment(comment.id)}
+                              className="text-xs bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        )
+                      )}
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Add comment */}
+              <div className="flex gap-2">
+                <textarea
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && e.ctrlKey && commentText.trim()) {
+                      handleAddSongComment();
+                    }
+                  }}
+                  placeholder="Add a comment... (Ctrl+Enter to post)"
+                  className="flex-1 bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)] px-3 py-2 rounded border border-[var(--color-accent)] focus:outline-none resize-none"
+                  rows={2}
+                />
+                <button
+                  onClick={handleAddSongComment}
+                  disabled={!commentText.trim()}
+                  className="bg-[var(--color-accent)] text-[var(--color-bg-primary)] px-4 py-2 rounded font-bold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Post
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </React.Fragment>
   );
