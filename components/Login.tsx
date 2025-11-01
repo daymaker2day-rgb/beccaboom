@@ -9,7 +9,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
-  const correctPassword = 'rpopgolden';
+  const correctPassword = 'beccabear@13';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
