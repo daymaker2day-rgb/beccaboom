@@ -56,18 +56,8 @@ const ModeMenu: React.FC<{ currentMode: RadioMode; onSelectMode: (mode: RadioMod
 
 const Boombox: React.FC = () => {
   console.log('Boombox component initializing...');
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      console.log('Resize detected - isMobile:', mobile, 'width:', window.innerWidth);
-    };
-    window.addEventListener('resize', handleResize);
-    console.log('Initial isMobile:', window.innerWidth < 768, 'width:', window.innerWidth);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  // REMOVE MOBILE DETECTION - USE MOBILE LAYOUT ONLY
+  const isMobile = true;
   
   // Initialize audio settings from localStorage
   const [powerOn, setPowerOn] = useState<boolean>(() => {
@@ -927,261 +917,248 @@ const Boombox: React.FC = () => {
   return (
     <React.Fragment>
       <div 
-        className={`w-full max-w-6xl mx-auto transition-colors duration-500 relative`}
+        className="w-full max-w-6xl mx-auto transition-colors duration-500 relative h-screen overflow-y-auto"
         onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
         onDragOver={handleDragOver} onDrop={handleDrop}
       >
-        {/* Handle with Banner */}
-        <div className="relative w-[70%] mx-auto">
-          <div className="h-32 bg-[var(--color-bg-secondary)] border-x-8 border-t-8 border-[var(--color-bg-primary)] rounded-tl-3xl rounded-tr-3xl shadow-inner relative">
-            {/* Banner Image */}
-            <div className="absolute inset-0 flex items-center justify-center px-20 mt-1">
-              <img 
-                src="Icons/banner.png" 
-                alt="Banner" 
-                className="w-full h-[120px] object-contain drop-shadow-lg"
-              />
-            </div>
-            
-            {/* Settings Gear - moved inward */}
-            <button 
-              onClick={() => setIsSettingsOpen(true)} 
-              className="absolute top-1/2 -translate-y-1/2 right-6 text-[var(--color-text-primary)] hover:opacity-80 transition-opacity transform hover:rotate-90 duration-300 bg-[#800000]/60 rounded-full p-1.5" 
-              title="Settings"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.962.062 2.18-.948 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-              </svg>
-            </button>
-
-            {/* Profile Circle - moved inward with R logo option */}
-            <button 
-              onClick={() => setShowProfileLogo(!showProfileLogo)}
-              onContextMenu={handleProfileRightClick}
-              className="absolute top-1/2 -translate-y-1/2 left-6 w-10 h-10 bg-[#800000]/60 rounded-full overflow-hidden border-2 border-[var(--color-text-primary)] hover:opacity-80 transition-opacity"
-              title={customProfileImage ? "Custom Image (right-click to change)" : showProfileLogo ? "R Logo (click to switch, right-click to upload)" : "Profile (click to switch, right-click to upload)"}
-            >
-              {customProfileImage ? (
-                // Custom Profile Image
-                <div className="w-full h-full flex items-center justify-center">
-                  <img 
-                    src={customProfileImage} 
-                    alt="Custom Profile" 
-                    className="w-full h-full rounded-full object-cover"
-                  />
-                </div>
-              ) : showProfileLogo ? (
-                // R Logo
-                <div className="w-full h-full flex items-center justify-center">
-                  <img 
-                    src="images/120r.png" 
-                    alt="R Logo" 
-                    className="w-8 h-8 rounded-sm object-contain"
-                  />
-                </div>
-              ) : (
-                // Profile Icon
-                <div className="w-full h-full flex items-center justify-center text-[var(--color-text-primary)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                  </svg>
-                </div>
-              )}
-            </button>
-            
-            {/* Hidden file input for profile image upload */}
-            <input 
-              id="profile-image-upload" 
-              type="file" 
-              accept="image/*" 
-              onChange={handleProfileImageChange}
-              className="hidden" 
-            />
-         
-            <div className="h-full bg-gradient-to-b from-[var(--color-surface-light)] to-[var(--color-surface)] rounded-t-2xl w-full mx-auto shadow-md flex justify-center items-center px-8">
-            </div>
-          </div>
+        {/* 1. REBECCAS MEDIA PLAYER Title */}
+        <div className="w-full text-center py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-bold text-2xl rounded-lg mx-4 mt-4 shadow-lg">
+          REBECCAS MEDIA PLAYER
         </div>
 
-        <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-8 border-[var(--color-bg-primary)] rounded-3xl p-4 sm:p-6 shadow-2xl relative">
-        <div className="grid grid-cols-12 gap-2 h-full">
-          {/* Left pair of speakers */}
-          <div className="col-span-1 flex flex-col gap-3 items-center justify-center">
-            <Speaker 
-              analyser={analyserRef.current} 
-              isPlaying={tapeState === 'playing'}
-              onTriangleClick={handleSpeakerTriangleClick}
-              showDropUp={showSpeakerDropUp}
-              isVideoTools={true}
-              onWatermarkChange={setWatermarkData}
+        {/* 2. VIDEO FEED */}
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border border-black/50">
+          <div ref={videoContainerRef} className="relative w-full bg-black rounded-lg shadow-inner overflow-hidden h-64 group" onMouseMove={showControls} onMouseLeave={hideControls}>
+            <video
+              ref={mediaElementRef}
+              className={`w-full h-full object-contain ${radioMode === 'VIDEO' && currentTrack ? 'block' : 'hidden'}`}
+              playsInline
+              onEnded={handleTrackEnd}
+              onPlay={() => setTapeState('playing')}
+              onPause={() => tapeState !== 'stopped' && setTapeState('paused')}
+              onError={handleMediaError}
+              onClick={handleVideoClick}
             />
-            <Speaker 
-              analyser={analyserRef.current} 
-              isPlaying={tapeState === 'playing'}
-              onTriangleClick={handleCommentBoxClick}
-              showDropUp={showCommentBox}
-              isCommentBox={true}
-            />
-          </div>
-
-          <div className="col-span-10 flex flex-col gap-4">
-            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-2 shadow-inner border border-black/50 flex flex-col gap-3 flex-grow min-h-0">
-               <div ref={videoContainerRef} className="relative w-full bg-black rounded-lg shadow-inner overflow-hidden flex-grow group" onMouseMove={showControls} onMouseLeave={hideControls}>
-                  <video
-                      ref={mediaElementRef}
-                      className={`w-full h-full object-contain ${radioMode === 'VIDEO' && currentTrack ? 'block' : 'hidden'}`}
-            playsInline
-                      onEnded={handleTrackEnd}
-                      onPlay={() => setTapeState('playing')}
-                      onPause={() => tapeState !== 'stopped' && setTapeState('paused')}
-                      onError={handleMediaError}
-                      onClick={handleVideoClick}
-                  />
-                  
-                  {/* Watermark canvas - draws watermark on top of video */}
-                  {radioMode === 'VIDEO' && currentTrack && (
-                    <canvas
-                      ref={canvasRef}
-                      className="absolute inset-0 w-full h-full pointer-events-none z-10"
-                      style={{ display: 'block' }}
-                    />
-                  )}
-                  
-                  {/* Black overlay to cover watermarks when button is pressed */}
-                  {radioMode === 'VIDEO' && currentTrack && showWatermarkCover && (
-                    <div className="absolute bottom-0 right-0 bg-black w-48 h-24 pointer-events-none z-10"></div>
-                  )}
-                  
-                  <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 transition-opacity ${radioMode === 'VIDEO' && currentTrack ? 'hidden' : 'flex'}`}>
-                      {!mediaError && <h2 className="text-6xl font-bold text-[var(--color-text-primary)] opacity-20 tracking-widest">AudioBox</h2>}
-                      {(radioMode !== 'VIDEO' || !currentTrack) && !mediaError && <RadioTuner mode={radioMode} />}
-                  </div>
-
-                  
-                  {/* Video Controls - Progress bar, timer, and fullscreen */}
-                  {radioMode === 'VIDEO' && currentTrack && isControlsVisible && (
-                    <div className="relative z-20">
-                      <VideoControls
-                        isPlaying={tapeState === 'playing'}
-                        onPlayPause={tapeState === 'playing' ? handlePause : handlePlay}
-                        currentTime={currentTime}
-                        duration={duration}
-                        onSeek={handleSeekVideo}
-                        volume={volume}
-                        onVolumeChange={setVolume}
-                        onMuteToggle={handleMuteToggle}
-                        isMuted={isMuted}
-                        onFullscreen={handleFullscreen}
-                      />
-                    </div>
-                  )}
-              </div>
-
-              {/* Watermark Layers Section - Under Time Bar */}
-              {radioMode === 'VIDEO' && currentTrack && watermarkData?.layers && watermarkData.layers.length > 0 && (
-                <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-3 shadow-inner border border-pink-400">
-                  <h3 className="text-xs font-bold text-[var(--color-accent)] mb-2">📍 Watermark Layers ({watermarkData.layers.length})</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-20 overflow-y-auto">
-                    {watermarkData.layers.map((layer: any, idx: number) => (
-                      <div 
-                        key={layer.id} 
-                        className="p-1.5 bg-[var(--color-bg-secondary)] rounded border border-[var(--color-accent)] text-xs text-[var(--color-text-secondary)] flex items-center gap-1 truncate"
-                      >
-                        <span>{layer.type === 'text' ? '📝' : layer.type === 'square' ? '□' : '○'}</span>
-                        <span className="truncate">{layer.text || `Layer ${idx + 1}`}</span>
-                        {!layer.visible && <span className="text-[0.65rem]">🚫</span>}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+            
+            {/* Watermark canvas - draws watermark on top of video */}
+            {radioMode === 'VIDEO' && currentTrack && (
+              <canvas
+                ref={canvasRef}
+                className="absolute inset-0 w-full h-full pointer-events-none z-10"
+                style={{ display: 'block' }}
+              />
+            )}
+            
+            {/* Black overlay to cover watermarks when button is pressed */}
+            {radioMode === 'VIDEO' && currentTrack && showWatermarkCover && (
+              <div className="absolute bottom-0 right-0 bg-black w-48 h-24 pointer-events-none z-10"></div>
+            )}
+            
+            <div className={`absolute inset-0 flex flex-col items-center justify-center p-4 transition-opacity ${radioMode === 'VIDEO' && currentTrack ? 'hidden' : 'flex'}`}>
+              {!mediaError && <h2 className="text-4xl font-bold text-[var(--color-text-primary)] opacity-20 tracking-widest">AudioBox</h2>}
+              {(radioMode !== 'VIDEO' || !currentTrack) && !mediaError && <RadioTuner mode={radioMode} />}
             </div>
 
-            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 shadow-inner border-2 border-black/50 flex flex-col gap-3 h-64">
-              <div className="flex-grow flex flex-col min-h-0">
-                <CassetteDeck 
-                    tapeState={tapeState} onPlay={handlePlay} onPause={handlePause} onStop={handleStop}
-                    onRewind={() => handleSeek('backward')} onFastForward={() => handleSeek('forward')}
-                    onPrevTrack={handlePrevTrack} onNextTrack={handleNextTrack}
-                    isPrevEnabled={mediaQueue.length > 1} isNextEnabled={mediaQueue.length > 1}
-                    mediaQueue={mediaQueue} currentTrackIndex={currentTrackIndex} onTrackSelect={handleTrackSelect}
+            {/* Video Controls - Progress bar, timer, and fullscreen */}
+            {radioMode === 'VIDEO' && currentTrack && isControlsVisible && (
+              <div className="relative z-20">
+                <VideoControls
+                  isPlaying={tapeState === 'playing'}
+                  onPlayPause={tapeState === 'playing' ? handlePause : handlePlay}
+                  currentTime={currentTime}
+                  duration={duration}
+                  onSeek={handleSeekVideo}
+                  volume={volume}
+                  onVolumeChange={setVolume}
+                  onMuteToggle={handleMuteToggle}
+                  isMuted={isMuted}
+                  onFullscreen={handleFullscreen}
                 />
               </div>
-               <label htmlFor="file-upload" className="w-full bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] font-bold py-2 px-4 rounded-md text-sm text-center cursor-pointer transition-colors flex-shrink-0">Load Media</label>
-              <input id="file-upload" type="file" accept="audio/*,video/*" onChange={handleFileChange} className="hidden" multiple />
-            </div>
+            )}
           </div>
 
-          {/* Right pair of speakers */}
-          <div className="col-span-1 flex flex-col gap-3 items-center justify-center">
-            <Speaker 
-              analyser={analyserRef.current} 
-              isPlaying={tapeState === 'playing'}
-              onTriangleClick={handleRightSpeaker1Click}
-              showDropUp={showRightSpeaker1}
-            />
-            <Speaker 
-              analyser={analyserRef.current} 
-              isPlaying={tapeState === 'playing'}
-              onTriangleClick={handleRightSpeaker2Click}
-              showDropUp={showRightSpeaker2}
-            />
+          {/* Watermark Layers Section */}
+          {radioMode === 'VIDEO' && currentTrack && watermarkData?.layers && watermarkData.layers.length > 0 && (
+            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-3 shadow-inner border border-pink-400 mt-2">
+              <h3 className="text-xs font-bold text-[var(--color-accent)] mb-2">📍 Watermark Layers ({watermarkData.layers.length})</h3>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-20 overflow-y-auto">
+                {watermarkData.layers.map((layer: any, idx: number) => (
+                  <div 
+                    key={layer.id} 
+                    className="p-1.5 bg-[var(--color-bg-secondary)] rounded border border-[var(--color-accent)] text-xs text-[var(--color-text-secondary)] flex items-center gap-1 truncate"
+                  >
+                    <span>{layer.type === 'text' ? '📝' : layer.type === 'square' ? '□' : '○'}</span>
+                    <span className="truncate">{layer.text || `Layer ${idx + 1}`}</span>
+                    {!layer.visible && <span className="text-[0.65rem]">🚫</span>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* 3. SONG SELECTIONS BOX */}
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border-2 border-black/50">
+          <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-2 text-center">SONG SELECTIONS</h3>
+          <div className="space-y-2 max-h-48 overflow-y-auto">
+            {mediaQueue.map((track, index) => (
+              <div 
+                key={index}
+                onClick={() => handleTrackSelect(index)}
+                className={`p-2 rounded cursor-pointer transition-colors ${
+                  index === currentTrackIndex 
+                    ? 'bg-[var(--color-accent)] text-[var(--color-text-primary)]' 
+                    : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium">{index + 1}.</span>
+                  <span className="text-sm truncate flex-1">{track.file.name}</span>
+                  {index === currentTrackIndex && tapeState === 'playing' && <span className="text-xs">▶️</span>}
+                </div>
+              </div>
+            ))}
+            {mediaQueue.length === 0 && (
+              <div className="text-center text-[var(--color-text-secondary)] py-4">
+                No songs loaded
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="mt-6 bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 shadow-inner border-2 border-black/50">
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 items-center">
-            <div className="relative flex flex-col items-center gap-2">
-                 <span className="text-[var(--color-text-secondary)] font-bold text-xs uppercase">Mode</span>
-                 <div className="flex gap-2 p-1 bg-black rounded-lg">
-                    <button
-                      onClick={() => {
-                        setIsModeMenuOpen(prev => !prev);
-                        setIsThemeMenuOpen(false);
-                      }}
-                      className="px-3 py-1 text-sm rounded transition-colors flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md"
-                      aria-haspopup="listbox"
-                      aria-expanded={isModeMenuOpen}
-                    >
-                      {radioMode}
-                      <svg className={`w-3 h-3 transition-transform ${isModeMenuOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M5.23 7.21a.75.75 0 011.06-.02L10 10.67l3.71-3.48a.75.75 0 111.04 1.08l-4.24 3.98a.75.75 0 01-1.04 0L5.21 8.27a.75.75 0 01.02-1.06z" />
-                      </svg>
-                    </button>
-                    <button
-                      onClick={() => {
-                        setIsThemeMenuOpen(prev => !prev);
-                        setIsModeMenuOpen(false);
-                      }}
-                      className={`px-3 py-1 text-sm rounded transition-colors ${isThemeMenuOpen ? 'bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md' : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)]'}`}
-                      aria-haspopup="menu"
-                      aria-expanded={isThemeMenuOpen}
-                    >
-                      THEME
-                    </button>
-                 </div>
-                 {isModeMenuOpen && (
-                   <ModeMenu currentMode={radioMode} onSelectMode={handleModeSelect} />
-                 )}
-                 {isThemeMenuOpen && <ThemeMenu onSelectTheme={handleThemeSelect} />}
+        {/* 4. THE PLAY BUTTONS REWIND ETC. */}
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border-2 border-black/50">
+          <div className="flex justify-center items-center gap-4">
+            <button 
+              onClick={handlePrevTrack}
+              disabled={mediaQueue.length <= 1}
+              className="px-4 py-2 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] disabled:opacity-50 disabled:cursor-not-allowed rounded text-[var(--color-text-primary)] font-bold"
+            >
+              ⏮️
+            </button>
+            <button 
+              onClick={() => handleSeek('backward')}
+              className="px-4 py-2 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded text-[var(--color-text-primary)] font-bold"
+            >
+              ⏪
+            </button>
+            <button 
+              onClick={tapeState === 'playing' ? handlePause : handlePlay}
+              className="px-6 py-3 bg-[var(--color-accent)] hover:bg-[var(--color-accent-dark)] rounded text-[var(--color-text-primary)] font-bold text-lg"
+            >
+              {tapeState === 'playing' ? '⏸️' : '▶️'}
+            </button>
+            <button 
+              onClick={() => handleSeek('forward')}
+              className="px-4 py-2 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded text-[var(--color-text-primary)] font-bold"
+            >
+              ⏩
+            </button>
+            <button 
+              onClick={handleNextTrack}
+              disabled={mediaQueue.length <= 1}
+              className="px-4 py-2 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] disabled:opacity-50 disabled:cursor-not-allowed rounded text-[var(--color-text-primary)] font-bold"
+            >
+              ⏭️
+            </button>
+            <button 
+              onClick={handleStop}
+              className="px-4 py-2 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded text-[var(--color-text-primary)] font-bold"
+            >
+              ⏹️
+            </button>
+          </div>
+        </div>
+
+        {/* 5. LOAD MEDIA */}
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border-2 border-black/50 text-center">
+          <label htmlFor="file-upload" className="w-full bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] font-bold py-3 px-6 rounded-md text-lg cursor-pointer transition-colors inline-block">
+            📁 LOAD MEDIA
+          </label>
+          <input id="file-upload" type="file" accept="audio/*,video/*" onChange={handleFileChange} className="hidden" multiple />
+        </div>
+
+        {/* 6. SPEAKERS 2 COLUMNS 2 ROWS */}
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border-2 border-black/50">
+          <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-4 text-center">SPEAKERS</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="flex justify-center">
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'}
+                onTriangleClick={handleSpeakerTriangleClick}
+                showDropUp={showSpeakerDropUp}
+                isVideoTools={true}
+                onWatermarkChange={setWatermarkData}
+              />
             </div>
-            <ControlKnob label="Volume" value={volume} setValue={handleVolumeChange} />
-            <div className="sm:col-span-3 flex justify-around gap-4">
-                <ControlSlider label="Bass" value={bass} setValue={setBass} min={-20} max={20} />
-                <ControlSlider label="Treble" value={treble} setValue={setTreble} min={-20} max={20} />
-                <ControlSlider label="Balance" value={balance} setValue={setBalance} min={-50} max={50} showValue={false} />
+            <div className="flex justify-center">
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'}
+                onTriangleClick={handleCommentBoxClick}
+                showDropUp={showCommentBox}
+                isCommentBox={true}
+              />
+            </div>
+            <div className="flex justify-center">
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'}
+                onTriangleClick={handleRightSpeaker1Click}
+                showDropUp={showRightSpeaker1}
+              />
+            </div>
+            <div className="flex justify-center">
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'}
+                onTriangleClick={handleRightSpeaker2Click}
+                showDropUp={showRightSpeaker2}
+              />
             </div>
           </div>
         </div>
-      </div>
-      {isDraggingOver && (
-        <div className="absolute inset-0 bg-[var(--color-bg-primary)] bg-opacity-80 rounded-[28px] flex flex-col items-center justify-center pointer-events-none z-20 border-4 border-dashed border-[var(--color-accent)] backdrop-blur-sm">
+
+        {/* 7. VOLUME CONTROLS */}
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border-2 border-black/50">
+          <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-4 text-center">VOLUME CONTROLS</h3>
+          <div className="space-y-4">
+            <div className="flex items-center gap-4">
+              <span className="text-sm font-bold text-[var(--color-text-secondary)] w-16">VOLUME</span>
+              <ControlKnob label="" value={volume} setValue={handleVolumeChange} />
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <ControlSlider label="Bass" value={bass} setValue={setBass} min={-20} max={20} />
+              <ControlSlider label="Treble" value={treble} setValue={setTreble} min={-20} max={20} />
+              <ControlSlider label="Balance" value={balance} setValue={setBalance} min={-50} max={50} showValue={false} />
+            </div>
+          </div>
+        </div>
+
+        {/* 8. SCAN APPLE DEVICE SECTION */}
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 mb-4 shadow-inner border-2 border-black/50">
+          <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-4 text-center">SCAN APPLE DEVICE</h3>
+          <div className="text-center">
+            <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors">
+              🔍 SCAN FOR DEVICES
+            </button>
+            <p className="text-sm text-[var(--color-text-secondary)] mt-2">
+              Connect and sync with Apple devices
+            </p>
+          </div>
+        </div>
+
+        {/* Settings and other overlays */}
+        {isDraggingOver && (
+          <div className="fixed inset-0 bg-[var(--color-bg-primary)] bg-opacity-80 rounded-[28px] flex flex-col items-center justify-center pointer-events-none z-20 border-4 border-dashed border-[var(--color-accent)] backdrop-blur-sm">
             <svg xmlns="http://www.w3.org/2000/svg" className="h-24 w-24 text-[var(--color-accent)]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}><path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 15l-4 4m0 0l4-4m-4 4h12" /></svg>
             <p className="text-2xl mt-4 font-bold text-[var(--color-text-primary)]">Drop Media File(s)</p>
-        </div>
-      )}
-      {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
-    </div>
+          </div>
+        )}
+        {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+      </div>
     </React.Fragment>
   );
 
@@ -1316,6 +1293,9 @@ const Boombox: React.FC = () => {
       </div>
     );
   }
+
+  // REMOVE DESKTOP LAYOUT - ONLY USE MOBILE LAYOUT
+  return null; // This will never be reached since isMobile is always true
 };
 
 export default Boombox;
