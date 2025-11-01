@@ -1192,20 +1192,115 @@ const Boombox: React.FC = () => {
           </div>
           <button onClick={() => setIsSettingsOpen(true)} className="px-2 py-1 text-xs bg-[#800000] text-white rounded">⚙️</button>
         </div>
-        {/* Video */}
-        <div ref={videoContainerRef} className="flex-1 bg-black relative overflow-hidden group" onMouseMove={showControls}>
-          <video ref={mediaElementRef} className={`w-full h-full object-contain ${radioMode === 'VIDEO' && currentTrack ? 'block' : 'hidden'}`} playsInline onEnded={handleTrackEnd} onPlay={() => setTapeState('playing')} onPause={() => tapeState !== 'stopped' && setTapeState('paused')} onTimeUpdate={() => { if (mediaElementRef.current) { setCurrentTime(mediaElementRef.current.currentTime); setDuration(mediaElementRef.current.duration); }}} />
-          {radioMode === 'VIDEO' && currentTrack && <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />}
-          <div className={`absolute inset-0 flex flex-col items-center justify-center ${radioMode === 'VIDEO' && currentTrack ? 'hidden' : 'flex'}`}><RadioTuner mode={radioMode} /></div>
-          {radioMode === 'VIDEO' && currentTrack && isControlsVisible && (
-            <div className="absolute bottom-0 left-0 right-0 z-20"><VideoControls isPlaying={tapeState === 'playing'} onPlayPause={tapeState === 'playing' ? handlePause : handlePlay} currentTime={currentTime} duration={duration} onSeek={handleSeekVideo} volume={volume} onVolumeChange={setVolume} onMuteToggle={handleMuteToggle} isMuted={isMuted} onFullscreen={handleFullscreen} /></div>
+
+        {/* Scrollable Content Area */}
+        <div className="flex-1 overflow-y-auto bg-[var(--color-surface)] p-3 space-y-3">
+          
+          {/* Song Title */}
+          <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-lg p-2 text-center">
+            <p className="text-xs text-[var(--color-text-secondary)]">Now Playing</p>
+            <p className="text-sm font-bold text-[var(--color-text-primary)] truncate">{currentTrack?.file.name || 'No track loaded'}</p>
+          </div>
+
+          {/* Video Box */}
+          <div ref={videoContainerRef} className="w-full aspect-video bg-black relative rounded-lg overflow-hidden group shadow-lg" onMouseMove={showControls}>
+            <video
+              ref={mediaElementRef}
+              className={`w-full h-full object-contain ${radioMode === 'VIDEO' && currentTrack ? 'block' : 'hidden'}`}
+              playsInline
+              onEnded={handleTrackEnd}
+              onPlay={() => setTapeState('playing')}
+              onPause={() => tapeState !== 'stopped' && setTapeState('paused')}
+              onTimeUpdate={() => { if (mediaElementRef.current) { setCurrentTime(mediaElementRef.current.currentTime); setDuration(mediaElementRef.current.duration); }}}
+            />
+            {radioMode === 'VIDEO' && currentTrack && <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10" />}
+            <div className={`absolute inset-0 flex flex-col items-center justify-center ${radioMode === 'VIDEO' && currentTrack ? 'hidden' : 'flex'}`}>
+              <RadioTuner mode={radioMode} />
+            </div>
+            {radioMode === 'VIDEO' && currentTrack && isControlsVisible && (
+              <div className="absolute bottom-0 left-0 right-0 z-20"><VideoControls isPlaying={tapeState === 'playing'} onPlayPause={tapeState === 'playing' ? handlePause : handlePlay} currentTime={currentTime} duration={duration} onSeek={handleSeekVideo} volume={volume} onVolumeChange={setVolume} onMuteToggle={handleMuteToggle} isMuted={isMuted} onFullscreen={handleFullscreen} /></div>
+            )}
+          </div>
+
+          {/* Songs Queue */}
+          {mediaQueue.length > 0 && (
+            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-lg p-2">
+              <p className="text-xs font-bold text-[var(--color-text-secondary)] mb-1">Queue ({mediaQueue.length})</p>
+              <div className="space-y-1 max-h-24 overflow-y-auto">
+                {mediaQueue.map((track, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleTrackSelect(idx)}
+                    className={`w-full text-left p-1 rounded text-xs truncate transition-colors ${idx === currentTrackIndex ? 'bg-[var(--color-accent)] text-white' : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-light)]'}`}
+                  >
+                    {idx + 1}. {track.file.name}
+                  </button>
+                ))}
+              </div>
+            </div>
           )}
+
+          {/* Cassette Deck / Player Buttons */}
+          <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-lg p-2">
+            <CassetteDeck tapeState={tapeState} onPlay={handlePlay} onPause={handlePause} onStop={handleStop} onRewind={() => handleSeek('backward')} onFastForward={() => handleSeek('forward')} onPrevTrack={handlePrevTrack} onNextTrack={handleNextTrack} isPrevEnabled={mediaQueue.length > 1} isNextEnabled={mediaQueue.length > 1} mediaQueue={mediaQueue} currentTrackIndex={currentTrackIndex} onTrackSelect={handleTrackSelect} />
+          </div>
+
+          {/* 2x2 Speaker Grid */}
+          <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-lg p-2">
+            <p className="text-xs font-bold text-[var(--color-text-secondary)] mb-2 text-center">SPEAKERS</p>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="flex justify-center">
+                <Speaker 
+                  analyser={analyserRef.current} 
+                  isPlaying={tapeState === 'playing'}
+                  onTriangleClick={handleSpeakerTriangleClick}
+                  showDropUp={showSpeakerDropUp}
+                  isVideoTools={true}
+                  onWatermarkChange={setWatermarkData}
+                />
+              </div>
+              <div className="flex justify-center">
+                <Speaker 
+                  analyser={analyserRef.current} 
+                  isPlaying={tapeState === 'playing'}
+                  onTriangleClick={handleCommentBoxClick}
+                  showDropUp={showCommentBox}
+                  isCommentBox={true}
+                />
+              </div>
+              <div className="flex justify-center">
+                <Speaker 
+                  analyser={analyserRef.current} 
+                  isPlaying={tapeState === 'playing'}
+                  onTriangleClick={handleRightSpeaker1Click}
+                  showDropUp={showRightSpeaker1}
+                />
+              </div>
+              <div className="flex justify-center">
+                <Speaker 
+                  analyser={analyserRef.current} 
+                  isPlaying={tapeState === 'playing'}
+                  onTriangleClick={handleRightSpeaker2Click}
+                  showDropUp={showRightSpeaker2}
+                />
+              </div>
+            </div>
+          </div>
+
         </div>
-        {/* Controls */}
-        <div className="bg-[var(--color-surface)] border-t-2 border-[var(--color-bg-primary)] p-2 space-y-1 flex-shrink-0 max-h-40 overflow-y-auto">
-          <CassetteDeck tapeState={tapeState} onPlay={handlePlay} onPause={handlePause} onStop={handleStop} onRewind={() => handleSeek('backward')} onFastForward={() => handleSeek('forward')} onPrevTrack={handlePrevTrack} onNextTrack={handleNextTrack} isPrevEnabled={mediaQueue.length > 1} isNextEnabled={mediaQueue.length > 1} mediaQueue={mediaQueue} currentTrackIndex={currentTrackIndex} onTrackSelect={handleTrackSelect} />
-          <div className="grid grid-cols-4 gap-1 text-xs"><ControlSlider label="Bass" value={bass} setValue={setBass} min={-20} max={20} /><ControlSlider label="Treble" value={treble} setValue={setTreble} min={-20} max={20} /><ControlSlider label="Bal" value={balance} setValue={setBalance} min={-50} max={50} showValue={false} /><ControlKnob label="Vol" value={volume} setValue={setVolume} /></div>
+
+        {/* Fixed Bottom Controls */}
+        <div className="bg-[var(--color-surface)] border-t-2 border-[var(--color-bg-primary)] p-2 space-y-2 flex-shrink-0">
+          <div className="grid grid-cols-4 gap-1 text-xs">
+            <ControlSlider label="Bass" value={bass} setValue={setBass} min={-20} max={20} />
+            <ControlSlider label="Treble" value={treble} setValue={setTreble} min={-20} max={20} />
+            <ControlSlider label="Bal" value={balance} setValue={setBalance} min={-50} max={50} showValue={false} />
+            <ControlKnob label="Vol" value={volume} setValue={setVolume} />
+          </div>
+          <label htmlFor="file-upload-mobile" className="w-full bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] font-bold py-1 px-2 rounded text-xs text-center cursor-pointer transition-colors block">Load Media</label>
+          <input id="file-upload-mobile" type="file" accept="audio/*,video/*" onChange={handleFileChange} className="hidden" multiple />
         </div>
+
         {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
       </div>
     );
