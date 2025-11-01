@@ -509,10 +509,10 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   }, [analyser, isPlaying, barColor]);
 
   return (
-    <div className="w-28 sm:w-48 h-28 sm:h-48 bg-[var(--color-surface)] rounded-lg border-2 border-black/50 shadow-inner flex items-center justify-center relative overflow-hidden">
+    <div className="w-40 sm:w-64 h-40 sm:h-64 bg-[var(--color-surface)] rounded-lg border-2 border-black/50 shadow-inner flex items-center justify-center relative overflow-hidden">
       <div className="absolute inset-0 bg-black/20"></div>
       <div className="relative w-full h-full flex items-center justify-center">
-        <div className="w-24 sm:w-40 h-24 sm:h-40 bg-black rounded-lg border-2 sm:border-4 border-[var(--color-accent)] shadow-lg flex items-center justify-center overflow-hidden">
+        <div className="w-32 sm:w-56 h-32 sm:h-56 bg-black rounded-lg border-2 sm:border-4 border-[var(--color-accent)] shadow-lg flex items-center justify-center overflow-hidden">
           <div className="flex justify-center items-end h-full w-full gap-1 p-2">
             {Array(NUM_BARS).fill(null).map((_, i) => (
               <div
