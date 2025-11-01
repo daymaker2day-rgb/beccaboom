@@ -162,7 +162,6 @@ const Boombox: React.FC = () => {
     hidden: false
   }); // Watermark settings from Speaker component
   const [showSpeakerDropUp, setShowSpeakerDropUp] = useState<boolean>(false); // Speaker triangle drop-up menu
-  const [showCommentBox, setShowCommentBox] = useState<boolean>(false); // Comment speaker triangle drop-up
   const [showRightSpeaker1, setShowRightSpeaker1] = useState<boolean>(false); // Right speaker 1 drop-up
   const [showRightSpeaker2, setShowRightSpeaker2] = useState<boolean>(false); // Right speaker 2 drop-up
   const [showCommentModal, setShowCommentModal] = useState<boolean>(false); // Comment modal for songs
@@ -676,10 +675,6 @@ const Boombox: React.FC = () => {
   
   const handleSpeakerTriangleClick = () => {
     setShowSpeakerDropUp(!showSpeakerDropUp);
-  };
-  
-  const handleCommentBoxClick = () => {
-    setShowCommentBox(!showCommentBox);
   };
   
   const handleRightSpeaker1Click = () => {
@@ -1276,8 +1271,6 @@ const Boombox: React.FC = () => {
               <Speaker 
                 analyser={analyserRef.current} 
                 isPlaying={tapeState === 'playing'}
-                onTriangleClick={handleCommentBoxClick}
-                showDropUp={showCommentBox}
               />
             </div>
             <div className="flex justify-center">
