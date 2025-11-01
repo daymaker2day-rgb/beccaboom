@@ -37,7 +37,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   // Load comments from localStorage on mount
   const [comments, setComments] = useState<Comment[]>(() => {
     try {
-      const saved = localStorage.getItem('beccabear@13_comments');
+      const saved = localStorage.getItem('rpopgolden_comments');
       if (saved) {
         return JSON.parse(saved);
       }
@@ -48,7 +48,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     return [
       { id: '1', user: 'User123', text: 'Love this track! 🔥' },
       { id: '2', user: 'MusicFan', text: 'Amazing vocals!' },
-      { id: '3', user: 'BeccaFan', text: "Can't stop listening! 💕" }
+      { id: '3', user: 'RPopFan', text: "Can't stop listening! 💕" }
     ];
   });
   
@@ -58,8 +58,8 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   // Save comments to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem('beccabear@13_comments', JSON.stringify(comments));
-      console.log('💾 Comments saved for beccabear@13');
+      localStorage.setItem('rpopgolden_comments', JSON.stringify(comments));
+      console.log('💾 Comments saved for rpopgolden');
     } catch (e) {
       console.error('Error saving comments:', e);
     }
@@ -98,10 +98,10 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   // Load watermark layers from localStorage on mount
   const [watermarkLayers, setWatermarkLayers] = useState<WatermarkLayer[]>(() => {
     try {
-      const saved = localStorage.getItem('beccabear@13_watermarks');
+      const saved = localStorage.getItem('rpopgolden_watermarks');
       if (saved) {
         const layers = JSON.parse(saved);
-        console.log('💾 Loaded', layers.length, 'watermark layers for beccabear@13');
+        console.log('💾 Loaded', layers.length, 'watermark layers for rpopgolden');
         return layers;
       }
     } catch (e) {
@@ -114,8 +114,8 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
   // Auto-save watermark layers to localStorage whenever they change
   useEffect(() => {
     try {
-      localStorage.setItem('beccabear@13_watermarks', JSON.stringify(watermarkLayers));
-      console.log('💾 Watermark layers saved for beccabear@13:', watermarkLayers.length, 'layers');
+      localStorage.setItem('rpopgolden_watermarks', JSON.stringify(watermarkLayers));
+      console.log('💾 Watermark layers saved for rpopgolden:', watermarkLayers.length, 'layers');
     } catch (e) {
       console.error('Error saving watermark layers:', e);
     }
@@ -278,14 +278,14 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
       return;
     }
     
-    // Save current layer to user account (beccabear@13)
+    // Save current layer to user account (rpopgolden)
     const layer = watermarkLayers.find(l => l.id === selectedLayerId);
     try {
       // Save to localStorage with user key
-      const savedLayers = JSON.parse(localStorage.getItem('beccabear@13_watermarks') || '[]');
+      const savedLayers = JSON.parse(localStorage.getItem('rpopgolden_watermarks') || '[]');
       savedLayers.push(layer);
-      localStorage.setItem('beccabear@13_watermarks', JSON.stringify(savedLayers));
-      showNotification(`✅ Saved layer to beccabear@13`);
+      localStorage.setItem('rpopgolden_watermarks', JSON.stringify(savedLayers));
+      showNotification(`✅ Saved layer to rpopgolden`);
     } catch (error) {
       showNotification('❌ Error saving layer');
     }

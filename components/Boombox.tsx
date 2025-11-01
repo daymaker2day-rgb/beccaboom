@@ -62,7 +62,7 @@ const Boombox: React.FC = () => {
   // Initialize audio settings from localStorage
   const [powerOn, setPowerOn] = useState<boolean>(() => {
     try {
-      const saved = localStorage.getItem('beccabear@13_settings');
+      const saved = localStorage.getItem('rpopgolden_settings');
       if (saved) {
         const settings = JSON.parse(saved);
         return settings.powerOn ?? true;
@@ -75,7 +75,7 @@ const Boombox: React.FC = () => {
   
   const [volume, setVolume] = useState<number>(() => {
     try {
-      const saved = localStorage.getItem('beccabear@13_settings');
+      const saved = localStorage.getItem('rpopgolden_settings');
       if (saved) {
         const settings = JSON.parse(saved);
         return settings.volume ?? 19;
@@ -88,7 +88,7 @@ const Boombox: React.FC = () => {
   
   const [bass, setBass] = useState<number>(() => {
     try {
-      const saved = localStorage.getItem('beccabear@13_settings');
+      const saved = localStorage.getItem('rpopgolden_settings');
       if (saved) {
         const settings = JSON.parse(saved);
         return settings.bass ?? 0;
@@ -101,7 +101,7 @@ const Boombox: React.FC = () => {
   
   const [treble, setTreble] = useState<number>(() => {
     try {
-      const saved = localStorage.getItem('beccabear@13_settings');
+      const saved = localStorage.getItem('rpopgolden_settings');
       if (saved) {
         const settings = JSON.parse(saved);
         return settings.treble ?? 0;
@@ -114,7 +114,7 @@ const Boombox: React.FC = () => {
   
   const [balance, setBalance] = useState<number>(() => {
     try {
-      const saved = localStorage.getItem('beccabear@13_settings');
+      const saved = localStorage.getItem('rpopgolden_settings');
       if (saved) {
         const settings = JSON.parse(saved);
         return settings.balance ?? 0;
@@ -132,7 +132,7 @@ const Boombox: React.FC = () => {
   
   const [theme, setTheme] = useState<string>(() => {
     try {
-      const saved = localStorage.getItem('beccabear@13_settings');
+      const saved = localStorage.getItem('rpopgolden_settings');
       if (saved) {
         const settings = JSON.parse(saved);
         return settings.theme ?? 'theme-pink';
@@ -261,8 +261,8 @@ const Boombox: React.FC = () => {
         balance,
         theme
       };
-      localStorage.setItem('beccabear@13_settings', JSON.stringify(settings));
-      console.log('💾 All audio settings saved for beccabear@13:', settings);
+      localStorage.setItem('rpopgolden_settings', JSON.stringify(settings));
+      console.log('💾 All audio settings saved for rpopgolden:', settings);
     } catch (e) {
       console.error('Error saving audio settings:', e);
     }
@@ -704,7 +704,7 @@ const Boombox: React.FC = () => {
 
     const handleSendMessage = () => {
       const currentSong = currentTrack ? currentTrack.file.name : 'Unknown Song';
-      const messageText = `Message from daughter about: ${currentSong}\n\n${comment}\n\nSent from Rebecca's Boombox`;
+      const messageText = `Message from daughter about: ${currentSong}\n\n${comment}\n\nSent from R-Pop Golden Boombox`;
       
       // Add "Message:" prefix to comment display
       const messageComment = comment ? `Message: ${comment}\n\n` : 'Message: [Click to add message for mom]\n\n';

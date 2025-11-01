@@ -9,7 +9,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
-  const correctPassword = 'beccabear@13';
+  const correctPassword = 'rpopgolden';
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,14 +30,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           {/* Header */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-[var(--color-accent)] mb-4" style={{ fontFamily: 'var(--font-family)' }}>
-              Rebecca Media Player
+              R-Pop Golden Media Player
             </h1>
             
             {/* Logo centered under title */}
             <div className="flex justify-center mb-4">
               <img 
                 src="images/120r.png" 
-                alt="Rebecca Media Player Logo" 
+                alt="R-Pop Golden Media Player Logo" 
                 className="w-16 h-16 rounded-lg shadow-md"
                 style={{ objectFit: 'contain' }}
               />

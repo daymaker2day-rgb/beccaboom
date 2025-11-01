@@ -122,10 +122,10 @@
         }
 
         function clearStorage() {
-            if (confirm('Clear all stored watermarks for beccabear@13?')) {
+            if (confirm('Clear all stored watermarks for rpopgolden?')) {
                 try {
-                    localStorage.removeItem('beccabear@13_watermarks');
-                    showStatus('storage-status', 'info', '🗑️ Cleared beccabear@13_watermarks');
+                    localStorage.removeItem('rpopgolden_watermarks');
+                    showStatus('storage-status', 'info', '🗑️ Cleared rpopgolden_watermarks');
                     viewStorage();
                 } catch (e) {
                     showStatus('storage-status', 'error', '❌ Error: ' + e.message);
@@ -138,7 +138,7 @@
                 const contents = {};
                 for (let i = 0; i < localStorage.length; i++) {
                     const key = localStorage.key(i);
-                    if (key && key.includes('watermark') || key.includes('beccabear')) {
+                    if (key && key.includes('watermark') || key.includes('beccabear') || key.includes('rpopgolden')) {
                         contents[key] = JSON.parse(localStorage.getItem(key) || '{}');
                     }
                 }
