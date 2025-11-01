@@ -56,8 +56,8 @@ const ModeMenu: React.FC<{ currentMode: RadioMode; onSelectMode: (mode: RadioMod
 
 const Boombox: React.FC = () => {
   console.log('Boombox component initializing...');
-  // REMOVE MOBILE DETECTION - USE MOBILE LAYOUT ONLY
-  const isMobile = true;
+  // REMOVE MOBILE DETECTION - USE DESKTOP LAYOUT ONLY
+  const isMobile = false;
   
   // Initialize audio settings from localStorage
   const [powerOn, setPowerOn] = useState<boolean>(() => {
