@@ -999,9 +999,9 @@ const Boombox: React.FC = () => {
         </div>
 
         <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-8 border-[var(--color-bg-primary)] rounded-3xl p-4 sm:p-6 shadow-2xl relative">
-        <div className="grid grid-cols-12 gap-4 h-full">
+        <div className="grid grid-cols-12 gap-2 h-full">
           {/* Left pair of speakers */}
-          <div className="col-span-2 flex flex-col gap-6 items-center justify-center">
+          <div className="col-span-1 flex flex-col gap-3 items-center justify-center">
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
@@ -1019,7 +1019,7 @@ const Boombox: React.FC = () => {
             />
           </div>
 
-          <div className="col-span-8 flex flex-col gap-4">
+          <div className="col-span-10 flex flex-col gap-4">
             <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-2 shadow-inner border border-black/50 flex flex-col gap-3 flex-grow min-h-0">
                <div ref={videoContainerRef} className="relative w-full bg-black rounded-lg shadow-inner overflow-hidden flex-grow group" onMouseMove={showControls} onMouseLeave={hideControls}>
                   <video
@@ -1108,7 +1108,7 @@ const Boombox: React.FC = () => {
           </div>
 
           {/* Right pair of speakers */}
-          <div className="col-span-2 flex flex-col gap-6 items-center justify-center">
+          <div className="col-span-1 flex flex-col gap-3 items-center justify-center">
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
