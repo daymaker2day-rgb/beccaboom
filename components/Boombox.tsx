@@ -990,9 +990,9 @@ const Boombox: React.FC = () => {
         </div>
 
         <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-4 sm:border-8 border-[var(--color-bg-primary)] rounded-3xl p-2 sm:p-6 shadow-2xl relative">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-4 h-full">
-          {/* Left pair of speakers - hidden on mobile */}
-          <div className="hidden md:flex col-span-2 flex-col gap-6 items-center justify-center">
+        <div className="grid grid-cols-3 md:grid-cols-12 gap-2 sm:gap-4 h-full">
+          {/* Left pair of speakers */}
+          <div className="col-span-1 flex flex-col gap-2 sm:gap-6 items-center justify-center">
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
@@ -1098,8 +1098,8 @@ const Boombox: React.FC = () => {
             </div>
           </div>
 
-          {/* Right pair of speakers - hidden on mobile */}
-          <div className="hidden md:flex col-span-2 flex-col gap-6 items-center justify-center">
+          {/* Right pair of speakers */}
+          <div className="col-span-1 flex flex-col gap-2 sm:gap-6 items-center justify-center">
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
