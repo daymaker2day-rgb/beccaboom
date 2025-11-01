@@ -913,29 +913,29 @@ const Boombox: React.FC = () => {
   return (
     <React.Fragment>
       <div 
-        className={`w-full max-w-6xl mx-auto transition-colors duration-500 relative`}
+        className={`w-full max-w-full sm:max-w-6xl mx-auto transition-colors duration-500 relative px-2 sm:px-0`}
         onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
         onDragOver={handleDragOver} onDrop={handleDrop}
       >
         {/* Handle with Banner */}
-        <div className="relative w-[70%] mx-auto">
-          <div className="h-32 bg-[var(--color-bg-secondary)] border-x-8 border-t-8 border-[var(--color-bg-primary)] rounded-tl-3xl rounded-tr-3xl shadow-inner relative">
+        <div className="relative w-[85%] sm:w-[70%] mx-auto">
+          <div className="h-20 sm:h-32 bg-[var(--color-bg-secondary)] border-x-4 sm:border-x-8 border-t-4 sm:border-t-8 border-[var(--color-bg-primary)] rounded-tl-3xl rounded-tr-3xl shadow-inner relative">
             {/* Banner Image */}
-            <div className="absolute inset-0 flex items-center justify-center px-20 mt-1">
+            <div className="absolute inset-0 flex items-center justify-center px-2 sm:px-20 mt-1">
               <img 
                 src="Icons/banner.png" 
                 alt="Banner" 
-                className="w-full h-[120px] object-contain drop-shadow-lg"
+                className="w-full h-16 sm:h-[120px] object-contain drop-shadow-lg"
               />
             </div>
             
             {/* Settings Gear - moved inward */}
             <button 
               onClick={() => setIsSettingsOpen(true)} 
-              className="absolute top-1/2 -translate-y-1/2 right-6 text-[var(--color-text-primary)] hover:opacity-80 transition-opacity transform hover:rotate-90 duration-300 bg-[#800000]/60 rounded-full p-1.5" 
+              className="absolute top-1/2 -translate-y-1/2 right-2 sm:right-6 text-[var(--color-text-primary)] hover:opacity-80 transition-opacity transform hover:rotate-90 duration-300 bg-[#800000]/60 rounded-full p-1" 
               title="Settings"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 sm:h-8 w-5 sm:w-8" viewBox="0 0 20 20" fill="currentColor">
                 <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.962.062 2.18-.948 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
               </svg>
             </button>
@@ -944,7 +944,7 @@ const Boombox: React.FC = () => {
             <button 
               onClick={() => setShowProfileLogo(!showProfileLogo)}
               onContextMenu={handleProfileRightClick}
-              className="absolute top-1/2 -translate-y-1/2 left-6 w-10 h-10 bg-[#800000]/60 rounded-full overflow-hidden border-2 border-[var(--color-text-primary)] hover:opacity-80 transition-opacity"
+              className="absolute top-1/2 -translate-y-1/2 left-2 sm:left-6 w-8 sm:w-10 h-8 sm:h-10 bg-[#800000]/60 rounded-full overflow-hidden border border-sm:border-2 border-[var(--color-text-primary)] hover:opacity-80 transition-opacity"
               title={customProfileImage ? "Custom Image (right-click to change)" : showProfileLogo ? "R Logo (click to switch, right-click to upload)" : "Profile (click to switch, right-click to upload)"}
             >
               {customProfileImage ? (
@@ -962,13 +962,13 @@ const Boombox: React.FC = () => {
                   <img 
                     src="images/120r.png" 
                     alt="R Logo" 
-                    className="w-8 h-8 rounded-sm object-contain"
+                    className="w-5 sm:w-8 h-5 sm:h-8 rounded-sm object-contain"
                   />
                 </div>
               ) : (
                 // Profile Icon
                 <div className="w-full h-full flex items-center justify-center text-[var(--color-text-primary)]">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 sm:h-6 w-4 sm:w-6" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                   </svg>
                 </div>
@@ -989,10 +989,10 @@ const Boombox: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-8 border-[var(--color-bg-primary)] rounded-3xl p-4 sm:p-6 shadow-2xl relative">
-        <div className="grid grid-cols-12 gap-4 h-full">
-          {/* Left pair of speakers */}
-          <div className="col-span-2 flex flex-col gap-6 items-center justify-center">
+        <div className="bg-gradient-to-b from-[var(--color-surface)] to-[var(--color-bg-secondary)] border-4 sm:border-8 border-[var(--color-bg-primary)] rounded-3xl p-2 sm:p-6 shadow-2xl relative">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-2 sm:gap-4 h-full">
+          {/* Left pair of speakers - hidden on mobile */}
+          <div className="hidden md:flex col-span-2 flex-col gap-6 items-center justify-center">
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
@@ -1010,8 +1010,8 @@ const Boombox: React.FC = () => {
             />
           </div>
 
-          <div className="col-span-8 flex flex-col gap-4">
-            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-2 shadow-inner border border-black/50 flex flex-col gap-3 flex-grow min-h-0">
+          <div className="col-span-1 md:col-span-8 flex flex-col gap-2 sm:gap-4">
+            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-2 shadow-inner border border-black/50 flex flex-col gap-2 sm:gap-3 flex-grow min-h-0">
                <div ref={videoContainerRef} className="relative w-full bg-black rounded-lg shadow-inner overflow-hidden flex-grow group" onMouseMove={showControls} onMouseLeave={hideControls}>
                   <video
                       ref={mediaElementRef}
@@ -1065,13 +1065,13 @@ const Boombox: React.FC = () => {
 
               {/* Watermark Layers Section - Under Time Bar */}
               {radioMode === 'VIDEO' && currentTrack && watermarkData?.layers && watermarkData.layers.length > 0 && (
-                <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-3 shadow-inner border border-pink-400">
-                  <h3 className="text-xs font-bold text-[var(--color-accent)] mb-2">📍 Watermark Layers ({watermarkData.layers.length})</h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-20 overflow-y-auto">
+                <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-2 shadow-inner border border-pink-400 hidden sm:block">
+                  <h3 className="text-xs font-bold text-[var(--color-accent)] mb-1">📍 Watermark Layers ({watermarkData.layers.length})</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-1 max-h-16 overflow-y-auto">
                     {watermarkData.layers.map((layer: any, idx: number) => (
                       <div 
                         key={layer.id} 
-                        className="p-1.5 bg-[var(--color-bg-secondary)] rounded border border-[var(--color-accent)] text-xs text-[var(--color-text-secondary)] flex items-center gap-1 truncate"
+                        className="p-1 bg-[var(--color-bg-secondary)] rounded border border-[var(--color-accent)] text-xs text-[var(--color-text-secondary)] flex items-center gap-1 truncate"
                       >
                         <span>{layer.type === 'text' ? '📝' : layer.type === 'square' ? '□' : '○'}</span>
                         <span className="truncate">{layer.text || `Layer ${idx + 1}`}</span>
@@ -1083,7 +1083,7 @@ const Boombox: React.FC = () => {
               )}
             </div>
 
-            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 shadow-inner border-2 border-black/50 flex flex-col gap-3 h-64">
+            <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-2 sm:p-4 shadow-inner border-2 border-black/50 flex flex-col gap-2 sm:gap-3 h-48 sm:h-64">
               <div className="flex-grow flex flex-col min-h-0">
                 <CassetteDeck 
                     tapeState={tapeState} onPlay={handlePlay} onPause={handlePause} onStop={handleStop}
@@ -1093,13 +1093,13 @@ const Boombox: React.FC = () => {
                     mediaQueue={mediaQueue} currentTrackIndex={currentTrackIndex} onTrackSelect={handleTrackSelect}
                 />
               </div>
-               <label htmlFor="file-upload" className="w-full bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] font-bold py-2 px-4 rounded-md text-sm text-center cursor-pointer transition-colors flex-shrink-0">Load Media</label>
+               <label htmlFor="file-upload" className="w-full bg-[var(--color-accent-dark)] hover:bg-[var(--color-accent)] text-[var(--color-text-primary)] font-bold py-1 sm:py-2 px-2 sm:px-4 rounded-md text-xs sm:text-sm text-center cursor-pointer transition-colors flex-shrink-0">Load Media</label>
               <input id="file-upload" type="file" accept="audio/*,video/*" onChange={handleFileChange} className="hidden" multiple />
             </div>
           </div>
 
-          {/* Right pair of speakers */}
-          <div className="col-span-2 flex flex-col gap-6 items-center justify-center">
+          {/* Right pair of speakers - hidden on mobile */}
+          <div className="hidden md:flex col-span-2 flex-col gap-6 items-center justify-center">
             <Speaker 
               analyser={analyserRef.current} 
               isPlaying={tapeState === 'playing'}
@@ -1115,22 +1115,22 @@ const Boombox: React.FC = () => {
           </div>
         </div>
 
-        <div className="mt-6 bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 shadow-inner border-2 border-black/50">
-          <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 items-center">
-            <div className="relative flex flex-col items-center gap-2">
+        <div className="mt-3 sm:mt-6 bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-2 sm:p-4 shadow-inner border-2 border-black/50">
+          <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 items-center">
+            <div className="relative flex flex-col items-center gap-1 sm:gap-2">
                  <span className="text-[var(--color-text-secondary)] font-bold text-xs uppercase">Mode</span>
-                 <div className="flex gap-2 p-1 bg-black rounded-lg">
+                 <div className="flex gap-1 sm:gap-2 p-1 bg-black rounded-lg">
                     <button
                       onClick={() => {
                         setIsModeMenuOpen(prev => !prev);
                         setIsThemeMenuOpen(false);
                       }}
-                      className="px-3 py-1 text-sm rounded transition-colors flex items-center gap-2 bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md"
+                      className="px-2 sm:px-3 py-1 text-xs sm:text-sm rounded transition-colors flex items-center gap-1 sm:gap-2 bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md"
                       aria-haspopup="listbox"
                       aria-expanded={isModeMenuOpen}
                     >
                       {radioMode}
-                      <svg className={`w-3 h-3 transition-transform ${isModeMenuOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
+                      <svg className={`w-2 sm:w-3 h-2 sm:h-3 transition-transform ${isModeMenuOpen ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 20 20">
                         <path d="M5.23 7.21a.75.75 0 011.06-.02L10 10.67l3.71-3.48a.75.75 0 111.04 1.08l-4.24 3.98a.75.75 0 01-1.04 0L5.21 8.27a.75.75 0 01.02-1.06z" />
                       </svg>
                     </button>
@@ -1139,7 +1139,7 @@ const Boombox: React.FC = () => {
                         setIsThemeMenuOpen(prev => !prev);
                         setIsModeMenuOpen(false);
                       }}
-                      className={`px-3 py-1 text-sm rounded transition-colors ${isThemeMenuOpen ? 'bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md' : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)]'}`}
+                      className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded transition-colors ${isThemeMenuOpen ? 'bg-[var(--color-accent)] text-[var(--color-text-primary)] shadow-md' : 'bg-[var(--color-surface)] text-[var(--color-text-secondary)]'}`}
                       aria-haspopup="menu"
                       aria-expanded={isThemeMenuOpen}
                     >
@@ -1152,7 +1152,7 @@ const Boombox: React.FC = () => {
                  {isThemeMenuOpen && <ThemeMenu onSelectTheme={handleThemeSelect} />}
             </div>
             <ControlKnob label="Volume" value={volume} setValue={handleVolumeChange} />
-            <div className="sm:col-span-3 flex justify-around gap-4">
+            <div className="col-span-1 sm:col-span-3 flex flex-col sm:flex-row justify-around gap-2 sm:gap-4">
                 <ControlSlider label="Bass" value={bass} setValue={setBass} min={-20} max={20} />
                 <ControlSlider label="Treble" value={treble} setValue={setTreble} min={-20} max={20} />
                 <ControlSlider label="Balance" value={balance} setValue={setBalance} min={-50} max={50} showValue={false} />
