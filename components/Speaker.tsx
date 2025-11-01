@@ -578,6 +578,15 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
               }}
             />
 
+            {/* Close button in top-right corner */}
+            <button
+              onClick={() => onTriangleClick?.()}
+              className="absolute top-2 right-2 w-6 h-6 bg-black text-white rounded text-xs font-bold flex items-center justify-center hover:bg-gray-800 z-[100001]"
+              title="Close"
+            >
+              C
+            </button>
+
             {isAIMode ? (
               // AI Assistant Panel
               <AIAssistant onClose={() => setIsAIMode(false)} />
