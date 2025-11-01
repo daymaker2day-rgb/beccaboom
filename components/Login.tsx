@@ -30,7 +30,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           {/* Header */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-[var(--color-accent)] mb-4" style={{ fontFamily: 'var(--font-family)' }}>
-              R-Pop Golden Media Player
+              Rebecca Media Player
             </h1>
             
             {/* Logo centered under title */}
