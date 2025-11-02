@@ -1,12 +1,13 @@
 const CACHE_NAME = 'rebecca-boombox-v1';
+const BASE_PATH = '/beccaboom';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/images/appicon.webp',
-  '/images/app-192.webp',
-  '/images/app-384.webp',
-  '/images/app-512.webp',
+  `${BASE_PATH}/`,
+  `${BASE_PATH}/index.html`,
+  `${BASE_PATH}/manifest.json`,
+  `${BASE_PATH}/images/appicon.webp`,
+  `${BASE_PATH}/images/app-192.webp`,
+  `${BASE_PATH}/images/app-384.webp`,
+  `${BASE_PATH}/images/app-512.webp`,
   // Add other assets you want to cache
 ];
 
@@ -53,8 +54,8 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     const options = {
       body: event.data.text(),
-      icon: '/images/appicon.webp',
-      badge: '/images/appicon.webp'
+      icon: `${BASE_PATH}/images/appicon.webp`,
+      badge: `${BASE_PATH}/images/appicon.webp`
     };
     event.waitUntil(
       self.registration.showNotification('Rebecca\'s Boombox', options)
