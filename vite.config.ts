@@ -2,7 +2,7 @@
 import react from "@vitejs/plugin-react";
 
 export default defineConfig({
-  base: "/",
+  base: "/beccaboom/",
   plugins: [react()],
   css: {
     postcss: './postcss.config.js',

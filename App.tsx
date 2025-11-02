@@ -16,16 +16,6 @@ function App() {
       if (loggedIn === 'true') {
         setIsAuthenticated(true);
       }
-      
-      // Apply initial theme to body if no theme is set
-      const settings = localStorage.getItem('rpopgolden_settings');
-      if (settings) {
-        const parsedSettings = JSON.parse(settings);
-        const theme = parsedSettings.theme || 'theme-pink';
-        document.body.className = theme;
-      } else {
-        document.body.className = 'theme-pink';
-      }
     } catch (err) {
       console.error('Error checking authentication:', err);
       setError('Error checking login status');
@@ -45,16 +35,12 @@ function App() {
   };
 
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center theme-pink">
-        <Login onLogin={handleLogin} />
-      </div>
-    );
+    return <Login onLogin={handleLogin} />;
   }
 
   if (error) {
     return (
-      <div className="h-screen w-full flex items-center justify-center theme-pink">
+      <div className="h-screen w-full flex items-center justify-center">
         <div className="p-4 w-full max-w-md">
           <div className="bg-red-100 border-2 border-red-400 text-red-700 px-6 py-4 rounded-lg shadow-lg" role="alert">
             <strong className="font-bold block mb-2">Error: </strong>
@@ -75,12 +61,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[var(--color-bg-deep)] to-[var(--color-bg-secondary)] overflow-x-hidden">
-      <div className="w-full min-h-screen flex flex-col">
-        <main className="flex-1 w-full max-w-screen-2xl mx-auto px-2 py-4">
-          <Boombox />
-        </main>
-      </div>
+    <div className="min-h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-[var(--color-bg-deep)] to-[var(--color-bg-secondary)]">
+      <main className="w-full max-w-screen-lg mx-auto">
+        <Boombox />
+      </main>
     </div>
   );
 }
