@@ -1,8 +1,9 @@
-const CACHE_NAME = 'audiobox-cache-v2';
+const CACHE_NAME = 'audiobox-cache-v3';
 const urlsToCache = [
   '/',
   '/index.html',
-  '/index.tsx'
+  '/manifest.json',
+  '/assets/'
 ];
 
 self.addEventListener('install', event => {
