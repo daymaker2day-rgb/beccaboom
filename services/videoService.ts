@@ -18,7 +18,8 @@ export const useVideos = () => {
   useEffect(() => {
     const loadVideos = async () => {
       try {
-        const response = await fetch('/videos/index.json');
+        // Use relative path so Vite handles the base path correctly
+        const response = await fetch('./videos/index.json');
         if (!response.ok) {
           throw new Error('Failed to load videos');
         }
