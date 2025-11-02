@@ -1,0 +1,97 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom theme variables */
+:root, .theme-classic {
+  --color-bg-deep: #111827;
+  --color-bg-primary: #1f2937;
+  --color-bg-secondary: #374151;
+  --color-surface: #4b5563;
+  --color-surface-light: #6b7280;
+  --color-accent: #ef4444;
+  --color-accent-dark: #b91c1c;
+  --color-text-primary: #d1d5db;
+  --color-text-secondary: #9ca3af;
+  --color-text-display: #fde047;
+  --color-shadow: rgba(239, 68, 68, 0.7);
+  --font-family: "Orbitron", sans-serif;
+}
+
+.theme-pink {
+  --color-bg-deep: #581c87;
+  --color-bg-primary: #86198f;
+  --color-bg-secondary: #9d174d;
+  --color-surface: #be185d;
+  --color-surface-light: #db2777;
+  --color-accent: #f9a8d4;
+  --color-accent-dark: #f472b6;
+  --color-text-primary: #fdf2f8;
+  --color-text-secondary: #fce7f3;
+  --color-text-display: #f0abfc;
+  --color-shadow: rgba(249, 168, 212, 0.8);
+}
+
+.theme-neon {
+  --color-bg-deep: #020617;
+  --color-bg-primary: #0f172a;
+  --color-bg-secondary: #1e293b;
+  --color-surface: #334155;
+  --color-surface-light: #475569;
+  --color-accent: #22d3ee;
+  --color-accent-dark: #0891b2;
+  --color-text-primary: #e2e8f0;
+  --color-text-secondary: #cbd5e1;
+  --color-text-display: #67e8f9;
+  --color-shadow: rgba(34, 211, 238, 0.7);
+}
+
+.theme-rainbow {
+  --color-bg-deep: #1f2937;
+  --color-bg-primary: #374151;
+  --color-bg-secondary: #4b5563;
+  --color-surface: #a855f7;
+  --color-surface-light: #3b82f6;
+  --color-accent: #ec4899;
+  --color-accent-dark: #ef4444;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #e5e7eb;
+  --color-text-display: #eab308;
+  --color-shadow: rgba(236, 72, 153, 0.7);
+}
+
+/* Body styles */
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-bg-deep);
+  transition: background-color 0.5s ease;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-surface);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-surface-light);
+}
