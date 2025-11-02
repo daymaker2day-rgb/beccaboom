@@ -3,24 +3,24 @@
   "name": "Rebecca's Music Player",
   "icons": [
     {
-      "src": "/beccaboom/images/appicon.webp",
+      "src": "/images/appicon.webp",
       "type": "image/webp",
       "sizes": "120x120",
       "purpose": "any maskable"
     },
     {
-      "src": "/beccaboom/images/appicon.webp",
+      "src": "/images/appicon.webp",
       "type": "image/webp",
       "sizes": "192x192",
       "purpose": "any maskable"
     },
     {
-      "src": "/beccaboom/images/appicon.webp",
+      "src": "/images/appicon.webp",
       "type": "image/webp",
       "sizes": "384x384"
     },
     {
-      "src": "/beccaboom/images/appicon.webp",
+      "src": "/images/appicon.webp",
       "type": "image/webp",
       "sizes": "512x512",
       "purpose": "any maskable"
