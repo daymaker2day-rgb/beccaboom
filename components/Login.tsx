@@ -24,9 +24,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-4 bg-gradient-to-br from-[var(--color-bg-deep)] to-[var(--color-bg-secondary)] theme-pink">
-      <div className="w-full max-w-md">
-        <div className="bg-[var(--color-bg-primary)] border-4 border-[var(--color-surface)] rounded-2xl shadow-2xl p-8 space-y-6">
+    <div className="min-h-screen w-full flex items-center justify-center p-4 theme-pink">
+      <div className="w-full max-w-md relative">
+        <div className="bg-[var(--color-bg-primary)] border-4 border-[var(--color-surface)] rounded-2xl shadow-2xl p-8 space-y-6 relative z-10">
           {/* Header */}
           <div className="text-center">
             <h1 className="text-3xl font-bold text-[var(--color-accent)] mb-4" style={{ fontFamily: 'var(--font-family)' }}>
@@ -36,10 +36,14 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             {/* Logo centered under title */}
             <div className="flex justify-center mb-4">
               <img 
-                src="images/120r.png" 
+                src="/images/120r.png" 
                 alt="R-Pop Golden Media Player Logo" 
-                className="w-16 h-16 rounded-lg shadow-md"
+                className="w-16 h-16 rounded-lg shadow-md bg-white"
                 style={{ objectFit: 'contain' }}
+                onError={(e) => {
+                  const img = e.target as HTMLImageElement;
+                  img.src = '/assets/images/120r.png';
+                }}
               />
             </div>
             

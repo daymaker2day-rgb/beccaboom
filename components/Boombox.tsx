@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Speaker from './Speaker';
+import Banner from './Banner';
 import CassetteDeck from './CassetteDeck';
 import ErrorBoundary from './ErrorBoundary';
 import RadioTuner from './RadioTuner';
 import ControlKnob from './ControlKnob';
 import ControlSlider from './ControlSlider';
-import { useVideos } from '../services/videoService';
-import { TapeState, RadioMode, MediaQueueItem } from '../types';
+import { useVideos, Video } from '../services/videoService';
+import { TapeState, RadioMode, MediaQueueItem, WatermarkData } from '../types';
 import VideoControls from './VideoControls';
 import SettingsModal from './SettingsModal';
 import { firebaseService, Comment } from '../services/firebaseService';
@@ -150,17 +151,35 @@ const Boombox: React.FC = () => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
+  const [currentSong, setCurrentSong] = useState<Video | null>(null);
   const [showProfileLogo, setShowProfileLogo] = useState(true); // Toggle between R logo and profile icon
   const [customProfileImage, setCustomProfileImage] = useState<string | null>(null); // Custom profile image URL
   const [comments, setComments] = useState<{[key: string]: string}>({}); // Comments for each track
   const [editingComment, setEditingComment] = useState<boolean>(false); // Whether currently editing comment
   const [showWatermarkCover, setShowWatermarkCover] = useState<boolean>(false); // Manual watermark cover toggle
-  const [watermarkData, setWatermarkData] = useState({
-    color: '#FF00FF',
-    thickness: 2,
-    opacity: 100,
-    traced: false,
-    hidden: false
+  const [watermarkData, setWatermarkData] = useState<WatermarkData>(() => {
+    const saved = localStorage.getItem('beccabear@13_watermark_settings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        console.error('Error loading watermark settings:', e);
+      }
+    }
+    return {
+      color: '#FF00FF',
+      thickness: 2,
+      opacity: 100,
+      traced: false,
+      hidden: false,
+      x: 50,
+      y: 50,
+      angle: 0,
+      size: 80,
+      shape: 'text',
+      text: 'CLIDEO',
+      layers: []
+    };
   }); // Watermark settings from Speaker component
   const [showSpeakerDropUp, setShowSpeakerDropUp] = useState<boolean>(false); // Speaker triangle drop-up menu
   const [showRightSpeaker1, setShowRightSpeaker1] = useState<boolean>(false); // Right speaker 1 drop-up
@@ -250,6 +269,16 @@ const Boombox: React.FC = () => {
   
   const currentTrack = mediaQueue[currentTrackIndex];
 
+  // Update currentSong when track changes
+  useEffect(() => {
+    if (currentTrack && videoList.length > 0) {
+      const video = videoList.find(v => v.path === currentTrack.url);
+      if (video) {
+        setCurrentSong(video);
+      }
+    }
+  }, [currentTrackIndex, videoList]);
+
   // Load saved media queue from localStorage
   useEffect(() => {
     console.log('Loading videos, count:', videoList.length);
@@ -337,6 +366,25 @@ const Boombox: React.FC = () => {
   useEffect(() => {
     document.body.className = theme;
   }, [theme]);
+
+  // Save watermark settings to localStorage with persistence
+  useEffect(() => {
+    const saveWatermarkSettings = () => {
+      try {
+        localStorage.setItem('beccabear@13_watermark_settings', JSON.stringify(watermarkData));
+        console.log('💾 Watermark settings saved');
+      } catch (e) {
+        console.error('Error saving watermark settings:', e);
+      }
+    };
+
+    // Save immediately when settings change
+    saveWatermarkSettings();
+
+    // Also save when the window is about to unload
+    window.addEventListener('beforeunload', saveWatermarkSettings);
+    return () => window.removeEventListener('beforeunload', saveWatermarkSettings);
+  }, [watermarkData]);
 
   useEffect(() => {
     return () => {
@@ -709,6 +757,9 @@ const Boombox: React.FC = () => {
   };
   
   const handleRightSpeaker1Click = () => {
+    if (currentTrack) {
+      handleOpenSongComments(currentTrack.file.name);
+    }
     setShowRightSpeaker1(!showRightSpeaker1);
   };
   
@@ -883,6 +934,7 @@ const Boombox: React.FC = () => {
     setCommentText('');
     setEditingCommentId(null);
     setEditingText('');
+    setShowRightSpeaker1(false); // Also close the speaker drop-up when closing comments
   };
 
   const handleAddSongComment = async () => {
@@ -1035,91 +1087,34 @@ const Boombox: React.FC = () => {
   return (
     <React.Fragment>
       <div
-        className="w-full max-w-6xl mx-auto transition-colors duration-500 relative h-screen flex flex-col"
+        className="w-full max-w-6xl mx-auto transition-colors duration-500"
+        style={{ height: 'calc(100vh - 1rem)' }}
         onDragEnter={handleDragEnter} onDragLeave={handleDragLeave}
         onDragOver={handleDragOver} onDrop={handleDrop}
       >
-        {/* Fixed Banner at Top */}
-        <div className="flex-shrink-0">
-          {/* Handle with Banner */}
-          <div className="relative w-[70%] mx-auto">
-            <div className="h-32 bg-[var(--color-bg-secondary)] border-x-8 border-t-8 border-[var(--color-bg-primary)] rounded-tl-3xl rounded-tr-3xl shadow-inner relative">
-              {/* Banner Image */}
-              <div className="absolute inset-0 flex items-center justify-center px-20 mt-1">
-                <img
-                  src="Icons/banner.png"
-                  alt="Banner"
-                  className="w-full h-[120px] object-contain drop-shadow-lg"
-                />
-              </div>
-
-              {/* Settings Gear - moved inward */}
-              <button
-                onClick={() => setIsSettingsOpen(true)}
-                className="absolute top-1/2 -translate-y-1/2 right-6 text-[var(--color-text-primary)] hover:opacity-80 transition-opacity transform hover:rotate-90 duration-300 bg-[#800000]/60 rounded-full p-1.5"
-                title="Settings"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.962.062 2.18-.948 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-                </svg>
-              </button>
-
-              {/* Profile Circle - moved inward with R logo option */}
-              <button
-                onClick={() => setShowProfileLogo(!showProfileLogo)}
-                onContextMenu={handleProfileRightClick}
-                className="absolute top-1/2 -translate-y-1/2 left-6 w-10 h-10 bg-[#800000]/60 rounded-full overflow-hidden border-2 border-[var(--color-text-primary)] hover:opacity-80 transition-opacity"
-                title={customProfileImage ? "Custom Image (right-click to change)" : showProfileLogo ? "R Logo (click to switch, right-click to upload)" : "Profile (click to switch, right-click to upload)"}
-              >
-                {customProfileImage ? (
-                  // Custom Profile Image
-                  <div className="w-full h-full flex items-center justify-center">
-                    <img
-                      src={customProfileImage}
-                      alt="Custom Profile"
-                      className="w-full h-full rounded-full object-cover"
-                    />
-                  </div>
-                ) : showProfileLogo ? (
-                  // R Logo
-                  <div className="w-full h-full flex items-center justify-center">
-                    <img
-                      src="images/120r.png"
-                      alt="R Logo"
-                      className="w-8 h-8 rounded-sm object-contain"
-                    />
-                  </div>
-                ) : (
-                  // Profile Icon
-                  <div className="w-full h-full flex items-center justify-center text-[var(--color-text-primary)]">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                )}
-              </button>
-
-              {/* Hidden file input for profile image upload */}
-              <input
-                id="profile-image-upload"
-                type="file"
-                accept="image/*"
-                onChange={handleProfileImageChange}
-                className="hidden"
-              />
-
-              <div className="h-full bg-gradient-to-b from-[var(--color-surface-light)] to-[var(--color-surface)] rounded-t-2xl w-full mx-auto shadow-md flex justify-center items-center px-8">
-              </div>
-            </div>
-          </div>
-        </div>
+        <Banner
+          showProfileLogo={showProfileLogo}
+          setShowProfileLogo={setShowProfileLogo}
+          customProfileImage={customProfileImage}
+          handleProfileRightClick={handleProfileRightClick}
+          setIsSettingsOpen={setIsSettingsOpen}
+        />
+        
+        {/* Hidden file input for profile image upload */}
+        <input
+          id="profile-image-upload"
+          type="file"
+          accept="image/*"
+          onChange={handleProfileImageChange}
+          className="hidden"
+        />
 
         {/* Scrollable Content Area */}
-        <div className="flex-1 overflow-y-auto">
-
+        <div className="overflow-y-auto pb-16">
+        
         {/* 1. VIDEO FEED */}
-        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border border-black/50">
-          <div ref={videoContainerRef} className="relative w-full bg-black rounded-lg shadow-inner overflow-hidden h-64 group" onMouseMove={showControls} onMouseLeave={hideControls}>
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-2 shadow-inner border border-black/50">
+          <div ref={videoContainerRef} className="relative w-full bg-black rounded-lg shadow-inner overflow-hidden h-56 sm:h-64 group" onMouseMove={showControls} onMouseLeave={hideControls}>
             <video
               ref={mediaElementRef}
               className={`w-full h-full object-contain ${radioMode === 'VIDEO' && currentTrack ? 'block' : 'hidden'}`}
@@ -1192,7 +1187,7 @@ const Boombox: React.FC = () => {
         {/* 2. SONG SELECTIONS BOX */}
         <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border-2 border-black/50">
           <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-2 text-center">SONG SELECTIONS</h3>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
+          <div className="space-y-2 max-h-48 overflow-y-auto overscroll-contain -mx-1 px-1">
             {mediaQueue.map((track, index) => (
               <div 
                 key={index}
@@ -1288,16 +1283,6 @@ const Boombox: React.FC = () => {
               <Speaker 
                 analyser={analyserRef.current} 
                 isPlaying={tapeState === 'playing'}
-                onTriangleClick={handleSpeakerTriangleClick}
-                showDropUp={showSpeakerDropUp}
-                isVideoTools={true}
-                onWatermarkChange={setWatermarkData}
-              />
-            </div>
-            <div className="flex justify-center">
-              <Speaker 
-                analyser={analyserRef.current} 
-                isPlaying={tapeState === 'playing'}
               />
             </div>
             <div className="flex justify-center">
@@ -1306,6 +1291,16 @@ const Boombox: React.FC = () => {
                 isPlaying={tapeState === 'playing'}
                 onTriangleClick={handleRightSpeaker1Click}
                 showDropUp={showRightSpeaker1}
+                isCommentBox={true}
+                currentSong={currentSong}
+              />
+            </div>
+            <div className="flex justify-center">
+              <Speaker 
+                analyser={analyserRef.current} 
+                isPlaying={tapeState === 'playing'}
+                isCommentBox={true}
+                currentSong={currentSong}
               />
             </div>
             <div className="flex justify-center">
@@ -1335,18 +1330,6 @@ const Boombox: React.FC = () => {
           </div>
         </div>
 
-        {/* 7. SCAN APPLE DEVICE SECTION */}
-        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 mb-4 shadow-inner border-2 border-black/50">
-          <h3 className="text-lg font-bold text-[var(--color-text-primary)] mb-4 text-center">SCAN APPLE DEVICE</h3>
-          <div className="text-center">
-            <button className="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors">
-              🔍 SCAN FOR DEVICES
-            </button>
-            <p className="text-sm text-[var(--color-text-secondary)] mt-2">
-              Connect and sync with Apple devices
-            </p>
-          </div>
-        </div>
         </div>
 
         {/* Settings and other overlays */}

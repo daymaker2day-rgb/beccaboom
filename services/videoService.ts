@@ -18,7 +18,7 @@ export const useVideos = () => {
   useEffect(() => {
     const loadVideos = async () => {
       try {
-        const response = await fetch('/beccaboom/videos/index.json');
+        const response = await fetch('/videos/index.json');
         if (!response.ok) {
           throw new Error('Failed to load videos');
         }

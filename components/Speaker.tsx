@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import AIAssistant from './AIAssistant';
+import { firebaseService, Comment as FirebaseComment } from '../services/firebaseService';
 
 interface SpeakerProps {
   analyser: AnalyserNode | null;
@@ -8,6 +9,11 @@ interface SpeakerProps {
   showDropUp?: boolean;
   isCommentBox?: boolean;
   isVideoTools?: boolean;
+  currentSong?: {
+    title: string;
+    file: string;
+    path: string;
+  };
   onWatermarkChange?: (watermarkData: {
     color: string;
     thickness: number;
@@ -27,7 +33,64 @@ interface Comment {
   id?: string;
 }
 
-const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick, showDropUp = false, isCommentBox = false, isVideoTools = false, onWatermarkChange }) => {
+interface Comment {
+  id?: string;
+  user: string;
+  text: string;
+  songTitle?: string;
+  timestamp?: Date;
+}
+
+interface WatermarkLayer {
+  id: string;
+  type: 'text' | 'square' | 'circle';
+  text: string;
+  color: string;
+  thickness: number;
+  opacity: number;
+  x: number;
+  y: number;
+  angle: number;
+  size: number;
+  visible: boolean;
+}
+
+interface WatermarkData {
+  color: string;
+  thickness: number;
+  opacity: number;
+  traced: boolean;
+  hidden: boolean;
+  text?: string;
+  shape?: 'text' | 'square' | 'circle';
+  x?: number;
+  y?: number;
+  angle?: number;
+  size?: number;
+  layers?: WatermarkLayer[];
+}
+
+interface SpeakerProps {
+  analyser: AnalyserNode;
+  isPlaying: boolean;
+  onTriangleClick?: () => void;
+  showDropUp?: boolean;
+  isCommentBox?: boolean;
+  isVideoTools?: boolean;
+  currentSong?: { title: string; file: string; path: string; };
+  onWatermarkChange?: (watermarkData: { color: string; thickness: number; opacity: number; traced: boolean; hidden: boolean; }) => void;
+}
+
+const Speaker: React.FC<SpeakerProps> = ({ 
+  analyser, 
+  isPlaying, 
+  onTriangleClick, 
+  showDropUp = false, 
+  isCommentBox = false, 
+  isVideoTools = false,
+  currentSong,
+  onWatermarkChange
+}) => {
   const barRefs = useRef<(HTMLDivElement | null)[]>([]);
   const animationFrameId = useRef<number>();
   const [barColor, setBarColor] = useState('var(--color-accent)');
@@ -205,16 +268,30 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
     showNotification('💾 Comment saved');
   };
 
-  const handleAddComment = () => {
+  const handleAddComment = async () => {
     if (commentText.trim()) {
-      const newComment: Comment = {
-        id: Date.now().toString(),
-        user: 'You',
-        text: commentText
-      };
-      setComments([...comments, newComment]);
-      setCommentText('');
-      showNotification('📝 Comment posted');
+      try {
+        const commentId = await firebaseService.addComment(
+          currentSong?.title || '',
+          'You',
+          commentText
+        );
+        if (commentId) {
+          const newComment: Comment = {
+            id: commentId,
+            songTitle: currentSong?.title || '',
+            user: 'You',
+            text: commentText,
+            timestamp: new Date()
+          };
+          setComments([...comments, newComment]);
+          setCommentText('');
+          showNotification('📝 Comment posted successfully');
+        }
+      } catch (error) {
+        console.error('Error posting comment:', error);
+        showNotification('❌ Failed to post comment');
+      }
     }
   };
 
@@ -259,9 +336,8 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
         thickness: updatedLayers[0]?.thickness || 2,
         opacity: updatedLayers[0]?.opacity || 100,
         traced: true,
-        hidden: false,
-        layers: updatedLayers
-      } as any);
+        hidden: false
+      });
     }
   };
 
@@ -328,9 +404,8 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
         thickness: 2,
         opacity: 100,
         traced: false,
-        hidden: true,
-        layers: []
-      } as any);
+        hidden: true
+      });
     }
     
     showNotification('🗑️ All layers removed');
@@ -392,7 +467,7 @@ const Speaker: React.FC<SpeakerProps> = ({ analyser, isPlaying, onTriangleClick,
         opacity: watermarkOpacity,
         traced: false,
         hidden: false
-      } as any);
+      });
     }
   };
 

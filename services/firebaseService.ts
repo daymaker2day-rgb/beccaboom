@@ -35,11 +35,11 @@ try {
 }
 
 export interface Comment {
-  id?: string;
+  id: string;  // Made required since the Boombox component requires it
   songTitle: string;
   user: string;
   text: string;
-  timestamp: Date;
+  timestamp: number;  // Changed to number for consistent handling in UI
 }
 
 class FirebaseService {
@@ -61,7 +61,7 @@ class FirebaseService {
       const comments = querySnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data(),
-        timestamp: doc.data().timestamp.toDate()
+        timestamp: doc.data().timestamp.toDate().getTime()  // Convert to timestamp number
       })) as Comment[];
       console.log('✅ Loaded comments:', comments.length);
       return comments;
@@ -80,6 +80,7 @@ class FirebaseService {
         const allComments = JSON.parse(saved);
         return (allComments[songTitle] || []).map((c: any) => ({
           ...c,
+          id: c.id || Date.now().toString(), // Ensure each comment has an ID
           timestamp: new Date(c.timestamp)
         }));
       }
@@ -101,7 +102,7 @@ class FirebaseService {
         songTitle,
         user,
         text,
-        timestamp: new Date()
+        timestamp: Date.now()
       });
       return docRef.id;
     } catch (error) {

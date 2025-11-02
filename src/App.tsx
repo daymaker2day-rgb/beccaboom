@@ -1,7 +1,6 @@
-
 import React, { useEffect, useState } from 'react';
-import Boombox from './components/Boombox';
-import Login from './components/Login';
+import Boombox from '../components/Boombox';
+import Login from '../components/Login';
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -15,16 +14,6 @@ function App() {
       console.log('Login status:', loggedIn);
       if (loggedIn === 'true') {
         setIsAuthenticated(true);
-      }
-      
-      // Apply initial theme to body if no theme is set
-      const settings = localStorage.getItem('rpopgolden_settings');
-      if (settings) {
-        const parsedSettings = JSON.parse(settings);
-        const theme = parsedSettings.theme || 'theme-pink';
-        document.body.className = theme;
-      } else {
-        document.body.className = 'theme-pink';
       }
     } catch (err) {
       console.error('Error checking authentication:', err);
@@ -45,11 +34,7 @@ function App() {
   };
 
   if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen w-full flex items-center justify-center theme-pink">
-        <Login onLogin={handleLogin} />
-      </div>
-    );
+    return <Login onLogin={handleLogin} />;
   }
 
   if (error) {
@@ -75,12 +60,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-[var(--color-bg-deep)] to-[var(--color-bg-secondary)] overflow-x-hidden">
-      <div className="w-full min-h-screen flex flex-col">
-        <main className="flex-1 w-full max-w-screen-2xl mx-auto px-2 py-4">
-          <Boombox />
-        </main>
-      </div>
+    <div className="min-h-screen w-full flex flex-col items-center justify-start bg-gradient-to-br from-[var(--color-bg-deep)] to-[var(--color-bg-secondary)]">
+      <main className="w-full max-w-screen-lg mx-auto">
+        <Boombox />
+      </main>
     </div>
   );
 }
