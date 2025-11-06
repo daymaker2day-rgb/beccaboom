@@ -1,8 +1,12 @@
-const CACHE_NAME = 'audiobox-cache-v3';
+const CACHE_NAME = 'rebecca-boombox-v2';
 const urlsToCache = [
   '/',
   '/index.html',
   '/manifest.json',
+  '/images/120r.png',
+  '/images/appicon.webp',
+  '/images/app-logo.png',
+  '/images/app-logo.svg',
   '/assets/'
 ];
 

@@ -1,14 +1,18 @@
-const CACHE_NAME = 'rebecca-boombox-v1';
+const CACHE_NAME = 'rebecca-boombox-v2';
 const BASE_PATH = '/beccaboom';
 const ASSETS_TO_CACHE = [
   `${BASE_PATH}/`,
   `${BASE_PATH}/index.html`,
   `${BASE_PATH}/manifest.json`,
+  // Icon images
   `${BASE_PATH}/images/appicon.webp`,
   `${BASE_PATH}/images/app-192.webp`,
   `${BASE_PATH}/images/app-384.webp`,
   `${BASE_PATH}/images/app-512.webp`,
-  // Add other assets you want to cache
+  // Profile and logo images
+  `${BASE_PATH}/images/120r.png`,
+  `${BASE_PATH}/images/app-logo.png`,
+  `${BASE_PATH}/images/app-logo.svg`,
 ];
 
 self.addEventListener('install', (event) => {
