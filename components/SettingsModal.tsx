@@ -63,10 +63,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
     }
   }, []);
 
-  const ModalContent = () => (
+  const ModalContent = () => {
+    const baseUrl = import.meta.env.BASE_URL;
+    const bannerSrc = `${baseUrl}images/appicon.webp`;
+
+    return (
     <div className="text-[var(--color-text-primary)] space-y-4 sm:space-y-6">
       <div>
-        <img src="./images/appicon.webp" alt="Banner" className="w-full mb-4 rounded-lg" style={{ maxWidth: '100%', height: 'auto' }} />
+        <img src={bannerSrc} alt="Banner" className="w-full mb-4 rounded-lg" style={{ maxWidth: '100%', height: 'auto' }} />
         <p className="text-xs sm:text-sm text-[var(--color-text-secondary)]">
           Your personal, private media player. Load your own audio and video files for a unique listening experience with vibrant, music-reactive visuals. Created with safety and privacy as the top priority.
         </p>
@@ -151,13 +155,14 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ onClose }) => {
         </ul>
       </div>
       <div>
-        <h3 className="text-xl font-bold text-[var(--color-accent)] border-b-2 border-[var(--color-surface)] pb-2 mb-2">Enjoying the App?</h3>
+        <h3 className="text-lg sm:text-xl font-bold text-[var(--color-accent)] border-b-2 border-[var(--color-surface)] pb-2 mb-2">Enjoying the App?</h3>
         <p className="text-sm text-[var(--color-text-secondary)]">
             This app is designed to be a safe and fun media player for everyone.
         </p>
       </div>
     </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4" onClick={onClose}>

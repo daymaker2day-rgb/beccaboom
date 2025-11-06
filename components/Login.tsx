@@ -10,6 +10,8 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [shake, setShake] = useState(false);
 
   const correctPassword = 'beccabear@13';
+  const baseUrl = import.meta.env.BASE_URL;
+  const logoSrc = `${baseUrl}images/120r.png`;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,13 +40,13 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               {/* R Logo Background */}
               <div className="relative">
                 <img 
-                  src="images/120r.png" 
+                  src={logoSrc}
                   alt="R Logo" 
                   className="w-16 h-16 rounded-lg shadow-md bg-white"
                   style={{ objectFit: 'contain' }}
                   onError={(e) => {
                     const img = e.target as HTMLImageElement;
-                    img.src = 'images/120r.png';
+                    img.src = logoSrc;
                   }}
                 />
                 {/* Music Note Overlay */}

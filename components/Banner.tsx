@@ -15,8 +15,9 @@ const Banner: React.FC<BannerProps> = ({
   handleProfileRightClick,
   setIsSettingsOpen
 }) => {
-  // Logo path - works on both desktop and mobile
-  const logoPath = './images/120r.png';
+  // Get the correct base URL for image paths
+  const baseUrl = import.meta.env.BASE_URL;
+  const imageSrc = `${baseUrl}images/120r.png`;
 
   return (
     <div className="w-full sticky top-0 z-50 h-16 px-2 sm:px-4">
@@ -41,7 +42,7 @@ const Banner: React.FC<BannerProps> = ({
           ) : showProfileLogo ? (
             <div className="w-full h-full flex items-center justify-center bg-white">
               <img
-                src={logoPath}
+                src={imageSrc}
                 alt="R Logo"
                 className="w-6 h-6 sm:w-8 sm:h-8 rounded-sm object-contain"
                 onError={(e) => {
