@@ -9,8 +9,7 @@ import ControlSlider from './ControlSlider';
 import { useVideos, Video } from '../services/videoService';
 import { TapeState, RadioMode, MediaQueueItem, WatermarkData } from '../types';
 import VideoControls from './VideoControls';
-import ListeningHistory from './ListeningHistory';
-import QuickCheck from './QuickCheck';
+import AdminDashboard from './AdminDashboard';
 import SettingsModal from './SettingsModal';
 import { firebaseService, Comment } from '../services/firebaseService';
 import { listeningHistoryService, ListeningEvent } from '../services/listeningHistoryService';
@@ -201,7 +200,8 @@ const Boombox: React.FC = () => {
   const [currentPlaySessionId, setCurrentPlaySessionId] = useState<string | null>(null);
   const [playStartTime, setPlayStartTime] = useState<number>(0);
   const [listeningHistory, setListeningHistory] = useState<ListeningEvent[]>([]);
-  const [showListeningHistory, setShowListeningHistory] = useState<boolean>(false);
+  const [showAdminDashboard, setShowAdminDashboard] = useState<boolean>(false);
+  const [adminClicks, setAdminClicks] = useState<number>(0);
   const [showQuickCheck, setShowQuickCheck] = useState<boolean>(false);
 
   // Load comments from Firebase
@@ -1307,24 +1307,6 @@ const Boombox: React.FC = () => {
               ⏹️
             </button>
           </div>
-          
-          {/* History button */}
-          <div className="flex justify-center mt-3 gap-2">
-            <button
-              onClick={() => setShowListeningHistory(true)}
-              className="px-3 py-1 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded text-sm text-[var(--color-text-primary)] flex items-center gap-1"
-              title="View Listening History"
-            >
-              📊 History
-            </button>
-            <button
-              onClick={() => setShowQuickCheck(true)}
-              className="px-3 py-1 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded text-sm text-[var(--color-text-primary)] flex items-center gap-1"
-              title="Quick Song Check"
-            >
-              🔍 Check Song
-            </button>
-          </div>
         </div>
 
         {/* 4. LOAD MEDIA */}
@@ -1386,6 +1368,29 @@ const Boombox: React.FC = () => {
               <ControlSlider label="Bass" value={bass} setValue={setBass} min={-20} max={20} />
               <ControlSlider label="Treble" value={treble} setValue={setTreble} min={-20} max={20} />
               <ControlSlider label="Balance" value={balance} setValue={setBalance} min={-50} max={50} showValue={false} />
+            </div>
+          </div>
+        </div>
+
+        {/* Hidden Admin Access */}
+        <div className="bg-[var(--color-bg-primary)] bg-opacity-60 rounded-xl p-4 mx-4 mt-4 shadow-inner border-2 border-black/50">
+          <div className="flex justify-center items-center">
+            <div 
+              onClick={() => {
+                setAdminClicks(prev => {
+                  const newCount = prev + 1;
+                  if (newCount >= 5) {
+                    setShowAdminDashboard(true);
+                    return 0;
+                  }
+                  setTimeout(() => setAdminClicks(0), 2000); // Reset after 2 seconds
+                  return newCount;
+                });
+              }}
+              className="text-4xl cursor-pointer select-none hover:scale-110 transition-transform"
+              title={adminClicks > 0 ? `Admin: ${5 - adminClicks} more clicks` : ""}
+            >
+              🎵
             </div>
           </div>
         </div>
@@ -1512,18 +1517,10 @@ const Boombox: React.FC = () => {
         )}
       </div>
 
-      {/* Listening History Modal */}
-      {showListeningHistory && (
-        <ListeningHistory
-          userId="beccabear@13"
-          onClose={() => setShowListeningHistory(false)}
-        />
-      )}
-
-      {/* Quick Check Modal */}
-      {showQuickCheck && (
-        <QuickCheck
-          onClose={() => setShowQuickCheck(false)}
+      {/* Admin Dashboard Modal */}
+      {showAdminDashboard && (
+        <AdminDashboard
+          onClose={() => setShowAdminDashboard(false)}
         />
       )}
     </React.Fragment>
