@@ -15,9 +15,8 @@ const Banner: React.FC<BannerProps> = ({
   handleProfileRightClick,
   setIsSettingsOpen
 }) => {
-  // Get base URL for proper path resolution on all devices
-  const baseUrl = import.meta.env.BASE_URL || '/';
-  const logoPath = `${baseUrl}images/120r.png`;
+  // Logo path - works on both desktop and mobile
+  const logoPath = './images/120r.png';
 
   return (
     <div className="w-full sticky top-0 z-50 h-16 px-2 sm:px-4">
