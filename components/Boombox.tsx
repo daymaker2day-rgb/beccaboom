@@ -9,8 +9,11 @@ import ControlSlider from './ControlSlider';
 import { useVideos, Video } from '../services/videoService';
 import { TapeState, RadioMode, MediaQueueItem, WatermarkData } from '../types';
 import VideoControls from './VideoControls';
+import ListeningHistory from './ListeningHistory';
+import QuickCheck from './QuickCheck';
 import SettingsModal from './SettingsModal';
 import { firebaseService, Comment } from '../services/firebaseService';
+import { listeningHistoryService, ListeningEvent } from '../services/listeningHistoryService';
 
 const ThemeMenu: React.FC<{ onSelectTheme: (theme: string) => void }> = ({ onSelectTheme }) => {
   const themes = [
@@ -193,6 +196,13 @@ const Boombox: React.FC = () => {
   const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
   const [editingText, setEditingText] = useState('');
   const [commentsLoading, setCommentsLoading] = useState<Record<string, boolean>>({});
+  
+  // Listening history tracking
+  const [currentPlaySessionId, setCurrentPlaySessionId] = useState<string | null>(null);
+  const [playStartTime, setPlayStartTime] = useState<number>(0);
+  const [listeningHistory, setListeningHistory] = useState<ListeningEvent[]>([]);
+  const [showListeningHistory, setShowListeningHistory] = useState<boolean>(false);
+  const [showQuickCheck, setShowQuickCheck] = useState<boolean>(false);
 
   // Load comments from Firebase
   const loadCommentsForSong = async (songTitle: string) => {
@@ -468,19 +478,31 @@ const Boombox: React.FC = () => {
     processFiles(event.target.files);
   };
 
-  const handlePlay = useCallback(() => {
+  const handlePlay = useCallback(async () => {
     if (!mediaElementRef.current || !currentTrack) return;
     setMediaError(null);
     setupAudioContext();
-    mediaElementRef.current.play().then(() => {
-        shouldResumePlaybackRef.current = true;
-        setTapeState('playing');
-    }).catch(e => {
-        console.error("Playback failed:", e);
-        setMediaError("Could not start playback. File might be unsupported.");
-        setTapeState('stopped');
-        shouldResumePlaybackRef.current = false;
-    });
+    
+    try {
+      await mediaElementRef.current.play();
+      shouldResumePlaybackRef.current = true;
+      setTapeState('playing');
+      
+      // Log play start for listening history
+      const songTitle = currentTrack.file.name || 'Unknown Song';
+      const sessionId = await listeningHistoryService.logPlayStart(
+        songTitle, 
+        currentTrack.url
+      );
+      setCurrentPlaySessionId(sessionId);
+      setPlayStartTime(Date.now());
+      
+    } catch (e) {
+      console.error("Playback failed:", e);
+      setMediaError("Could not start playback. File might be unsupported.");
+      setTapeState('stopped');
+      shouldResumePlaybackRef.current = false;
+    }
   }, [currentTrack, setupAudioContext]);
   
   useEffect(() => {
@@ -660,6 +682,12 @@ const Boombox: React.FC = () => {
     mediaElementRef.current?.pause();
     setTapeState('paused');
     shouldResumePlaybackRef.current = false;
+    
+    // Log listening session when paused
+    if (currentPlaySessionId && playStartTime) {
+      const duration = Math.round((Date.now() - playStartTime) / 1000);
+      listeningHistoryService.logPlayEnd(currentPlaySessionId, duration, false);
+    }
   };
 
   const handleStop = () => {
@@ -670,6 +698,13 @@ const Boombox: React.FC = () => {
     setTapeState('stopped');
     setMediaError(null);
     shouldResumePlaybackRef.current = false;
+    
+    // Log listening session when stopped
+    if (currentPlaySessionId && playStartTime) {
+      const duration = Math.round((Date.now() - playStartTime) / 1000);
+      listeningHistoryService.logPlayEnd(currentPlaySessionId, duration, false);
+      setCurrentPlaySessionId(null);
+    }
   };
   
   const handleSeek = (direction: 'forward' | 'backward') => {
@@ -701,6 +736,13 @@ const Boombox: React.FC = () => {
   };
   
   const handleTrackEnd = () => {
+    // Log completed listening session
+    if (currentPlaySessionId && playStartTime) {
+      const duration = Math.round((Date.now() - playStartTime) / 1000);
+      listeningHistoryService.logPlayEnd(currentPlaySessionId, duration, true);
+      setCurrentPlaySessionId(null);
+    }
+    
     if(currentTrackIndex === mediaQueue.length - 1) {
         handleStop();
     } else {
@@ -1265,6 +1307,24 @@ const Boombox: React.FC = () => {
               ⏹️
             </button>
           </div>
+          
+          {/* History button */}
+          <div className="flex justify-center mt-3 gap-2">
+            <button
+              onClick={() => setShowListeningHistory(true)}
+              className="px-3 py-1 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded text-sm text-[var(--color-text-primary)] flex items-center gap-1"
+              title="View Listening History"
+            >
+              📊 History
+            </button>
+            <button
+              onClick={() => setShowQuickCheck(true)}
+              className="px-3 py-1 bg-[var(--color-surface)] hover:bg-[var(--color-surface-light)] rounded text-sm text-[var(--color-text-primary)] flex items-center gap-1"
+              title="Quick Song Check"
+            >
+              🔍 Check Song
+            </button>
+          </div>
         </div>
 
         {/* 4. LOAD MEDIA */}
@@ -1451,6 +1511,21 @@ const Boombox: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* Listening History Modal */}
+      {showListeningHistory && (
+        <ListeningHistory
+          userId="beccabear@13"
+          onClose={() => setShowListeningHistory(false)}
+        />
+      )}
+
+      {/* Quick Check Modal */}
+      {showQuickCheck && (
+        <QuickCheck
+          onClose={() => setShowQuickCheck(false)}
+        />
+      )}
     </React.Fragment>
   );
 };
