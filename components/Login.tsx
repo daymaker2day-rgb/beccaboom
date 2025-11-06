@@ -33,18 +33,25 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               Rebecca Media Player
             </h1>
             
-            {/* Logo centered under title */}
-            <div className="flex justify-center mb-4">
-              <img 
-                src="/images/120r.png" 
-                alt="R-Pop Golden Media Player Logo" 
-                className="w-16 h-16 rounded-lg shadow-md bg-white"
-                style={{ objectFit: 'contain' }}
-                onError={(e) => {
-                  const img = e.target as HTMLImageElement;
-                  img.src = '/assets/images/120r.png';
-                }}
-              />
+            {/* Logo with Music Note - R Icon */}
+            <div className="flex justify-center mb-4 relative">
+              {/* R Logo Background */}
+              <div className="relative">
+                <img 
+                  src="images/120r.png" 
+                  alt="R Logo" 
+                  className="w-16 h-16 rounded-lg shadow-md bg-white"
+                  style={{ objectFit: 'contain' }}
+                  onError={(e) => {
+                    const img = e.target as HTMLImageElement;
+                    img.src = 'images/120r.png';
+                  }}
+                />
+                {/* Music Note Overlay */}
+                <div className="absolute -bottom-1 -right-1 bg-[var(--color-accent)] text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shadow-lg">
+                  ♪
+                </div>
+              </div>
             </div>
             
             <p className="text-[var(--color-text-secondary)] text-sm">
