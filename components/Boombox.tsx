@@ -156,6 +156,8 @@ const Boombox: React.FC = () => {
   const [currentSong, setCurrentSong] = useState<Video | null>(null);
   const [showProfileLogo, setShowProfileLogo] = useState(true); // Toggle between R logo and profile icon
   const [customProfileImage, setCustomProfileImage] = useState<string | null>(null); // Custom profile image URL
+  const [isShuffle, setIsShuffle] = useState<boolean>(false);
+  const [repeatMode, setRepeatMode] = useState<'off' | 'all' | 'one'>('off');
   const [comments, setComments] = useState<{[key: string]: string}>({}); // Comments for each track
   const [editingComment, setEditingComment] = useState<boolean>(false); // Whether currently editing comment
   const [showWatermarkCover, setShowWatermarkCover] = useState<boolean>(false); // Manual watermark cover toggle
@@ -716,8 +718,20 @@ const Boombox: React.FC = () => {
   
   const handleNextTrack = () => {
     if (mediaQueue.length > 1) {
-        shouldResumePlaybackRef.current = tapeState === 'playing';
+      shouldResumePlaybackRef.current = tapeState === 'playing';
+      if (isShuffle) {
+        // Pick a random next index different from current
+        setCurrentTrackIndex(prevIndex => {
+          if (mediaQueue.length <= 2) return (prevIndex + 1) % mediaQueue.length;
+          let next = prevIndex;
+          while (next === prevIndex) {
+            next = Math.floor(Math.random() * mediaQueue.length);
+          }
+          return next;
+        });
+      } else {
         setCurrentTrackIndex(prevIndex => (prevIndex + 1) % mediaQueue.length);
+      }
     }
   };
 
@@ -734,6 +748,16 @@ const Boombox: React.FC = () => {
         setCurrentTrackIndex(index);
     }
   };
+
+  // Shuffle toggle
+  const toggleShuffle = () => {
+    setIsShuffle(prev => !prev);
+  };
+
+  // Repeat cycle: off -> all -> one -> off
+  const cycleRepeat = () => {
+    setRepeatMode(prev => (prev === 'off' ? 'all' : prev === 'all' ? 'one' : 'off'));
+  };
   
   const handleTrackEnd = () => {
     // Log completed listening session
@@ -743,10 +767,36 @@ const Boombox: React.FC = () => {
       setCurrentPlaySessionId(null);
     }
     
-    if(currentTrackIndex === mediaQueue.length - 1) {
+    // Repeat one: restart the current track
+    if (repeatMode === 'one' && mediaQueue.length > 0) {
+      if (mediaElementRef.current) {
+        try {
+          mediaElementRef.current.currentTime = 0;
+          mediaElementRef.current.play();
+          setTapeState('playing');
+        } catch (e) {
+          // ignore errors
+        }
+      }
+      return;
+    }
+
+    // Shuffle mode: pick a random track
+    if (isShuffle && mediaQueue.length > 1) {
+      handleNextTrack();
+      return;
+    }
+
+    // Normal advance. If at last track:
+    if (currentTrackIndex === mediaQueue.length - 1) {
+      if (repeatMode === 'all' && mediaQueue.length > 0) {
+        // wrap to start
+        setCurrentTrackIndex(0);
+      } else {
         handleStop();
+      }
     } else {
-        handleNextTrack();
+      handleNextTrack();
     }
   };
 
@@ -1201,6 +1251,10 @@ const Boombox: React.FC = () => {
                   onMuteToggle={handleMuteToggle}
                   isMuted={isMuted}
                   onFullscreen={handleFullscreen}
+                  isShuffle={isShuffle}
+                  onToggleShuffle={toggleShuffle}
+                  repeatMode={repeatMode}
+                  onCycleRepeat={cycleRepeat}
                 />
               </div>
             )}

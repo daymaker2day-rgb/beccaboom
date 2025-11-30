@@ -11,6 +11,10 @@ interface VideoControlsProps {
   onMuteToggle: () => void;
   isMuted: boolean;
   onFullscreen: () => void;
+  isShuffle?: boolean;
+  onToggleShuffle?: () => void;
+  repeatMode?: 'off' | 'all' | 'one';
+  onCycleRepeat?: () => void;
 }
 
 const formatTime = (timeInSeconds: number) => {
@@ -44,10 +48,28 @@ const FullscreenEnterIcon = () => (
     <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M2.5 5.5a.75.75 0 00-.75.75v8a.75.75 0 00.75.75h8a.75.75 0 000-1.5h-7.25V6.25a.75.75 0 00-.75-.75zM14.5 2.5a.75.75 0 00-.75.75v7.25h-7.25a.75.75 0 000 1.5h8a.75.75 0 00.75-.75v-8a.75.75 0 00-.75-.75z"></path></svg>
 );
 
+const ShuffleIcon = ({ active }: { active?: boolean }) => (
+  <svg className={`w-5 h-5 ${active ? 'text-[var(--color-accent)]' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 3h5v5M4 20l7-7 4 4 5-5" />
+  </svg>
+);
+
+const RepeatIcon = ({ mode }: { mode?: 'off' | 'all' | 'one' }) => (
+  <div className="relative inline-flex items-center">
+    <svg className={`w-5 h-5 ${mode && mode !== 'off' ? 'text-[var(--color-accent)]' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h12M21 17H9M7 7l4-4m6 4-4-4m0 18l4-4m-6 4 4 4" />
+    </svg>
+    {mode === 'one' && (
+      <span className="absolute text-[0.55rem] font-bold -right-1 -top-1 text-[var(--color-accent)]">1</span>
+    )}
+  </div>
+);
+
 
 const VideoControls: React.FC<VideoControlsProps> = ({
   isPlaying, onPlayPause, currentTime, duration, onSeek,
-  volume, onVolumeChange, isMuted, onMuteToggle, onFullscreen
+  volume, onVolumeChange, isMuted, onMuteToggle, onFullscreen,
+  isShuffle, onToggleShuffle, repeatMode, onCycleRepeat
 }) => {
   const handleSeekChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     onSeek(parseFloat(e.target.value));
@@ -110,11 +132,29 @@ const VideoControls: React.FC<VideoControlsProps> = ({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-4">
-            {/* CC Button Placeholder */}
-            {/* <button className="hover:text-[var(--color-accent)] transition-colors text-xs font-bold border border-white rounded px-1">CC</button> */}
-            <button onClick={onFullscreen} className="hover:text-[var(--color-accent)] transition-colors">
-              <FullscreenEnterIcon />
-            </button>
+            <div className="flex items-center gap-2">
+              {/* Shuffle (small, shows on hover) */}
+              <button
+                onClick={onToggleShuffle}
+                aria-label="Toggle shuffle"
+                className="opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 px-1"
+              >
+                <ShuffleIcon active={!!isShuffle} />
+              </button>
+
+              {/* Repeat (cycles: off -> all -> one) */}
+              <button
+                onClick={onCycleRepeat}
+                aria-label="Cycle repeat mode"
+                className="opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 px-1"
+              >
+                <RepeatIcon mode={repeatMode} />
+              </button>
+
+              <button onClick={onFullscreen} className="hover:text-[var(--color-accent)] transition-colors">
+                <FullscreenEnterIcon />
+              </button>
+            </div>
           </div>
         </div>
       </div>
