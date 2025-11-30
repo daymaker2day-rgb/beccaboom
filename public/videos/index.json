@@ -69,6 +69,11 @@
       "title": "Hey Cute Hair",
       "file": "Hey Cute Hair.mp4",
       "path": "./videos/Hey Cute Hair.mp4"
+    },
+    {
+      "title": "Dodging",
+      "file": "dodging.mp4",
+      "path": "./videos/dodging.mp4"
     }
   ]
 }
