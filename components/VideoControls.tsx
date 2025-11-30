@@ -134,22 +134,32 @@ const VideoControls: React.FC<VideoControlsProps> = ({
           <div className="flex items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-2">
               {/* Shuffle (small, shows on hover) */}
-              <button
-                onClick={onToggleShuffle}
-                aria-label="Toggle shuffle"
-                className="opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 px-1"
-              >
-                <ShuffleIcon active={!!isShuffle} />
-              </button>
+              <div className="relative group/shuffle">
+                <button
+                  onClick={onToggleShuffle}
+                  aria-label="Toggle shuffle"
+                  className="opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 px-1 hover:text-[var(--color-accent)]"
+                >
+                  <ShuffleIcon active={!!isShuffle} />
+                </button>
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-black/80 text-white rounded whitespace-nowrap opacity-0 group-hover/shuffle:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  {isShuffle ? 'Shuffle: On' : 'Shuffle: Off'}
+                </span>
+              </div>
 
               {/* Repeat (cycles: off -> all -> one) */}
-              <button
-                onClick={onCycleRepeat}
-                aria-label="Cycle repeat mode"
-                className="opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 px-1"
-              >
-                <RepeatIcon mode={repeatMode} />
-              </button>
+              <div className="relative group/repeat">
+                <button
+                  onClick={onCycleRepeat}
+                  aria-label="Cycle repeat mode"
+                  className="opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200 px-1 hover:text-[var(--color-accent)]"
+                >
+                  <RepeatIcon mode={repeatMode} />
+                </button>
+                <span className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-black/80 text-white rounded whitespace-nowrap opacity-0 group-hover/repeat:opacity-100 transition-opacity duration-200 pointer-events-none">
+                  {repeatMode === 'off' ? 'Repeat: Off' : repeatMode === 'all' ? 'Repeat: All' : 'Repeat: One'}
+                </span>
+              </div>
 
               <button onClick={onFullscreen} className="hover:text-[var(--color-accent)] transition-colors">
                 <FullscreenEnterIcon />
