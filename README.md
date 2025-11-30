@@ -2,6 +2,18 @@
 <img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
+---
+
+## 🚀 LIVE DEPLOYMENT
+
+**Live App URL:** https://daymaker2day-rgb.github.io/beccaboom/
+
+**Hosting:** GitHub Pages (auto-deploys on push to main branch)
+
+> ⚠️ **NOTE FOR AI ASSISTANTS:** This app is deployed via **GitHub Pages**, NOT Firebase. The `firebase.json` file exists but is NOT the active deployment method. Always use GitHub Pages for deployment. Pushing to `main` triggers automatic deployment.
+
+---
+
 # Run and deploy your AI Studio app
 
 This contains everything you need to run your app locally.
