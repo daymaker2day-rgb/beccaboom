@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rebecca-boombox-v2';
+const CACHE_NAME = 'rebecca-boombox-v3';
 const BASE_PATH = '/beccaboom';
 const ASSETS_TO_CACHE = [
   `${BASE_PATH}/`,
@@ -16,6 +16,8 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', (event) => {
+  // Activate the new service worker immediately
+  self.skipWaiting();
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(ASSETS_TO_CACHE);
@@ -24,33 +26,59 @@ self.addEventListener('install', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+  try {
+    const requestUrl = new URL(event.request.url);
+    const playlistPaths = [
+      `${BASE_PATH}/videos/index.json`,
+      '/videos/index.json'
+    ];
+    if (playlistPaths.some(p => requestUrl.pathname.endsWith(p) || requestUrl.pathname === p)) {
+      event.respondWith(
+        fetch(event.request)
+          .then(networkResponse => {
+            if (networkResponse && networkResponse.ok) {
+              const copy = networkResponse.clone();
+              caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+            }
+            return networkResponse;
+          })
+          .catch(() => caches.match(event.request))
+      );
+      return;
+    }
+  } catch (e) {
+    // ignore and fall through to cache-first
+  }
+
   event.respondWith(
     caches.match(event.request).then((response) => {
       // Return cached version or fetch from network
-      return response || fetch(event.request).then((response) => {
+      if (response) return response;
+      return fetch(event.request).then((networkResponse) => {
         // Cache successful network requests
-        if (response.ok && event.request.method === 'GET') {
-          const responseToCache = response.clone();
+        if (networkResponse && networkResponse.ok && event.request.method === 'GET') {
+          const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
         }
-        return response;
-      });
+        return networkResponse;
+      }).catch(() => caches.match(`${BASE_PATH}/index.html`));
     })
   );
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames
-          .filter((cacheName) => cacheName !== CACHE_NAME)
-          .map((cacheName) => caches.delete(cacheName))
-      );
-    })
-  );
+  // Claim clients immediately so the new SW starts controlling pages
+  event.waitUntil((async () => {
+    await clients.claim();
+    const cacheNames = await caches.keys();
+    await Promise.all(
+      cacheNames
+        .filter((cacheName) => cacheName !== CACHE_NAME)
+        .map((cacheName) => caches.delete(cacheName))
+    );
+  })());
 });
 
 // Handle push notifications
