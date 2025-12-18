@@ -9,7 +9,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   const [error, setError] = useState(false);
   const [shake, setShake] = useState(false);
 
-  const correctPassword = 'beccabear@13';
+  const correctPassword = 'beccabear';
   const baseUrl = import.meta.env.BASE_URL;
   const logoSrc = `${baseUrl}images/120r.png`;
 
@@ -124,3 +124,4 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
 };
 
 export default Login;
+
