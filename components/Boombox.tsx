@@ -3,6 +3,7 @@ import Speaker from './Speaker';
 import Banner from './Banner';
 import CassetteDeck from './CassetteDeck';
 import ErrorBoundary from './ErrorBoundary';
+import PuzzleGame from './PuzzleGame';
 import RadioTuner from './RadioTuner';
 import ControlKnob from './ControlKnob';
 import ControlSlider from './ControlSlider';
@@ -265,6 +266,7 @@ const Boombox: React.FC = () => {
   const { videos: videoList, loading: videosLoading, error: videosError } = useVideos();
   const [isControlsVisible, setIsControlsVisible] = useState(true);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isPuzzleOpen, setIsPuzzleOpen] = useState(false);
 
   const mediaElementRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -1190,6 +1192,7 @@ const Boombox: React.FC = () => {
           customProfileImage={customProfileImage}
           handleProfileRightClick={handleProfileRightClick}
           setIsSettingsOpen={setIsSettingsOpen}
+          setIsPuzzleOpen={setIsPuzzleOpen}
         />
         
         {/* Hidden file input for profile image upload */}
@@ -1459,6 +1462,7 @@ const Boombox: React.FC = () => {
           </div>
         )}
         {isSettingsOpen && <SettingsModal onClose={() => setIsSettingsOpen(false)} />}
+        {isPuzzleOpen && <PuzzleGame onClose={() => setIsPuzzleOpen(false)} />}
 
         {/* Song Comments Modal */}
         {showCommentModal && selectedSongForComments && (

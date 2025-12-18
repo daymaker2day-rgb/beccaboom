@@ -6,6 +6,7 @@ interface BannerProps {
   customProfileImage: string | null;
   handleProfileRightClick: (e: React.MouseEvent) => void;
   setIsSettingsOpen: (open: boolean) => void;
+  setIsPuzzleOpen?: (open: boolean) => void;
 }
 
 const Banner: React.FC<BannerProps> = ({
@@ -13,7 +14,8 @@ const Banner: React.FC<BannerProps> = ({
   setShowProfileLogo,
   customProfileImage,
   handleProfileRightClick,
-  setIsSettingsOpen
+  setIsSettingsOpen,
+  setIsPuzzleOpen
 }) => {
   // Get the correct base URL for image paths
   const baseUrl = import.meta.env.BASE_URL;
@@ -60,15 +62,25 @@ const Banner: React.FC<BannerProps> = ({
           )}
         </button>
 
-        <button
-          onClick={() => setIsSettingsOpen(true)}
-          className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--color-text-primary)] hover:opacity-80 transition-opacity transform hover:rotate-90 duration-300 bg-[#800000]/60 rounded-full flex items-center justify-center flex-shrink-0"
-          title="Settings"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.962.062 2.18-.948 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <button
+            onClick={() => setIsPuzzleOpen?.(true)}
+            className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--color-text-primary)] hover:opacity-80 transition-all transform hover:scale-110 duration-300 bg-gradient-to-br from-purple-600 to-pink-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg hover:shadow-pink-500/50 border-2 border-[var(--color-accent)]"
+            title="Puzzle Games"
+          >
+            <span className="text-xl sm:text-2xl font-bold text-white">P</span>
+          </button>
+
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="w-10 h-10 sm:w-12 sm:h-12 text-[var(--color-text-primary)] hover:opacity-80 transition-opacity transform hover:rotate-90 duration-300 bg-[#800000]/60 rounded-full flex items-center justify-center flex-shrink-0"
+            title="Settings"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 sm:h-6 sm:w-6" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.962.062 2.18-.948 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
