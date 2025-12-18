@@ -149,7 +149,7 @@ class ListeningHistoryService {
       const id = Date.now().toString();
       const eventWithId = { ...event, id };
       
-      const saved = localStorage.getItem('beccabear@13_listening_history');
+      const saved = localStorage.getItem('beccabear_listening_history');
       const history = saved ? JSON.parse(saved) : [];
       history.push(eventWithId);
       
@@ -158,7 +158,7 @@ class ListeningHistoryService {
         history.splice(0, history.length - 1000);
       }
       
-      localStorage.setItem('beccabear@13_listening_history', JSON.stringify(history));
+      localStorage.setItem('beccabear_listening_history', JSON.stringify(history));
       return id;
     } catch (error) {
       console.error('Error saving to localStorage:', error);
@@ -168,14 +168,14 @@ class ListeningHistoryService {
 
   private updateLocalStorage(eventId: string, duration: number, completed: boolean): void {
     try {
-      const saved = localStorage.getItem('beccabear@13_listening_history');
+      const saved = localStorage.getItem('beccabear_listening_history');
       if (saved) {
         const history = JSON.parse(saved);
         const eventIndex = history.findIndex((h: ListeningEvent) => h.id === eventId);
         if (eventIndex >= 0) {
           history[eventIndex].duration = duration;
           history[eventIndex].completed = completed;
-          localStorage.setItem('beccabear@13_listening_history', JSON.stringify(history));
+          localStorage.setItem('beccabear_listening_history', JSON.stringify(history));
         }
       }
     } catch (error) {
@@ -185,7 +185,7 @@ class ListeningHistoryService {
 
   private getFromLocalStorage(daysBack: number): ListeningEvent[] {
     try {
-      const saved = localStorage.getItem('beccabear@13_listening_history');
+      const saved = localStorage.getItem('beccabear_listening_history');
       if (saved) {
         const history = JSON.parse(saved);
         const cutoffTime = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
@@ -199,7 +199,7 @@ class ListeningHistoryService {
 
   private hasBeenPlayedLocally(songTitle: string): boolean {
     try {
-      const saved = localStorage.getItem('beccabear@13_listening_history');
+      const saved = localStorage.getItem('beccabear_listening_history');
       if (saved) {
         const history = JSON.parse(saved);
         return history.some((h: ListeningEvent) => h.songTitle === songTitle);

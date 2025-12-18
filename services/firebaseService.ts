@@ -75,7 +75,7 @@ class FirebaseService {
   // Fallback method for localStorage
   private getCommentsFromLocalStorage(songTitle: string): Comment[] {
     try {
-      const saved = localStorage.getItem('beccabear@13_song_comments');
+      const saved = localStorage.getItem('beccabear_song_comments');
       if (saved) {
         const allComments = JSON.parse(saved);
         return (allComments[songTitle] || []).map((c: any) => ({
@@ -141,11 +141,11 @@ class FirebaseService {
         timestamp: Date.now()
       };
 
-      const saved = localStorage.getItem('beccabear@13_song_comments');
+      const saved = localStorage.getItem('beccabear_song_comments');
       const allComments = saved ? JSON.parse(saved) : {};
       if (!allComments[songTitle]) allComments[songTitle] = [];
       allComments[songTitle].push(comment);
-      localStorage.setItem('beccabear@13_song_comments', JSON.stringify(allComments));
+      localStorage.setItem('beccabear_song_comments', JSON.stringify(allComments));
       return id;
     } catch (error) {
       console.error('Error saving comment to localStorage:', error);
@@ -155,13 +155,13 @@ class FirebaseService {
 
   private deleteCommentFromLocalStorage(commentId: string): boolean {
     try {
-      const saved = localStorage.getItem('beccabear@13_song_comments');
+      const saved = localStorage.getItem('beccabear_song_comments');
       if (saved) {
         const allComments = JSON.parse(saved);
         for (const songTitle in allComments) {
           allComments[songTitle] = allComments[songTitle].filter((c: any) => c.id !== commentId);
         }
-        localStorage.setItem('beccabear@13_song_comments', JSON.stringify(allComments));
+        localStorage.setItem('beccabear_song_comments', JSON.stringify(allComments));
       }
       return true;
     } catch (error) {
