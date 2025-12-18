@@ -1,0 +1,37 @@
+{
+  "short_name": "Rebecca's Boombox",
+  "name": "Rebecca's Music Player",
+  "description": "A customizable music and video player",
+  "icons": [
+    {
+      "src": "/images/appicon.webp",
+      "sizes": "120x120",
+      "type": "image/webp",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/app-192.webp",
+      "type": "image/webp",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/app-384.webp",
+      "type": "image/webp",
+      "sizes": "384x384",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/app-512.webp",
+      "type": "image/webp",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#86198f",
+  "background_color": "#581c87"
+}

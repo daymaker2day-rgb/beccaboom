@@ -1,0 +1,33 @@
+{
+  "short_name": "Rebecca's Boombox",
+  "name": "Rebecca's Music Player",
+  "icons": [
+    {
+      "src": "/images/appicon.webp",
+      "type": "image/webp",
+      "sizes": "120x120",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/appicon.webp",
+      "type": "image/webp",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/appicon.webp",
+      "type": "image/webp",
+      "sizes": "384x384"
+    },
+    {
+      "src": "/images/appicon.webp",
+      "type": "image/webp",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/beccaboom/",
+  "display": "standalone",
+  "theme_color": "#86198f",
+  "background_color": "#581c87"
+}
