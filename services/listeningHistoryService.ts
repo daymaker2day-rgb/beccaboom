@@ -6,7 +6,7 @@ export interface ListeningEvent {
   id?: string;
   songTitle: string;
   songFile: string;
-  userId: string; // Could be "beccabear@13" or device identifier
+  userId: string; // Could be "beccabear" or device identifier
   timestamp: number;
   duration: number; // How long they listened (in seconds)
   completed: boolean; // Did they listen to the whole song?
@@ -16,7 +16,7 @@ export interface ListeningEvent {
 class ListeningHistoryService {
   
   // Log when a song starts playing
-  async logPlayStart(songTitle: string, songFile: string, userId: string = 'beccabear@13'): Promise<string | null> {
+  async logPlayStart(songTitle: string, songFile: string, userId: string = 'beccabear'): Promise<string | null> {
     try {
       const event: ListeningEvent = {
         songTitle,
@@ -67,7 +67,7 @@ class ListeningHistoryService {
   }
 
   // Get listening history for a user
-  async getListeningHistory(userId: string = 'beccabear@13', daysBack: number = 30): Promise<ListeningEvent[]> {
+  async getListeningHistory(userId: string = 'beccabear', daysBack: number = 30): Promise<ListeningEvent[]> {
     try {
       const cutoffTime = Date.now() - (daysBack * 24 * 60 * 60 * 1000);
       
@@ -94,7 +94,7 @@ class ListeningHistoryService {
   }
 
   // Check if a song has been played
-  async hasSongBeenPlayed(songTitle: string, userId: string = 'beccabear@13'): Promise<boolean> {
+  async hasSongBeenPlayed(songTitle: string, userId: string = 'beccabear'): Promise<boolean> {
     try {
       const q = query(
         collection(getFirestore(), 'listening_history'),
@@ -112,7 +112,7 @@ class ListeningHistoryService {
   }
 
   // Get listening stats
-  async getListeningStats(userId: string = 'beccabear@13'): Promise<{
+  async getListeningStats(userId: string = 'beccabear'): Promise<{
     totalSongs: number;
     uniqueSongs: number;
     totalListeningTime: number;

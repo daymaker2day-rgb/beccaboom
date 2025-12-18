@@ -61,7 +61,7 @@ Listening events are logged when:
 
 ## 🔒 Privacy & Security
 
-- **User ID**: Currently set to "beccabear@13" (can be changed)
+- **User ID**: Currently set to "beccabear" (can be changed)
 - **No Personal Data**: Only tracks music listening, not personal info
 - **Local Control**: Data stored locally and in your Firebase project
 - **Export Options**: Full data export available anytime
